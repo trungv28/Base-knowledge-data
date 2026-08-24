@@ -1,0 +1,173 @@
+{"id":"trig.radian.definition","statement":"Radian measure theta equals arc length divided by radius.","source":"ACMMM032"}
+{"id":"trig.degree_radian_conversion","statement":"180 degrees equals pi radians.","source":"ACMMM032"}
+{"id":"trig.arc_length","statement":"Arc length is r*theta when theta is measured in radians.","source":"ACMMM033"}
+{"id":"trig.sector_area","statement":"Sector area is r^2*theta/2 when theta is measured in radians.","source":"ACMMM033"}
+{"id":"trig.unit_circle.sin_cos","statement":"On the unit circle, cos(theta) is the x-coordinate and sin(theta) is the y-coordinate.","source":"ACMMM034"}
+{"id":"trig.unit_circle.tan","statement":"tan(theta)=sin(theta)/cos(theta) when cos(theta) is nonzero.","source":"ACMMM034"}
+{"id":"trig.exact_values.special_angles","statement":"sin, cos, and tan have exact values at integer multiples of pi/6 and pi/4.","source":"ACMMM035"}
+{"id":"trig.graph.sin_zero","statement":"The smallest positive zero of sin(x) is pi.","source":"ACMMM036"}
+{"id":"trig.graph.cos_zero","statement":"The smallest positive zero of cos(x) is pi/2.","source":"ACMMM036"}
+{"id":"trig.graph.sin_range","statement":"The range of sin(x) is [-1,1].","source":"ACMMM036"}
+{"id":"trig.graph.cos_range","statement":"The range of cos(x) is [-1,1].","source":"ACMMM036"}
+{"id":"trig.tan.vertical_asymptotes","statement":"tan(x) has vertical asymptotes at x=pi/2+k*pi for integers k.","source":"ACMMM036"}
+{"id":"trig.period.definition","statement":"A fundamental period is the smallest positive p such that f(x+p)=f(x) wherever both sides are defined.","source":"ACMMM034"}
+{"id":"trig.period.sin_base","statement":"The fundamental period of sin(x) is 2*pi.","source":"ACMMM034"}
+{"id":"trig.period.cos_base","statement":"The fundamental period of cos(x) is 2*pi.","source":"ACMMM034"}
+{"id":"trig.period.tan_base","statement":"The fundamental period of tan(x) is pi.","source":"ACMMM034"}
+{"id":"trig.period.linear_argument_scaling","statement":"If g(x) has fundamental period T, then g(b*x+c) has fundamental period T/abs(b), for b != 0.","source":"ACMMM038"}
+{"id":"trig.amplitude.sin_cos","statement":"For A*sin(x) or A*cos(x), the amplitude is abs(A).","source":"ACMMM037"}
+{"id":"trig.amplitude_invariance_period","statement":"Multiplying a nonconstant sine or cosine function by a nonzero constant changes amplitude but not period.","source":"ACMMM037"}
+{"id":"trig.phase_shift.horizontal","statement":"Replacing x by x+c shifts the graph horizontally by -c.","source":"ACMMM039"}
+{"id":"trig.phase_shift_invariance_period","statement":"Replacing x by x+c shifts the graph but does not change the period.","source":"ACMMM039"}
+{"id":"trig.phase_relation.sin_plus_half_pi","statement":"sin(x+pi/2)=cos(x).","source":"ACMMM039"}
+{"id":"trig.phase_relation.cos_minus_half_pi","statement":"cos(x-pi/2)=sin(x).","source":"ACMMM039"}
+{"id":"trig.identity.sin_sum","statement":"sin(x+y)=sin(x)*cos(y)+cos(x)*sin(y).","source":"ACMMM041"}
+{"id":"trig.identity.sin_difference","statement":"sin(x-y)=sin(x)*cos(y)-cos(x)*sin(y).","source":"ACMMM041"}
+{"id":"trig.identity.cos_sum","statement":"cos(x+y)=cos(x)*cos(y)-sin(x)*sin(y).","source":"ACMMM041"}
+{"id":"trig.identity.cos_difference","statement":"cos(x-y)=cos(x)*cos(y)+sin(x)*sin(y).","source":"ACMMM041"}
+{"id":"trig.identity.tan_sum","statement":"tan(x+y)=(tan(x)+tan(y))/(1-tan(x)*tan(y)) when defined.","source":"ACMMM041"}
+{"id":"trig.identity.tan_difference","statement":"tan(x-y)=(tan(x)-tan(y))/(1+tan(x)*tan(y)) when defined.","source":"ACMMM041"}
+{"id":"trig.model.sinusoid_features","statement":"For y=A*sin(B*x+C)+D, period is 2*pi/abs(B) and midline is y=D.","source":"ACMMM042"}
+{"id":"trig.model.sinusoid_extrema","statement":"For y=A*sin(B*x+C)+D, maximum is D+abs(A) and minimum is D-abs(A).","source":"ACMMM042"}
+{"id":"trig.equation.sin_special","statement":"Simple equations sin(x)=a on 0<=x<2*pi can be solved using exact special-angle values.","source":"ACMMM043"}
+{"id":"trig.equation.cos_special","statement":"Simple equations cos(x)=a on 0<=x<2*pi can be solved using exact special-angle values.","source":"ACMMM043"}
+{"id":"trig.equation.tan_special","statement":"Simple equations tan(x)=a on 0<=x<2*pi can be solved using exact special-angle values and period pi.","source":"ACMMM043"}
+
+{"id": "func.midpoint.formula", "statement": "Given two points (x1,y1) and (x2,y2), the midpoint is ((x1+x2)/2,(y1+y2)/2)", "source": "ACMMM001"}
+
+{"id":"func.direct_proportion.equation","statement":"Two variables x and y are in direct proportion if y = kx for some constant k ≠ 0.","source":"ACMMM002"}
+{"id":"func.direct_proportion.constant_ratio","statement":"If x and y are in direct proportion, then y/x = k is constant for all nonzero x.","source":"ACMMM002"}
+{"id":"func.direct_proportion.zero","statement":"If x and y are in direct proportion (y = kx), then y = 0 when x = 0.","source":"ACMMM002"}
+{"id":"func.linearly_related.equation","statement":"Two variables x and y are linearly related if their relationship is y = mx + b for constants m and b.","source":"ACMMM002"}
+{"id":"func.linearly_related.graph","statement":"When linearly related variables (x, y) are graphed, they lie on a straight line.","source":"ACMMM002"}
+{"id":"func.linearly_related.rate","statement":"For linearly related variables, the change in y is proportional to the change in x: Δy = m·Δx, where m is the constant rate of change.","source":"ACMMM002"}
+{"id":"func.direct_prop_vs_linear", "statement": "Direct proportion is a special case of linear relation with b = 0: y = kx is linear with y = mx + b where m = k and b = 0.", "source": "ACMMM002"}
+
+{"id": "func.linear_form.definition", "statement": "An equation of the form y = mx + c, where m and c are constants, represents a straight line in the coordinate plane.", "source": "ACMMM003"}
+{"id": "func.linear_form.slope", "statement": "The slope (gradient) of y = mx + c is m, equal to (y₂ - y₁)/(x₂ - x₁) for any two distinct points on the line.", "source": "ACMMM003"}
+{"id": "func.linear_form.slope_sign", "statement": "If m > 0 the line rises left to right; if m < 0 it falls; if m = 0 it is horizontal.", "source": "ACMMM003"}
+{"id": "func.linear_form.y_intercept", "statement": "The y-intercept of y = mx + c is the point (0, c).", "source": "ACMMM003"}
+{"id": "func.linear_form.x_intercept", "statement": "The x-intercept of y = mx + c is the point (-c/m, 0), defined when m ≠ 0.", "source": "ACMMM003"}
+
+{"id": "func.linear_equation.slope_yint", "statement": "A line with slope m and y-intercept c has equation y = mx + c.", "source": "ACMMM004"}
+{"id": "func.linear_equation.slope_point", "statement": "A line with slope m passing through point (x₁, y₁) has equation y - y₁ = m(x - x₁).", "source": "ACMMM004"}
+{"id": "func.linear_equation.two_points", "statement": "The slope of a line through two distinct points (x₁, y₁) and (x₂, y₂) is m = (y₂ - y₁)/(x₂ - x₁), then use point-slope form to find the equation.", "source": "ACMMM004"}
+{"id": "func.linear_equation.horizontal", "statement": "A horizontal line through point (a, b) has equation y = b.", "source": "ACMMM004"}
+{"id": "func.linear_equation.vertical", "statement": "A vertical line through point (a, b) has equation x = a; it has undefined slope.", "source": "ACMMM004"}
+{"id": "func.linear_parallel.slope", "statement": "Two distinct lines are parallel if and only if they have equal slopes.", "source": "ACMMM004"}
+{"id": "func.linear_perpendicular.slope", "statement": "Two lines with slopes m₁ and m₂ are perpendicular if and only if m₁ × m₂ = -1.", "source": "ACMMM004"}
+
+{"id": "func.linear_solve.one_step", "statement": "A linear equation of the form ax = b has solution x = b/a, defined when a ≠ 0.", "source": "ACMMM005"}
+{"id": "func.linear_solve.two_step", "statement": "A linear equation of the form ax + b = c has solution x = (c - b)/a, defined when a ≠ 0.", "source": "ACMMM005"}
+{"id": "func.linear_solve.general", "statement": "A linear equation of the form ax + b = cx + d has solution x = (d - b)/(a - c), defined when a ≠ c.", "source": "ACMMM005"}
+
+{"id": "func.quad_relation.definition", "statement": "A quadratic relationship between variables x and y has the form y = ax² + bx + c, where a ≠ 0.", "source": "ACMMM006"}
+{"id": "func.quad_relation.second_diff_const", "statement": "For equally spaced x-values, if the second differences of the y-values are constant, the relationship is quadratic.", "source": "ACMMM006"}
+{"id":"func.quad_relation.second_diff_nonzero","statement":"For equally spaced x-values, a quadratic relationship y = ax^2 + bx + c with a ≠ 0 has constant second differences that are non-zero.","source":"ACMMM006"}
+
+{"id": "func.quad_graph.vertex_turning_point", "statement": "The turning point of y = a(x−b)² + c is (b, c).", "source": "ACMMM007"}
+{"id": "func.quad_graph.vertex_axis", "statement": "The axis of symmetry of y = a(x−b)² + c is x = b.", "source": "ACMMM007"}
+{"id": "func.quad_graph.factor_x_intercept", "statement": "The x-intercepts of y = a(x−b)(x−c) are x = b and x = c.", "source": "ACMMM007"}
+{"id": "func.quad_graph.factor_axis", "statement": "The axis of symmetry of y = a(x−b)(x−c) is x = (b+c)/2.", "source": "ACMMM007"}
+{"id": "func.quad_graph.factor_turning_point_x", "statement": "The x-coordinate of the turning point of y = a(x−b)(x−c) is (b+c)/2.", "source": "ACMMM007"}
+{"id":"func.quad_graph.factor_turning_point_y","statement":"The y-coordinate of the turning point of y = a(x−b)(x−c) is a((b+c)/2 − b)((b+c)/2 − c), which simplifies to −a(b−c)^2/4.","source":"ACMMM007"}
+{"id": "func.quad_graph.concavity_positive", "statement": "If a > 0, the parabola opens upward and the turning point is a minimum.", "source": "ACMMM007"}
+{"id": "func.quad_graph.concavity_negative", "statement": "If a < 0, the parabola opens downward and the turning point is a maximum.", "source": "ACMMM007"}
+
+{"id": "func.quad.formula", "statement": "The solutions of ax² + bx + c = 0 are x = (−b ± √(b²−4ac)) / 2a.", "source": "ACMMM008"}
+{"id": "func.quad.discriminant_definition", "statement": "The discriminant of ax² + bx + c is Δ = b² − 4ac.", "source": "ACMMM008"}
+{"id": "func.quad.discriminant_positive", "statement": "If Δ > 0, the equation ax² + bx + c = 0 has two distinct real solutions.", "source": "ACMMM008"}
+{"id":"func.quad.discriminant_zero","statement":"If Δ = 0, the equation ax^2 + bx + c = 0 has exactly one real solution x = −b/(2a).","source":"ACMMM008"}
+{"id": "func.quad.discriminant_negative", "statement": "If Δ < 0, the equation ax² + bx + c = 0 has no real solutions.", "source": "ACMMM008"}
+{"id": "func.quad.complete_square_identity", "statement": "x² + bx = (x + b/2)² − (b/2)².", "source": "ACMMM008"}
+{"id":"func.quad.complete_square_general","statement":"For a ≠ 0, ax^2 + bx + c = a(x + b/(2a))^2 + (c − b^2/(4a)).","source":"ACMMM008"}
+
+{"id":"func.quad_general.y_intercept","statement":"The y-intercept of y = ax² + bx + c is c.","source":"ACMMM011"}
+{"id":"func.quad_general.axis","statement":"The axis of symmetry of y = ax² + bx + c is x = −b/2a.","source":"ACMMM011"}
+
+{"id":"func.inv_proportion.definition","statement":"y is inversely proportional to x if y = k/x for some constant k ≠ 0; this applies for x ≠ 0.","source":"ACMMM012"}
+{"id":"func.hyperbola.vertical_asymptote","statement":"The vertical asymptote of y = a/(x−b) is x = b.","source":"ACMMM013"}
+{"id":"func.hyperbola.horizontal_asymptote","statement":"The horizontal asymptote of y = a/(x−b) + d is y = d.","source":"ACMMM013"}
+
+{"id":"func.pow.natural_even","statement":"For y = x^n with n a positive even integer, as x → ∞, y → ∞ and as x → −∞, y → ∞.","source":"ACMMM014"}
+{"id":"func.pow.natural_odd","statement":"For y = x^n with n a positive odd integer, as x → ∞, y → ∞ and as x → −∞, y → −∞.","source":"ACMMM014"}
+{"id":"func.pow.neg1","statement":"y = 1/x has asymptotes x = 0 and y = 0; as x → ∞, y → 0⁺; as x → −∞, y → 0⁻.","source":"ACMMM014"}
+{"id":"func.power.sqrt","statement":"y = x^(1/2) = √x is defined for x ≥ 0, passes through (0,0) and (1,1), and y → ∞ as x → ∞.","source":"ACMMM014"}
+
+{"id":"func.poly.degree","statement":"The degree of a polynomial is the highest power of x with a non-zero coefficient.","source":"ACMMM015"}
+{"id":"func.poly.leading_coefficient","statement":"The leading coefficient of a polynomial is the coefficient of the term with the highest power of x.","source":"ACMMM015"}
+{"id":"func.poly.coefficient","statement":"The coefficient of x^k in a polynomial is the constant multiplying the x^k term, and is zero if the term is absent.","source":"ACMMM015"}
+
+{"id":"func.poly.quadratic_two_linear","statement":"(x−a)(x−b) = x² − (a+b)x + ab.","source":"ACMMM016"}
+{"id":"func.poly.quadratic_repeated","statement":"(x−a)² = x² − 2ax + a².","source":"ACMMM016"}
+{"id":"func.poly.quadratic_two_linear_leading","statement":"(px−a)(qx−b) = pqx² − (pb+qa)x + ab.","source":"ACMMM016"}
+{"id":"func.poly.cubic_three_linear","statement":"(x−a)(x−b)(x−c) = x³ − (a+b+c)x² + (ab+bc+ca)x − abc.","source":"ACMMM016"}
+{"id":"func.poly.cubic_repeated","statement":"(x−a)³ = x³ − 3ax² + 3a²x − a³.","source":"ACMMM016"}
+{"id":"func.poly.cubic_repeated_distinct","statement":"(x−a)²(x−b) = x³ − (2a+b)x² + (a²+2ab)x − a²b.","source":"ACMMM016"}  
+
+{"id":"func.cubic.vertex_form.turning_point_x","statement":"The x-coordinate of the stationary point of inflection of y = a(x−b)³ + c is b.","source":"ACMMM017"}
+{"id":"func.cubic.vertex_form.turning_point_y","statement":"The y-coordinate of the stationary point of inflection of y = a(x−b)³ + c is c.","source":"ACMMM017"}
+{"id":"func.cubic.factor_form.x_intercepts","statement":"The x-intercepts of y = k(x−a)(x−b)(x−c) are x = a, x = b, and x = c.","source":"ACMMM017"}
+{"id":"func.cubicd.pos_pos_inf","statement":"For y = ax³ + bx² + cx + d with a > 0, as x → ∞, y → ∞.","source":"ACMMM017"}
+{"id":"func.cubic.pos_neg_inf","statement":"For y = ax³ + bx² + cx + d with a > 0, as x → −∞, y → −∞.","source":"ACMMM017"}
+{"id":"func.cubic.neg_pos_inf","statement":"For y = ax³ + bx² + cx + d with a < 0, as x → ∞, y → −∞.","source":"ACMMM017"}
+{"id":"func.cubic.neg_neg_inf","statement":"For y = ax³ + bx² + cx + d with a < 0, as x → −∞, y → ∞.","source":"ACMMM017"}
+
+{"id":"func.poly.factor_theorem","statement":"(x−a) is a factor of polynomial p(x) if and only if p(a) = 0.","source":"ACMMM018"}
+{"id":"func.poly.cubic_factor_quotient","statement":"If (x−a) is a factor of a cubic p(x), then p(x) = (x−a)q(x) where q(x) is a quadratic polynomial.","source":"ACMMM018"}
+
+{"id":"func.poly.repeated_root","statement":"If p(x) = (x−a)²(x−b), then p(x) = 0 has solutions x = a (repeated) and x = b.","source":"ACMMM019"}
+
+{"id":"func.graph_relation.standard_circle","statement":"The graph of x^2 + y^2 = r^2 is a circle with centre (0, 0) and radius r.","source":"ACMMM020"}
+{"id":"func.graph_relation.general_circle","statement":"The graph of (x − a)^2 + (y − b)^2 = r^2 is a circle with centre (a, b) and radius r.","source":"ACMMM020"}
+
+{"id":"func.notation.evaluate","statement":"f(a) is the value of f(x) obtained by substituting x = a into the rule for f.","source":"ACMMM023"}
+
+{"id":"func.transform.vertical_translation","statement":"The graph of y = f(x) + a is the graph of y = f(x) shifted vertically by a units (up if a > 0, down if a < 0).","source":"ACMMM025"}
+{"id":"func.transform.horizontal_translation","statement":"The graph of y = f(x+b) is the graph of y = f(x) shifted horizontally by −b units (right if −b > 0, left if −b < 0).","source":"ACMMM025"}
+
+{"id":"func.transform.vertical_dilation","statement":"The graph of y = cf(x) is the graph of y = f(x) scaled vertically by a factor of c.","source":"ACMMM026"}
+{"id":"func.transform.horizontal_dilation","statement":"The graph of y = f(kx) is the graph of y = f(x) scaled horizontally by a factor of 1/k.","source":"ACMMM026"}
+
+{"id":"prob.combination.definition","statement":"A combination is a selection of r objects from n distinct objects where order does not matter.","source":"ACMMM044"}
+{"id":"prob.combination.formula","statement":"The number of combinations of r objects from n distinct objects is C(n,r) = n! / (r! * (n-r)!).","source":"ACMMM044"}
+{"id":"prob.combination.range","statement":"For combinations of r objects from n distinct objects, r must satisfy 0 <= r <= n.","source":"ACMMM044"}
+{"id":"prob.combination.boundary_zero","statement":"C(n,0) = 1 for any non-negative integer n: there is exactly one way to choose nothing.","source":"ACMMM044"}
+{"id":"prob.combination.boundary_self","statement":"C(n,n) = 1 for any non-negative integer n: there is exactly one way to choose all objects.","source":"ACMMM044"}
+{"id":"prob.combination.symmetry","statement":"C(n,r) = C(n, n-r) for 0 <= r <= n.","source":"ACMMM044"}
+
+{"id":"prob.binom.form","statement":"The expansion of (x+y)^n for positive integer n is the sum over r from 0 to n of (n choose r) * x^(n-r) * y^r.","source":"ACMMM046"}
+{"id":"prob.binom.term_index","statement":"In the expansion of (x+y)^n, the (r+1)th term corresponds to r = 0, 1, ..., n.","source":"ACMMM046"}
+
+{"id":"prob.binom.coeff","statement":"The numbers (n choose r) are called binomial coefficients because they are the coefficients of x^(n-r) * y^r in the expansion of (x+y)^n.","source":"ACMMM047"}
+
+{"id":"prob.pascal.structure","statement":"The n-th row of Pascal's triangle consists of the binomial coefficients (n choose r) for r = 0, 1, ..., n.","source":"ACMMM048"}
+{"id":"prob.pascal.interior_entry","statement":"Each interior entry of Pascal's triangle is the sum of the two entries directly above it: (n choose r) = (n-1 choose r-1) + (n-1 choose r).","source":"ACMMM048"}
+{"id":"prob.pascal.row_sum","statement":"The sum of all entries in the n-th row of Pascal's triangle is 2^n.","source":"ACMMM048"}
+
+{"id":"prob.outcome.definition","statement":"An outcome is a single possible result of a chance experiment.","source":"ACMMM049"}
+{"id":"prob.sample_space.definition","statement":"The sample space of a chance experiment is the set of all possible outcomes.","source":"ACMMM049"}
+{"id":"prob.event.definition","statement":"An event is a set of outcomes, that is, a subset of the sample space.","source":"ACMMM049"}
+
+{"id":"prob.set.complement","statement":"The complement of an event A, denoted A-bar or A', is the set of all outcomes in the sample space that are not in A.","source":"ACMMM050"}
+{"id":"prob.set.intersection","statement":"The intersection of events A and B, denoted A ∩ B, is the set of outcomes that belong to both A and B.","source":"ACMMM050"}
+{"id":"prob.set.union","statement":"The union of events A and B, denoted A ∪ B, is the set of outcomes that belong to A or B or both.","source":"ACMMM050"}
+{"id":"prob.mutually_exclusive.definition","statement":"Two events A and B are mutually exclusive if they have no outcomes in common, that is, A ∩ B is the empty set.","source":"ACMMM050"}
+
+{"id":"prob.definition.probability_measure","statement":"The probability of an event is a number between 0 and 1 (inclusive) that measures the likelihood of that event occurring.","source":"ACMMM052"}
+{"id":"prob.definition.impossible","statement":"An event with probability 0 cannot occur.","source":"ACMMM052"}
+{"id":"prob.definition.certain","statement":"An event with probability 1 is certain to occur.","source":"ACMMM052"}
+{"id":"prob.definition.complement","statement":"P(A^c) = 1 - P(A).","source":"ACMMM052"}
+{"id":"prob.definition.sample_space","statement":"The sample space is the set of all possible outcomes of a random experiment.","source":"ACMMM052"}
+{"id":"prob.definition.event","statement":"An event is a subset of the sample space.","source":"ACMMM052"}
+{"id":"prob.equally_likely.formula","statement":"For equally likely outcomes, P(A) = (number of outcomes in A) / (total number of outcomes in the sample space).","source":"ACMMM052"}
+
+{"id":"prob.rule.addition","statement":"P(A union B) = P(A) + P(B) - P(A intersection B).","source":"ACMMM054"}
+
+{"id":"prob.estimation.relative_frequency","statement":"The relative frequency of an event, (number of times the event occurs)/(total number of observations), is a point estimate of the probability of that event.","source":"ACMMM055"}
+
+{"id":"prob.conditional.definition","statement":"The conditional probability of event A given event B is P(A|B) = P(A \\cap B) / P(B), defined when P(B) > 0.","source":"ACMMM056"}
+
+{"id":"prob.independence.definition","statement":"Events A and B are independent if and only if P(A|B) = P(A), provided P(B) > 0.","source":"ACMMM058"}
+
+{"id":"prob.independence.product_rule","statement":"If A and B are independent, then P(A \\cap B) = P(A)P(B).","source":"ACMMM059"}
