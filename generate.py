@@ -4,6 +4,21 @@ from pathlib import Path
 import sympy
 import solver
 
+def term(coef, suffix=""):
+    if coef == 0:
+        return ""
+    body = suffix if abs(coef) == 1 and suffix else f"{abs(coef)}{suffix}"
+    return f" {'−' if coef < 0 else '+'} {body}"
+
+
+def linfac(a):
+    return f"(x − {a})" if a > 0 else f"(x + {-a})"
+
+
+def shift(v, pos, neg):
+    return f"{abs(v)} unit{'' if abs(v) == 1 else 's'} {pos if v > 0 else neg}"
+
+
 SAFE = {
     "abs": abs, "min": min, "max": max, "int": int, "str": str, "len": len,
     "sum": sum, "sorted": sorted, "set": set, "range": range, "bool": bool,
@@ -20,6 +35,7 @@ SAFE = {
     "poly_leading_coefficient": solver.poly_leading_coefficient,
     "poly_coefficient": solver.poly_coefficient,
     "poly_cubic_factor_quotient": solver.poly_cubic_factor_quotient,
+    "term": term, "linfac": linfac, "shift": shift,
 }
 
 MAX_TRIES = 500

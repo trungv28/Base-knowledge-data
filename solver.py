@@ -259,6 +259,12 @@ def poly_cubic_factor_quotient(a, b, c, d):
 
     return " ".join(parts)
 
+def cubic_factor_quotient(a_val, b_val, c_val, d_val):
+    if poly_factor_theorem(a_val, b_val, c_val, d_val) != 0:
+        return "not a factor"
+    return poly_cubic_factor_quotient(a_val, b_val, c_val, d_val)
+
+
 def poly_repeated_root(a, b):
     return f"x = {a} (repeated), x = {b}"
 
@@ -1064,7 +1070,7 @@ def poly_match_expanded(sum_val, prod_val):
 def cubic_compare_forms(a_val, b_val, c_val, rep_val):
     coeff_three_linear = -(a_val + b_val + c_val)
     coeff_repeated = -3 * rep_val
-    larger = "three_linear" if coeff_three_linear > coeff_repeated else "repeated"
+    larger = "first" if coeff_three_linear > coeff_repeated else "second"
     return larger
 
 def cubic_vertex_form(a_val, b_val, c_val, n_val):
@@ -1122,10 +1128,6 @@ def cubic_endbehavior_from_coeffs(a_val, b_val, c_val, d_val, test_x, large_x):
     y_at_large = a_val * large_x**3 + b_val * large_x**2 + c_val * large_x + d_val
     sign_at_large = "positive" if y_at_large > 0 else "negative"
     return f"{y_at_test}, {y_at_large}, {sign_at_large}"
-
-def factor_theorem_verify(b_val, c_val, d_val, a_val):
-    p_a = poly_factor_theorem(a_val, b_val, c_val, d_val)
-    return "factor" if p_a == 0 else "not a factor"
 
 def repeated_root_identify(a_val, b_val):
     return str(2 * a_val + b_val)
@@ -1197,7 +1199,7 @@ def transform_reverse_find_original(c_val, v_val, h_val, final_h, final_v):
 def transform_compare_outputs(c_val, a_val, eval_x):
     y1 = c_val * eval_x**2 + a_val
     y2 = c_val * (eval_x**2 + a_val)
-    return "dilation_first" if y1 > y2 else "translation_first"
+    return "first" if y1 > y2 else "second"
 
 def transform_horizontal_dilation_eval(k_val, h_val, eval_x):
     transformed_x = k_val * (eval_x - h_val)
@@ -1211,10 +1213,6 @@ def combination_compute_compare(n_val, r_val, n_minus_r_val):
     equal = "yes" if c1 == c2 else "no"
     return f"{c1}, {c2}, {equal}"
 
-
-def combination_boundary_sum(n_val, r_val):
-    total = math.comb(n_val, 0) + math.comb(n_val, n_val) + math.comb(n_val, 1)
-    return pf(total, math.comb(n_val, r_val))
 
 def combination_range_valid(n_val, r_val):
     if r_val < 0 or r_val > n_val:

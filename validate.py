@@ -1,3 +1,4 @@
+import ast, re
 import argparse, collections, inspect, itertools, json, random, sys
 from pathlib import Path
 
@@ -172,12 +173,22 @@ def main():
                         f"intermediate outputs must round-trip as text")
                     break
             question = c["template"].format(**vals)
+            # a value can be shown through a derived display string ("3 units left"
+            # encodes shift_val=-3), so treat vars feeding a printed derive as shown
+            shown_vars = set(re.findall(r"\{(\w+)\}", c["template"]))
+            for _ in range(len(c.get("derive") or {})):
+                for nm, ex in (c.get("derive") or {}).items():
+                    if nm in shown_vars:
+                        shown_vars |= {x.id for x in ast.walk(ast.parse(ex, mode="eval"))
+                                       if isinstance(x, ast.Name)}
             for node in c["graph"]["nodes"]:
                 for name, src in node["inputs"].items():
                     if src["source"] != "question":
                         continue
                     val = str(vals.get(src["field"], ""))
-                    if val and val not in question:
+                    shown = question.replace("−", "-").replace("+ ", "+")
+                    shown = re.sub(r"- (?=\d)", "-", shown)
+                    if val and val not in shown and src["field"] not in shown_vars:
                         bad("graphs", c["id"],
                             f"node {node['node_id']} binds {src['field']}={val!r}, "
                             f"which the question never shows")
