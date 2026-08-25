@@ -144,7 +144,7 @@ def main():
             continue
         for p in check_graph(g):
             bad("graphs", c["id"], p)
-        used = {n["atom_id"] for n in g["nodes"]}
+        used = {n["atom_id"] for n in g["nodes"] if n.get("atom_id")}
         if used - set(c["atoms"]):
             bad("graphs", c["id"], f"graph uses atoms not declared: {used - set(c['atoms'])}")
         if set(c["atoms"]) - used:

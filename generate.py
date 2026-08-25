@@ -12,6 +12,7 @@ SAFE = {
     "Fraction": Fraction, "sqrt": sympy.sqrt,
     "pi": sympy.pi, "ceiling": sympy.ceiling,
     "pf": solver.pf,
+    "ordinal": solver.ordinal,
     "pi_coeff": solver._pi_coeff_str,
     "sin_base_angle": solver.sin_base_angle,
     "poly_factor_theorem": solver.poly_factor_theorem,

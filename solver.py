@@ -2,6 +2,13 @@ from fractions import Fraction
 import math
 from sympy import sqrt, Rational
 
+def ordinal(n):
+    n = int(n)
+    if 10 <= n % 100 <= 20:
+        return f"{n}th"
+    return f"{n}{ {1:'st', 2:'nd', 3:'rd'}.get(n % 10, 'th') }"
+
+
 def midpoint_compute_x(x1, y1, x2, y2):
     return pf(x1 + x2, 2)
 
@@ -1306,7 +1313,7 @@ def composite_combination_symmetry_application(n_val, r_val, n_minus_r_val, know
 def composite_binom_expand_specific(n_val, k_val, n_minus_k_val):
     coeff = math.comb(n_val, k_val)
     term_number = k_val + 1
-    return f"{coeff}, {term_number}th"
+    return f"{coeff}, {ordinal(term_number)}"
 
 
 def composite_binom_coeff_sum(n_val):
@@ -1349,7 +1356,7 @@ def composite_binom_row_sum_compare(n_val, m_val):
 def composite_binom_specific_term_value(n_val, k_val, n_minus_k_val):
     coeff = math.comb(n_val, k_val) * (2 ** (n_minus_k_val))
     term_number = k_val + 1
-    return f"{coeff}, {term_number}th"
+    return f"{coeff}, {ordinal(term_number)}"
 
 
 def composite_pascal_symmetry_sum(n_val, r_val, n_minus_r_val):

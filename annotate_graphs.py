@@ -43,7 +43,7 @@ def build(composite_path=None, graphs_path=None):
             nid, expr = n["node_id"], n["expr"]
             nodes.append({
                 "node_id": nid,
-                "atom_id": n["atom_id"],
+                "atom_id": n.get("atom_id"),
                 "inputs": wiring(expr, prior, qvars),
                 "expr": expr,
                 "outputs": {"value": {"type": "expression"}},
@@ -52,6 +52,11 @@ def build(composite_path=None, graphs_path=None):
             })
             prior.add(nid)
         c["graph"] = {"nodes": nodes, "final": f"{spec[-1]['node_id']}.value"}
+        seen = []
+        for nd in nodes:
+            if nd["atom_id"] and nd["atom_id"] not in seen:
+                seen.append(nd["atom_id"])
+        c["atoms"] = seen
         c = {k: c[k] for k in ORDER if k in c}
         out.append(json.dumps(c, separators=(",", ":"),
                               ensure_ascii=False) + "\n")
