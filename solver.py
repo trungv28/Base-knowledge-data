@@ -1152,7 +1152,8 @@ def circle_standard_point(r_sq_val, x_val):
 
 
 def circle_general_center(h_val, k_val, r_sq_val, offset_x, offset_y):
-    return f"({h_val}, {k_val})"
+    import sympy as _s
+    return f"({h_val}, {k_val}), {_s.sqrt(r_sq_val)}"
 
 def factor_circle_intersect(b_val, c_val, d_val, a_val, r_val):
     p_a = poly_factor_theorem(a_val, b_val, c_val, d_val)
