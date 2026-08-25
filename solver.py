@@ -983,7 +983,7 @@ def func_quad_complete_square_general_use(a, b, c):
     }
 
 
-def composite_quad_hyperbola_intersect(c_val, axis_val, d_val):
+def quad_hyperbola_intersect(c_val, axis_val, d_val):
     h = axis_val
     d = d_val
     y_int = c_val
@@ -991,30 +991,30 @@ def composite_quad_hyperbola_intersect(c_val, axis_val, d_val):
     return str(int(k)) if k == int(k) else str(k)
 
 
-def composite_hyperbola_limit_direction(a_val, b_val, d_val, large_x):
+def hyperbola_limit_direction(a_val, b_val, d_val, large_x):
     asymptote = Fraction(d_val)
     g_val = Fraction(a_val, large_x - b_val) + asymptote
     return "greater" if g_val > asymptote else "less"
 
 
-def composite_quad_power_vertex(a_val, axis_val, c_val, n_val):
+def quad_power_vertex(a_val, axis_val, c_val, n_val):
     b = -2 * a_val * axis_val
     vertex_y = a_val * axis_val**2 + b * axis_val + c_val
     power_val = axis_val ** n_val
     return f"{int(vertex_y) if vertex_y == int(vertex_y) else vertex_y}, {power_val}"
 
 
-def composite_invprop_sqrt_solve(y_val, x_val, target_val):
+def invprop_sqrt_solve(y_val, x_val, target_val):
     k = y_val * x_val
     return pf(k, target_val ** 2)
 
 
-def composite_hyperbola_quad_axis(b_val, c_val, axis_val):
+def hyperbola_quad_axis(b_val, c_val, axis_val):
     b_quad = -2 * 1 * axis_val
     return str(int(b_quad)) if b_quad == int(b_quad) else str(b_quad)
 
 
-def composite_power_eval_compare(n_even, n_odd, eval_val, neg_val):
+def power_eval_compare(n_even, n_odd, eval_val, neg_val):
     import sympy as _s
     candidates = [("f", _s.Integer(eval_val) ** n_even),
                   ("g", _s.Integer(eval_val) ** n_odd),
@@ -1024,7 +1024,7 @@ def composite_power_eval_compare(n_even, n_odd, eval_val, neg_val):
     return f"{largest}, {undefined_at_neg}"
 
 
-def composite_asymptote_vertex_y(a_val, b_val, d_val, a_quad):
+def asymptote_vertex_y(a_val, b_val, d_val, a_quad):
     p = b_val
     q = d_val
     b_quad = -2 * a_quad * p
@@ -1032,48 +1032,48 @@ def composite_asymptote_vertex_y(a_val, b_val, d_val, a_quad):
     return str(int(vertex_y)) if vertex_y == int(vertex_y) else str(vertex_y)
 
 
-def composite_invprop_k_solve(k_val, target_val):
+def invprop_k_solve(k_val, target_val):
     return pf(k_val, target_val)
 
-def composite_poly_degree_coefficient(a_val, n_val, b_val, m_val, c_val, d_val, k_val):
+def poly_degree_coefficient(a_val, n_val, b_val, m_val, c_val, d_val, k_val):
     degree = poly_degree(a_val, n_val, b_val, m_val, c_val, d_val)
     leading_coeff = poly_leading_coefficient(a_val, n_val, b_val, m_val, c_val, d_val)
     coeff_k = poly_coefficient(a_val, n_val, b_val, m_val, c_val, d_val, k_val)
     return f"{degree}, {leading_coeff}, {coeff_k}"
 
-def composite_quadratic_expand_compare(a_val, b_val, rep_val):
+def quadratic_expand_compare(a_val, b_val, rep_val):
     const_two_linear = a_val * b_val
     const_repeated = rep_val * rep_val
     diff = const_repeated - const_two_linear
     return str(int(diff)) if diff == int(diff) else str(diff)
 
 
-def composite_quadratic_leading_expand(p_val, a_val, q_val, b_val):
+def quadratic_leading_expand(p_val, a_val, q_val, b_val):
     coeff_x2 = p_val * q_val
     coeff_x = -(p_val * b_val + q_val * a_val)
     const = a_val * b_val
     return f"{coeff_x2}, {coeff_x}, {const}"
 
 
-def composite_cubic_three_linear_coeffs(a_val, b_val, c_val):
+def cubic_three_linear_coeffs(a_val, b_val, c_val):
     coeff_x2 = -(a_val + b_val + c_val)
     const = -(a_val * b_val * c_val)
     return f"{coeff_x2}, {const}"
 
 
-def composite_cubic_repeated_expand(a_val):
+def cubic_repeated_expand(a_val):
     coeff_x2 = -3 * a_val
     verification = "yes" if coeff_x2 == -3 * a_val else "no"
     return f"{coeff_x2}, {verification}"
 
 
-def composite_cubic_repeated_distinct_coeffs(a_val, b_val):
+def cubic_repeated_distinct_coeffs(a_val, b_val):
     coeff_x2 = -(2 * a_val + b_val)
     const = -(a_val * a_val * b_val)
     return f"{coeff_x2}, {const}"
 
 
-def composite_poly_match_expanded(sum_val, prod_val):
+def poly_match_expanded(sum_val, prod_val):
     a_plus_b = sum_val
     a_times_b = prod_val
     degree = 2
@@ -1081,19 +1081,19 @@ def composite_poly_match_expanded(sum_val, prod_val):
     return f"{a_plus_b}, {a_times_b}, {degree}, {leading_coeff}"
 
 
-def composite_cubic_compare_forms(a_val, b_val, c_val, rep_val):
+def cubic_compare_forms(a_val, b_val, c_val, rep_val):
     coeff_three_linear = -(a_val + b_val + c_val)
     coeff_repeated = -3 * rep_val
     larger = "three_linear" if coeff_three_linear > coeff_repeated else "repeated"
     return larger
 
-def composite_cubic_vertex_form(a_val, b_val, c_val, n_val):
+def cubic_vertex_form(a_val, b_val, c_val, n_val):
     turning_point = f"({b_val}, {c_val})"
     y_at_eval = a_val * n_val**3 + c_val
     return f"{turning_point}, {y_at_eval}"
 
 
-def composite_cubic_intercepts_endbehavior(k_val, a_val, b_val, c_val, eval_x):
+def cubic_intercepts_endbehavior(k_val, a_val, b_val, c_val, eval_x):
     intercept_sum = a_val + b_val + c_val
     intercept_product = a_val * b_val * c_val
     y_at_eval = k_val * (eval_x - a_val) * (eval_x - b_val) * (eval_x - c_val)
@@ -1101,7 +1101,7 @@ def composite_cubic_intercepts_endbehavior(k_val, a_val, b_val, c_val, eval_x):
     return f"{intercept_sum}, {intercept_product}, {y_at_eval}, {match}"
 
 
-def composite_cubic_endbehavior_compute(a_val, b_val, c_val, d_val, large_x, neg_large_x):
+def cubic_endbehavior_compute(a_val, b_val, c_val, d_val, large_x, neg_large_x):
     y_at_large = a_val * large_x**3 + b_val * large_x**2 + c_val * large_x + d_val
     y_at_neg = a_val * neg_large_x**3 + b_val * neg_large_x**2 + c_val * neg_large_x + d_val
     pos_inf = "\u221e" if y_at_large > 0 else "\u2212\u221e"
@@ -1109,13 +1109,13 @@ def composite_cubic_endbehavior_compute(a_val, b_val, c_val, d_val, large_x, neg
     return f"{pos_inf}, {neg_inf}"
 
 
-def composite_cubic_vertex_intercepts(a_val, k_val, int1, int2, int3):
+def cubic_vertex_intercepts(a_val, k_val, int1, int2, int3):
     y_at_h_plus_2 = a_val * 2**3 + k_val
     product_intercepts = int1 * int2 * int3
     return f"{y_at_h_plus_2}, {product_intercepts}"
 
 
-def composite_cubic_sign_from_eval(a_val, b_val, c_val, d_val, eval_x, large_x):
+def cubic_sign_from_eval(a_val, b_val, c_val, d_val, eval_x, large_x):
     y_at_eval = a_val * eval_x**3 + b_val * eval_x**2 + c_val * eval_x + d_val
     y_at_large = a_val * large_x**3 + b_val * large_x**2 + c_val * large_x + d_val
     sign_a = "positive" if a_val > 0 else "negative"
@@ -1123,7 +1123,7 @@ def composite_cubic_sign_from_eval(a_val, b_val, c_val, d_val, eval_x, large_x):
     return f"{y_at_eval}, {sign_a}, {y_at_large}, {sign_y_at_large}"
 
 
-def composite_cubic_translate_turning(a_val, b_val, c_val, dx_val, dy_val):
+def cubic_translate_turning(a_val, b_val, c_val, dx_val, dy_val):
     new_b = b_val + dx_val
     new_c = c_val + dy_val
     new_turning = f"({new_b}, {new_c})"
@@ -1131,24 +1131,24 @@ def composite_cubic_translate_turning(a_val, b_val, c_val, dx_val, dy_val):
     return f"{new_eq}, {new_turning}"
 
 
-def composite_cubic_intercept_product(k_val, a_val, b_val, c_val):
+def cubic_intercept_product(k_val, a_val, b_val, c_val):
     product = a_val * b_val * c_val
     constant_term = -k_val * a_val * b_val * c_val
     return f"{product}, {constant_term}"
 
 
-def composite_cubic_endbehavior_from_coeffs(a_val, b_val, c_val, d_val, test_x, large_x):
+def cubic_endbehavior_from_coeffs(a_val, b_val, c_val, d_val, test_x, large_x):
     y_at_test = a_val * test_x**3 + b_val * test_x**2 + c_val * test_x + d_val
     y_at_large = a_val * large_x**3 + b_val * large_x**2 + c_val * large_x + d_val
     sign_at_large = "positive" if y_at_large > 0 else "negative"
     return f"{y_at_test}, {y_at_large}, {sign_at_large}"
 
-def composite_factor_theorem_verify(b_val, c_val, d_val, a_val):
+def factor_theorem_verify(b_val, c_val, d_val, a_val):
     p_a = poly_factor_theorem(a_val, b_val, c_val, d_val)
     conclusion = "factor" if p_a == 0 else "not a factor"
     return f"{p_a}, {conclusion}"
 
-def composite_repeated_root_identify(a_val, b_val):
+def repeated_root_identify(a_val, b_val):
     coeff_x2 = -(2 * a_val + b_val)
     coeff_x = a_val**2 + 2 * a_val * b_val
     const = -(a_val**2 * b_val)
@@ -1158,7 +1158,7 @@ def composite_repeated_root_identify(a_val, b_val):
     return f"{coeff_x2}, {coeff_x}, {const}, {check}, {quotient_str}, {sum_roots}"
 
 
-def composite_circle_standard_point(r_sq_val, x_val):
+def circle_standard_point(r_sq_val, x_val):
     import sympy as _s
     y_sq = r_sq_val - x_val**2
     if y_sq < 0:
@@ -1167,7 +1167,7 @@ def composite_circle_standard_point(r_sq_val, x_val):
     return f"{y_val}, -{y_val}" if y_val != 0 else "0"
 
 
-def composite_circle_general_center(h_val, k_val, r_sq_val, offset_x, offset_y):
+def circle_general_center(h_val, k_val, r_sq_val, offset_x, offset_y):
     import sympy as _s
     centre = f"({h_val}, {k_val})"
     r = _s.sqrt(r_sq_val)
@@ -1176,13 +1176,13 @@ def composite_circle_general_center(h_val, k_val, r_sq_val, offset_x, offset_y):
     return f"{centre}, {r}, {on_circle}"
 
 
-def composite_factor_circle_intersect(b_val, c_val, d_val, a_val, r_val):
+def factor_circle_intersect(b_val, c_val, d_val, a_val, r_val):
     p_a = poly_factor_theorem(a_val, b_val, c_val, d_val)
     area = f"{r_val**2}π" if r_val != 1 else "π"
     return f"{p_a}, {area}"
 
 
-def composite_repeated_root_expanded(a_val, b_val):
+def repeated_root_expanded(a_val, b_val):
     coeff_x2 = -(2 * a_val + b_val)
     coeff_x = a_val**2 + 2 * a_val * b_val
     const = -(a_val**2 * b_val)
@@ -1191,7 +1191,7 @@ def composite_repeated_root_expanded(a_val, b_val):
     return f"{coeff_x2}, {coeff_x}, {const}, {sum_bcd}, {p_a}"
 
 
-def composite_circle_function_eval(h_val, k_val, r_sq_val, offset):
+def circle_function_eval(h_val, k_val, r_sq_val, offset):
     import sympy as _s
     centre = f"({h_val}, {k_val})"
     x_val = h_val + offset
@@ -1199,60 +1199,60 @@ def composite_circle_function_eval(h_val, k_val, r_sq_val, offset):
     y_val = k_val + _s.sqrt(y_sq) if y_sq >= 0 else "undefined"
     return f"{centre}, {y_val}"
 
-def composite_transform_vertical_sequence(c_val, a_val, eval_x):
+def transform_vertical_sequence(c_val, a_val, eval_x):
     final_eq = f"y = {c_val}x² + {a_val}"
     y_at_eval = c_val * eval_x**2 + a_val
     return f"{final_eq}, {y_at_eval}"
 
 
-def composite_transform_horizontal_sequence(k_val, shift_val):
+def transform_horizontal_sequence(k_val, shift_val):
     h = shift_val * k_val
     final_eq = f"y = ({k_val}x - {h})²" if h > 0 else f"y = ({k_val}x + {-h})²"
     return final_eq
 
 
-def composite_transform_combined_order(k_val, c_val, h_val, v_val):
+def transform_combined_order(k_val, c_val, h_val, v_val):
     final_eq = f"y = {c_val}({k_val}x - {k_val*h_val})² + {v_val}"
     vertex = f"({h_val}, {v_val})"
     return f"{final_eq}, {vertex}"
 
 
-def composite_transform_point_mapping(x_val, y_val, h_val, v_val):
+def transform_point_mapping(x_val, y_val, h_val, v_val):
     new_x = x_val + h_val
     new_y = y_val + v_val
     transformed_eq = f"y = f(x - {h_val}) + {v_val}"
     return f"({new_x}, {new_y}), {transformed_eq}"
 
 
-def composite_transform_dilation_point(x_val, y_val, c_val, k_val):
+def transform_dilation_point(x_val, y_val, c_val, k_val):
     return f"({pf(x_val, k_val)}, {c_val * y_val})"
 
 
-def composite_transform_reverse_find_original(c_val, v_val, h_val, final_h, final_v):
+def transform_reverse_find_original(c_val, v_val, h_val, final_h, final_v):
     return f"({final_h - h_val}, {pf(final_v - v_val, c_val)})"
 
 
-def composite_transform_compare_outputs(c_val, a_val, eval_x):
+def transform_compare_outputs(c_val, a_val, eval_x):
     y1 = c_val * eval_x**2 + a_val
     y2 = c_val * (eval_x**2 + a_val)
     larger = "dilation_first" if y1 > y2 else "translation_first"
     return f"{y1}, {y2}, {larger}"
 
 
-def composite_transform_horizontal_dilation_eval(k_val, h_val, eval_x):
+def transform_horizontal_dilation_eval(k_val, h_val, eval_x):
     transformed_x = k_val * (eval_x - h_val)
     y_at_eval = transformed_x**2
     return str(int(y_at_eval)) if y_at_eval == int(y_at_eval) else str(y_at_eval)
 
 
-def composite_combination_compute_compare(n_val, r_val, n_minus_r_val):
+def combination_compute_compare(n_val, r_val, n_minus_r_val):
     c1 = math.comb(n_val, r_val)
     c2 = math.comb(n_val, n_minus_r_val)
     equal = "yes" if c1 == c2 else "no"
     return f"{c1}, {c2}, {equal}"
 
 
-def composite_combination_boundary_sum(n_val, r_val):
+def combination_boundary_sum(n_val, r_val):
     c0 = math.comb(n_val, 0)
     cn = math.comb(n_val, n_val)
     c1 = math.comb(n_val, 1)
@@ -1262,7 +1262,7 @@ def composite_combination_boundary_sum(n_val, r_val):
     return f"{total}, {fraction}"
 
 
-def composite_combination_range_valid(n_val, r_val):
+def combination_range_valid(n_val, r_val):
     if r_val < 0 or r_val > n_val:
         return "invalid, r out of range"
     else:
@@ -1270,7 +1270,7 @@ def composite_combination_range_valid(n_val, r_val):
         return f"valid, {result}"
 
 
-def composite_combination_symmetry_find_r(n_val, r1_val, r2_val):
+def combination_symmetry_find_r(n_val, r1_val, r2_val):
     c1 = math.comb(n_val, r1_val)
     c2 = math.comb(n_val, r2_val)
     sum_r = r1_val + r2_val
@@ -1278,21 +1278,21 @@ def composite_combination_symmetry_find_r(n_val, r1_val, r2_val):
     return f"{c1}, {c2}, {equals_n}"
 
 
-def composite_combination_ratio(n_val, r_val, r_minus_1_val):
+def combination_ratio(n_val, r_val, r_minus_1_val):
     c_r = math.comb(n_val, r_val)
     c_r_minus_1 = math.comb(n_val, r_minus_1_val)
     ratio = pf(c_r, c_r_minus_1)
     return ratio
 
 
-def composite_combination_sum_adjacent(n_val, r_val, r_plus_1_val):
+def combination_sum_adjacent(n_val, r_val, r_plus_1_val):
     c_r = math.comb(n_val, r_val)
     c_r_plus_1 = math.comb(n_val, r_plus_1_val)
     total = c_r + c_r_plus_1
     return str(total)
 
 
-def composite_combination_boundary_product(n_val, r_val):
+def combination_boundary_product(n_val, r_val):
     c0 = math.comb(n_val, 0)
     cn = math.comb(n_val, n_val)
     cr = math.comb(n_val, r_val)
@@ -1301,7 +1301,7 @@ def composite_combination_boundary_product(n_val, r_val):
     return f"{product}, {comparison}"
 
 
-def composite_combination_symmetry_application(n_val, r_val, n_minus_r_val, known_val):
+def combination_symmetry_application(n_val, r_val, n_minus_r_val, known_val):
     c_r = math.comb(n_val, r_val)
     c_n_minus_r = math.comb(n_val, n_minus_r_val)
     symmetry_holds = "yes" if c_r == c_n_minus_r else "no"
@@ -1310,19 +1310,19 @@ def composite_combination_symmetry_application(n_val, r_val, n_minus_r_val, know
     boundary_check = "yes" if c0 == 1 and cn == 1 else "no"
     return f"{c_r}, {symmetry_holds}, {boundary_check}"
 
-def composite_binom_expand_specific(n_val, k_val, n_minus_k_val):
+def binom_expand_specific(n_val, k_val, n_minus_k_val):
     coeff = math.comb(n_val, k_val)
     term_number = k_val + 1
     return f"{coeff}, {ordinal(term_number)}"
 
 
-def composite_binom_coeff_sum(n_val):
+def binom_coeff_sum(n_val):
     total = 2 ** n_val
     verification = "yes" if total == 2 ** n_val else "no"
     return f"{total}, {verification}"
 
 
-def composite_pascal_row_entry(n_val, r_val, n_minus_1_val):
+def pascal_row_entry(n_val, r_val, n_minus_1_val):
     c_n_r = math.comb(n_val, r_val)
     c_n1_r1 = math.comb(n_minus_1_val, r_val - 1) if r_val > 0 else 0
     c_n1_r = math.comb(n_minus_1_val, r_val) if r_val <= n_minus_1_val else 0
@@ -1330,14 +1330,14 @@ def composite_pascal_row_entry(n_val, r_val, n_minus_1_val):
     return f"{c_n_r}, {recurrence_check}"
 
 
-def composite_binom_term_compare(n_val, k1_val, k2_val):
+def binom_term_compare(n_val, k1_val, k2_val):
     c1 = math.comb(n_val, k1_val)
     c2 = math.comb(n_val, k2_val)
     larger = "first" if c1 > c2 else ("second" if c2 > c1 else "equal")
     return f"{c1}, {c2}, {larger}"
 
 
-def composite_pascal_recurrence_verify(n_val, r_val, n_minus_1_val, r_minus_1_val):
+def pascal_recurrence_verify(n_val, r_val, n_minus_1_val, r_minus_1_val):
     c_n_r = math.comb(n_val, r_val)
     c_n1_r1 = math.comb(n_minus_1_val, r_minus_1_val)
     c_n1_r = math.comb(n_minus_1_val, r_val)
@@ -1346,20 +1346,20 @@ def composite_pascal_recurrence_verify(n_val, r_val, n_minus_1_val, r_minus_1_va
     return f"{c_n_r}, {sum_above}, {holds}"
 
 
-def composite_binom_row_sum_compare(n_val, m_val):
+def binom_row_sum_compare(n_val, m_val):
     sum_n = 2 ** n_val
     sum_m = 2 ** m_val
     ratio = pf(sum_n, sum_m) if sum_n >= sum_m else pf(sum_m, sum_n)
     return f"{sum_n}, {sum_m}, {ratio}"
 
 
-def composite_binom_specific_term_value(n_val, k_val, n_minus_k_val):
+def binom_specific_term_value(n_val, k_val, n_minus_k_val):
     coeff = math.comb(n_val, k_val) * (2 ** (n_minus_k_val))
     term_number = k_val + 1
     return f"{coeff}, {ordinal(term_number)}"
 
 
-def composite_pascal_symmetry_sum(n_val, r_val, n_minus_r_val):
+def pascal_symmetry_sum(n_val, r_val, n_minus_r_val):
     c1 = math.comb(n_val, r_val)
     c2 = math.comb(n_val, n_minus_r_val)
     total = c1 + c2
@@ -1367,12 +1367,12 @@ def composite_pascal_symmetry_sum(n_val, r_val, n_minus_r_val):
     fraction = pf(total, row_sum)
     return f"{total}, {fraction}"
 
-def composite_outcome_sample_space_count(die_faces, coin_sides):
+def outcome_sample_space_count(die_faces, coin_sides):
     total_outcomes = die_faces * coin_sides
     return str(total_outcomes)
 
 
-def composite_event_subset_verify(n_val, e1_val, e2_val, e3_val):
+def event_subset_verify(n_val, e1_val, e2_val, e3_val):
     outcomes = [e1_val, e2_val, e3_val]
     all_in_S = all(1 <= e <= n_val for e in outcomes)
     subset_check = "yes" if all_in_S else "no"
@@ -1380,7 +1380,7 @@ def composite_event_subset_verify(n_val, e1_val, e2_val, e3_val):
     return f"{subset_check}, {ratio}"
 
 
-def composite_sample_space_cardinality(n_val, sum_val):
+def sample_space_cardinality(n_val, sum_val):
     total = n_val * n_val
     count_sum = 0
     for i in range(1, n_val + 1):
@@ -1390,20 +1390,20 @@ def composite_sample_space_cardinality(n_val, sum_val):
     return f"{total}, {count_sum}"
 
 
-def composite_event_complement_size(total_val, a_val):
+def event_complement_size(total_val, a_val):
     complement = total_val - a_val
     fraction = pf(complement, total_val)
     return f"{complement}, {fraction}"
 
 
-def composite_outcome_event_membership(n_val, mult_val, test_val):
+def outcome_event_membership(n_val, mult_val, test_val):
     in_A = "yes" if test_val % mult_val == 0 and test_val <= n_val else "no"
     outcomes_in_A = [i for i in range(1, n_val + 1) if i % mult_val == 0]
     count = len(outcomes_in_A)
     return f"{in_A}, {count}"
 
 
-def composite_sample_space_union_intersect(n_val, a1_val, a2_val, a3_val, b1_val, b2_val, b3_val):
+def sample_space_union_intersect(n_val, a1_val, a2_val, a3_val, b1_val, b2_val, b3_val):
     A = {a1_val, a2_val, a3_val}
     B = {b1_val, b2_val, b3_val}
     union = A | B
@@ -1411,13 +1411,13 @@ def composite_sample_space_union_intersect(n_val, a1_val, a2_val, a3_val, b1_val
     return f"{len(union)}, {len(intersect)}"
 
 
-def composite_event_probability_from_count(total_val, a_val, b_val):
+def event_probability_from_count(total_val, a_val, b_val):
     p_a = pf(a_val, total_val)
     p_b = pf(b_val, total_val)
     return f"{p_a}, {p_b}"
 
 
-def composite_outcome_counting_principle(choice1_val, choice2_val):
+def outcome_counting_principle(choice1_val, choice2_val):
     total = choice1_val * choice2_val
     return str(total)
 
