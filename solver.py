@@ -620,7 +620,6 @@ def sin_equation_special_angles_solver(B, C, a_choice):
         "solution1": sol1,
         "solution2": sol2,
         "period": period,
-        "note": "Both solutions lie in [0, 2π/|B|); further solutions differ by the period.",
     }
 
 def sin_equation_special_angles(B, C, a_choice):
@@ -1019,10 +1018,7 @@ def power_eval_compare(n_even, n_odd, eval_val, neg_val):
     candidates = [("f", _s.Integer(eval_val) ** n_even),
                   ("g", _s.Integer(eval_val) ** n_odd),
                   ("h", _s.sqrt(eval_val))]
-    largest = max(candidates, key=lambda kv: kv[1])[0]
-    undefined_at_neg = "h"
-    return f"{largest}, {undefined_at_neg}"
-
+    return max(candidates, key=lambda kv: kv[1])[0]
 
 def asymptote_vertex_y(a_val, b_val, d_val, a_quad):
     p = b_val
@@ -1145,8 +1141,7 @@ def cubic_endbehavior_from_coeffs(a_val, b_val, c_val, d_val, test_x, large_x):
 
 def factor_theorem_verify(b_val, c_val, d_val, a_val):
     p_a = poly_factor_theorem(a_val, b_val, c_val, d_val)
-    conclusion = "factor" if p_a == 0 else "not a factor"
-    return f"{p_a}, {conclusion}"
+    return "factor" if p_a == 0 else "not a factor"
 
 def repeated_root_identify(a_val, b_val):
     coeff_x2 = -(2 * a_val + b_val)
@@ -1186,10 +1181,7 @@ def repeated_root_expanded(a_val, b_val):
     coeff_x2 = -(2 * a_val + b_val)
     coeff_x = a_val**2 + 2 * a_val * b_val
     const = -(a_val**2 * b_val)
-    sum_bcd = coeff_x2 + coeff_x + const
-    p_a = poly_factor_theorem(a_val, coeff_x2, coeff_x, const)
-    return f"{coeff_x2}, {coeff_x}, {const}, {sum_bcd}, {p_a}"
-
+    return str(coeff_x2 + coeff_x + const)
 
 def circle_function_eval(h_val, k_val, r_sq_val, offset):
     import sympy as _s
@@ -1235,9 +1227,7 @@ def transform_reverse_find_original(c_val, v_val, h_val, final_h, final_v):
 def transform_compare_outputs(c_val, a_val, eval_x):
     y1 = c_val * eval_x**2 + a_val
     y2 = c_val * (eval_x**2 + a_val)
-    larger = "dilation_first" if y1 > y2 else "translation_first"
-    return f"{y1}, {y2}, {larger}"
-
+    return "dilation_first" if y1 > y2 else "translation_first"
 
 def transform_horizontal_dilation_eval(k_val, h_val, eval_x):
     transformed_x = k_val * (eval_x - h_val)
@@ -1253,14 +1243,8 @@ def combination_compute_compare(n_val, r_val, n_minus_r_val):
 
 
 def combination_boundary_sum(n_val, r_val):
-    c0 = math.comb(n_val, 0)
-    cn = math.comb(n_val, n_val)
-    c1 = math.comb(n_val, 1)
-    total = c0 + cn + c1
-    cr = math.comb(n_val, r_val)
-    fraction = pf(total, cr)
-    return f"{total}, {fraction}"
-
+    total = math.comb(n_val, 0) + math.comb(n_val, n_val) + math.comb(n_val, 1)
+    return pf(total, math.comb(n_val, r_val))
 
 def combination_range_valid(n_val, r_val):
     if r_val < 0 or r_val > n_val:
@@ -1333,9 +1317,7 @@ def pascal_row_entry(n_val, r_val, n_minus_1_val):
 def binom_term_compare(n_val, k1_val, k2_val):
     c1 = math.comb(n_val, k1_val)
     c2 = math.comb(n_val, k2_val)
-    larger = "first" if c1 > c2 else ("second" if c2 > c1 else "equal")
-    return f"{c1}, {c2}, {larger}"
-
+    return "first" if c1 > c2 else ("second" if c2 > c1 else "equal")
 
 def pascal_recurrence_verify(n_val, r_val, n_minus_1_val, r_minus_1_val):
     c_n_r = math.comb(n_val, r_val)
@@ -1354,18 +1336,11 @@ def binom_row_sum_compare(n_val, m_val):
 
 
 def binom_specific_term_value(n_val, k_val, n_minus_k_val):
-    coeff = math.comb(n_val, k_val) * (2 ** (n_minus_k_val))
-    term_number = k_val + 1
-    return f"{coeff}, {ordinal(term_number)}"
-
+    return str(math.comb(n_val, k_val) * (2 ** n_minus_k_val))
 
 def pascal_symmetry_sum(n_val, r_val, n_minus_r_val):
-    c1 = math.comb(n_val, r_val)
-    c2 = math.comb(n_val, n_minus_r_val)
-    total = c1 + c2
-    row_sum = 2 ** n_val
-    fraction = pf(total, row_sum)
-    return f"{total}, {fraction}"
+    total = math.comb(n_val, r_val) + math.comb(n_val, n_minus_r_val)
+    return pf(total, 2 ** n_val)
 
 def outcome_sample_space_count(die_faces, coin_sides):
     total_outcomes = die_faces * coin_sides
@@ -1391,10 +1366,7 @@ def sample_space_cardinality(n_val, sum_val):
 
 
 def event_complement_size(total_val, a_val):
-    complement = total_val - a_val
-    fraction = pf(complement, total_val)
-    return f"{complement}, {fraction}"
-
+    return pf(total_val - a_val, total_val)
 
 def outcome_event_membership(n_val, mult_val, test_val):
     in_A = "yes" if test_val % mult_val == 0 and test_val <= n_val else "no"
