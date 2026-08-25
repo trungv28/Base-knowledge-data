@@ -1008,11 +1008,6 @@ def invprop_sqrt_solve(y_val, x_val, target_val):
     return pf(k, target_val ** 2)
 
 
-def hyperbola_quad_axis(b_val, c_val, axis_val):
-    b_quad = -2 * 1 * axis_val
-    return str(int(b_quad)) if b_quad == int(b_quad) else str(b_quad)
-
-
 def asymptote_vertex_y(a_val, b_val, d_val, a_quad):
     p = b_val
     q = d_val
