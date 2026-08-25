@@ -1045,11 +1045,7 @@ def quadratic_expand_compare(a_val, b_val, rep_val):
 
 
 def quadratic_leading_expand(p_val, a_val, q_val, b_val):
-    coeff_x2 = p_val * q_val
-    coeff_x = -(p_val * b_val + q_val * a_val)
-    const = a_val * b_val
-    return f"{coeff_x2}, {coeff_x}, {const}"
-
+    return str(p_val * q_val)
 
 def cubic_three_linear_coeffs(a_val, b_val, c_val):
     coeff_x2 = -(a_val + b_val + c_val)
@@ -1144,14 +1140,7 @@ def factor_theorem_verify(b_val, c_val, d_val, a_val):
     return "factor" if p_a == 0 else "not a factor"
 
 def repeated_root_identify(a_val, b_val):
-    coeff_x2 = -(2 * a_val + b_val)
-    coeff_x = a_val**2 + 2 * a_val * b_val
-    const = -(a_val**2 * b_val)
-    check = poly_factor_theorem(a_val, coeff_x2, coeff_x, const)
-    quotient_str = poly_cubic_factor_quotient(a_val, coeff_x2, coeff_x, const)
-    sum_roots = 2 * a_val + b_val
-    return f"{coeff_x2}, {coeff_x}, {const}, {check}, {quotient_str}, {sum_roots}"
-
+    return str(2 * a_val + b_val)
 
 def circle_standard_point(r_sq_val, x_val):
     import sympy as _s
@@ -1163,13 +1152,7 @@ def circle_standard_point(r_sq_val, x_val):
 
 
 def circle_general_center(h_val, k_val, r_sq_val, offset_x, offset_y):
-    import sympy as _s
-    centre = f"({h_val}, {k_val})"
-    r = _s.sqrt(r_sq_val)
-    check = offset_x**2 + offset_y**2
-    on_circle = "yes" if check == r_sq_val else "no"
-    return f"{centre}, {r}, {on_circle}"
-
+    return f"({h_val}, {k_val})"
 
 def factor_circle_intersect(b_val, c_val, d_val, a_val, r_val):
     p_a = poly_factor_theorem(a_val, b_val, c_val, d_val)
