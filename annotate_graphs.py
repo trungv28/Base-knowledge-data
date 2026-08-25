@@ -54,7 +54,7 @@ def build(composite_path=None, graphs_path=None):
         c["graph"] = {"nodes": nodes, "final": f"{spec[-1]['node_id']}.value"}
         seen = []
         for nd in nodes:
-            if nd["atom_id"] and nd["atom_id"] not in seen:
+            if nd["atom_id"] and nd["atom_id"] != "arithmetic" and nd["atom_id"] not in seen:
                 seen.append(nd["atom_id"])
         c["atoms"] = seen
         c = {k: c[k] for k in ORDER if k in c}

@@ -1009,9 +1009,8 @@ def quad_power_vertex(a_val, axis_val, c_val, n_val):
     return f"{int(vertex_y) if vertex_y == int(vertex_y) else vertex_y}, {power_val}"
 
 
-def invprop_sqrt_solve(y_val, x_val, target_val):
-    k = y_val * x_val
-    return pf(k, target_val ** 2)
+def invprop_directprop_product(x_val, y_val, z_val):
+    return str(Fraction(y_val * x_val) * Fraction(z_val, x_val))
 
 
 def asymptote_vertex_y(a_val, b_val, d_val, a_quad):

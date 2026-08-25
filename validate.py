@@ -145,7 +145,13 @@ def main():
             continue
         for p in check_graph(g):
             bad("graphs", c["id"], p)
-        used = {n["atom_id"] for n in g["nodes"] if n.get("atom_id")}
+        for n in g["nodes"]:
+            if not n.get("atom_id"):
+                bad("graphs", c["id"],
+                    f"node {n['node_id']} has no atom_id; name the atom it applies, "
+                    f"or \"arithmetic\" if the step is only arithmetic")
+        used = {n["atom_id"] for n in g["nodes"]
+                if n.get("atom_id") and n["atom_id"] != "arithmetic"}
         if used - set(c["atoms"]):
             bad("graphs", c["id"], f"graph uses atoms not declared: {used - set(c['atoms'])}")
         if set(c["atoms"]) - used:
