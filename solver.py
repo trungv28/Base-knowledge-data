@@ -1013,13 +1013,6 @@ def hyperbola_quad_axis(b_val, c_val, axis_val):
     return str(int(b_quad)) if b_quad == int(b_quad) else str(b_quad)
 
 
-def power_eval_compare(n_even, n_odd, eval_val, neg_val):
-    import sympy as _s
-    candidates = [("f", _s.Integer(eval_val) ** n_even),
-                  ("g", _s.Integer(eval_val) ** n_odd),
-                  ("h", _s.sqrt(eval_val))]
-    return max(candidates, key=lambda kv: kv[1])[0]
-
 def asymptote_vertex_y(a_val, b_val, d_val, a_quad):
     p = b_val
     q = d_val
@@ -1142,6 +1135,10 @@ def factor_theorem_verify(b_val, c_val, d_val, a_val):
 def repeated_root_identify(a_val, b_val):
     return str(2 * a_val + b_val)
 
+def repeated_root_third(b_val, root_val):
+    return str(-b_val - 2 * root_val)
+
+
 def circle_standard_point(r_sq_val, x_val):
     import sympy as _s
     y_sq = r_sq_val - x_val**2
@@ -1160,12 +1157,6 @@ def factor_circle_intersect(b_val, c_val, d_val, a_val, r_val):
     area = f"{r_val**2}π" if r_val != 1 else "π"
     return f"{p_a}, {area}"
 
-
-def repeated_root_expanded(a_val, b_val):
-    coeff_x2 = -(2 * a_val + b_val)
-    coeff_x = a_val**2 + 2 * a_val * b_val
-    const = -(a_val**2 * b_val)
-    return str(coeff_x2 + coeff_x + const)
 
 def circle_function_eval(h_val, k_val, r_sq_val, offset):
     import sympy as _s
@@ -1253,11 +1244,8 @@ def combination_ratio(n_val, r_val, r_minus_1_val):
     return ratio
 
 
-def combination_sum_adjacent(n_val, r_val, r_plus_1_val):
-    c_r = math.comb(n_val, r_val)
-    c_r_plus_1 = math.comb(n_val, r_plus_1_val)
-    total = c_r + c_r_plus_1
-    return str(total)
+def combination_sum_adjacent(n_val, r_plus_1_val):
+    return str(math.comb(n_val + 1, r_plus_1_val))
 
 
 def combination_boundary_product(n_val, r_val):
@@ -1297,11 +1285,6 @@ def pascal_row_entry(n_val, r_val, n_minus_1_val):
     recurrence_check = "yes" if c_n_r == c_n1_r1 + c_n1_r else "no"
     return f"{c_n_r}, {recurrence_check}"
 
-
-def binom_term_compare(n_val, k1_val, k2_val):
-    c1 = math.comb(n_val, k1_val)
-    c2 = math.comb(n_val, k2_val)
-    return "first" if c1 > c2 else ("second" if c2 > c1 else "equal")
 
 def pascal_recurrence_verify(n_val, r_val, n_minus_1_val, r_minus_1_val):
     c_n_r = math.comb(n_val, r_val)
