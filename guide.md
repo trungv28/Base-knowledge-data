@@ -219,6 +219,8 @@ In `graphs.jsonl`, the steps:
 
 Write only `node_id`, `atom_id` and `expr`. Running `annotate_graphs.py` derives the wiring from the identifiers each `expr` reads and rewrites the `atoms` list, so wiring cannot drift from behaviour. Never hand-edit either.
 
+Write the solver from your own working, not by transcribing the node expressions. `validate.py` checks that the graph and the solver agree on every draw, and that check only means something if the two were derived independently.
+
 Here `b_val` is derived from the two roots, so the cubic shown really does have that repeated root. When values must be coupled, enforce it through `derive`, `constraints` or valid `cases`; prose alone is not a generation constraint.
 
 ### 9.1 Composite acceptance tests
@@ -236,18 +238,19 @@ A composite is accepted only when all of the following are true.
 **Labels**
 
 6. **Label what the step does,** not what the problem is about. A step that computes a vertex is not labelled *y-intercept*. If no atom fits and the step is not arithmetic, the curriculum is missing an atom — report it rather than choosing the nearest one.
+7. **Every atom you use needs an atomic template.** Without one, a wrong answer on the composite cannot be separated from simply not knowing the atom, which is the measurement this benchmark exists to make. Validation fails if it is missing.
 
 **The question**
 
-7. **One question, one answer.** Do not ask for two things and return one, and do not bundle independent `(a), (b), (c)` parts.
-8. **Naturalness:** mathematically motivated, not a random concatenation of atoms.
+8. **One question, one answer.** Do not ask for two things and return one, and do not bundle independent `(a), (b), (c)` parts.
+9. **Naturalness:** mathematically motivated, not a random concatenation of atoms.
 
 **Generation**
 
-9. **Exact and always valid.** The final answer is checkable symbolically, and every sampled instance is a valid question.
-10. **Every value a step reads from the question must appear in the question text.** Validation fails otherwise.
-11. **No no-op draws.** Exclude values that make a step do nothing: dilation by factor 1, shift by 0 units, a target of 1.
-12. **The final answer must vary.** Sample 200 instances and reject if one answer covers more than 60%. A step whose own output never changes is fine when its atom is a constant fact such as `C(n,0) = 1`.
+10. **Exact and always valid.** The final answer is checkable symbolically, and every sampled instance is a valid question.
+11. **Every value a step reads from the question must appear in the question text.** Validation fails otherwise.
+12. **No no-op draws.** Exclude values that make a step do nothing: dilation by factor 1, shift by 0 units, a target of 1.
+13. **The final answer must vary.** Sample 200 instances and reject if one answer covers more than 60%. A step whose own output never changes is fine when its atom is a constant fact such as `C(n,0) = 1`.
 
 ### 9.2 Size and graph representation
 
@@ -320,8 +323,11 @@ Before submission, validation must check:
 - generated questions and answers are deterministic for fixed variables;
 - standard templates pass the 128-unique-question support test;
 - every step carries an `atom_id`, or `"arithmetic"`;
+- every atom used by a composite has a working atomic template;
 - no step repeats or only reformats an earlier step;
 - every value a step reads from the question appears in the question text.
+
+Run `python3 check.py <id>` on each composite as you write it. It reports tests 1, 2, 3, 4, 7, 10, 11, 12 and 13 for that one template and prints its answer distribution. Tests 5, 6, 8 and 9 are judgement; they stay with you and the cross-reviewer.
 
 Manually inspect:
 
@@ -391,6 +397,7 @@ composite.jsonl                         # composite questions
 graphs.jsonl                            # composite steps
 solver.py
 generate.py
+check.py
 data/auxiliary_multipart.jsonl          # when applicable
 data/auxiliary_finite_support.jsonl     # when applicable
 reviews/<annotator_id>.jsonl
