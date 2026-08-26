@@ -9,7 +9,7 @@ The distinction below is fundamental:
 - An **atomic template** tests one benchmark atom.
 - A **strict composite template** contains a connected dependency graph in which later operations consume earlier results.
 
-For this project, the benchmark should contain more strict composite templates than benchmark atom IDs. Reuse is necessary to distinguish missing knowledge from failure to compose known knowledge.
+For this project, each benchmark atom should appear in several composites. Reuse is necessary to distinguish missing knowledge from failure to compose known knowledge.
 
 ## 1. Project-wide targets
 
@@ -20,16 +20,16 @@ Targets are global, not targets to multiply independently for every annotator.
 | Full source-derived atom inventory | No quota |
 | Canonical benchmark atom IDs | 114-128; hard planning ceiling 140 |
 | Accepted atomic generator templates | 160-180 |
-| Accepted strict composite templates | 240-280; planning midpoint about 260 |
+| Accepted strict composite templates | 110-130 |
 
-The current expansion assumes an existing corpus of approximately 114 atomic templates and 63 candidate composites. First count the unique canonical atom IDs: 114 atomic templates do not necessarily mean 114 distinct atoms. Re-audit the existing composites under the strict dependency rules in this guide before counting them as accepted. Do not create hundreds of new atom IDs merely to cover every source statement in the executable benchmark.
+This pack contains 139 atoms, 116 atomic templates and 17 accepted composites. The 17 are what remained after re-auditing 63 candidates under the rules in section 9, and none exceeded depth 3. Expect the same attrition. First count the unique canonical atom IDs: 116 atomic templates do not necessarily mean 116 distinct atoms. Do not create hundreds of new atom IDs merely to cover every source statement in the executable benchmark.
 
 Assuming four annotators, each annotator should normally be responsible for:
 
 - approximately 25-35 assigned canonical atoms;
 - approximately 35-45 accepted atomic templates in total under their responsibility, counting retained existing templates;
 - normally 12-20 new or substantially revised atomic templates when the current corpus is retained;
-- 55-60 composite drafts or revisions, with at least **50 accepted strict composites** after review;
+- about 35 composite drafts or revisions, with at least **24 accepted strict composites** after review;
 - one completed cross-review batch.
 
 If the number of annotators changes, the lead reviewer must divide the remaining global gap. Do not multiply the project-wide atom target by the annotator count.
@@ -158,7 +158,7 @@ The generator must format expressions naturally:
 -x+3
 ```
 
-Do not generate forms such as `2x+-3`, `1x+0`, or `+0`. Shared formatter functions in `generate.py` may create derived display placeholders.
+Do not generate forms such as `2x+-3`, `1x+0`, or `+0`. `generate.py` provides `term()`, `linfac()` and `shift()` for this; call them from `derive` to build display placeholders.
 
 ## 8. Solvers and generation
 
@@ -197,124 +197,102 @@ Create composites problem-first:
 6. Add safe variables or cases.
 7. Implement an exact solver.
 
-Example:
+Example, written as two records. In `composite.jsonl`, the question:
 
 ```json
-{
-  "id":"exponential_rate_time",
-  "atoms":[
-    "calculus.derivative.exponential_linear",
-    "algebra.exponential_equation.logarithm"
-  ],
-  "template":"Let f(t)={A}*exp({k}*t), where {A}>0 and {k}>0. Find the exact value of t for which f'(t)={A}*{k}*{M}.",
-  "vars":{
-    "A":{"type":"int","min":1,"max":9},
-    "k":{"type":"int","min":1,"max":6},
-    "M":{"type":"int","min":2,"max":12}
-  },
-  "composition":{
-    "nodes":[
-      {"id":"n1","atom":"calculus.derivative.exponential_linear"},
-      {"id":"n2","atom":"algebra.exponential_equation.logarithm"}
-    ],
-    "edges":[["n1","n2"]]
-  },
-  "solver":"exponential_rate_time"
-}
+{"id":"repeated_root_third",
+ "template":"The cubic p(x) = x³{b_term}{c_term}{d_term} has a repeated root at x = {root_val}. Find its other root.",
+ "vars":{"root_val":{"type":"int","min":-6,"max":6,"exclude":[0]},
+         "other_val":{"type":"int","min":-6,"max":6,"exclude":[0,"root_val"]}},
+ "derive":{"b_val":"-(2*root_val + other_val)","b_term":"term(b_val, \"x²\")"},
+ "constraints":["abs(b_val) > 1"],
+ "solver":"repeated_root_third"}
 ```
 
-The target on the right is constructed so that every sampled case is valid. When a different template needs coupled inequalities, enforce them through valid `cases` or a supported constraint mechanism; prose alone is not a generation constraint.
+In `graphs.jsonl`, the steps:
+
+```json
+{"id":"repeated_root_third","nodes":[
+  {"node_id":"n1","atom_id":"func.poly.repeated_root","expr":"2 * root_val"},
+  {"node_id":"n2","atom_id":"func.poly.cubic_repeated_distinct","expr":"str(-b_val - n1)"}]}
+```
+
+Write only `node_id`, `atom_id` and `expr`. Running `annotate_graphs.py` derives the wiring from the identifiers each `expr` reads and rewrites the `atoms` list, so wiring cannot drift from behaviour. Never hand-edit either.
+
+Here `b_val` is derived from the two roots, so the cubic shown really does have that repeated root. When values must be coupled, enforce it through `derive`, `constraints` or valid `cases`; prose alone is not a generation constraint.
 
 ### 9.1 Composite acceptance tests
 
-A composite is accepted only when all of the following are true:
+A composite is accepted only when all of the following are true.
 
-1. **Connected dependency:** its graph is connected and acyclic.
-2. **Consumption:** at least one later node consumes an earlier node's result.
-3. **Indispensability:** removing any listed node makes the intended solution incomplete.
-4. **Non-redundancy:** no listed atom merely restates another listed atom.
-5. **Unified objective:** independent `(a), (b), (c)` question bundles are not strict composites unless their branches feed a shared final result.
-6. **Exact verification:** the final output can be checked symbolically.
-7. **Naturalness:** the problem is mathematically motivated, not a random concatenation of atoms.
-8. **Parameter validity:** every generated instance is valid under the solver's assumptions.
+**Structure**
 
-Parallel branches are allowed only when they converge into a shared downstream node. A list of independently answerable features, such as amplitude, period, and midline, is an auxiliary multipart task rather than a strict composite.
+1. **Connected and acyclic**, with every step on a path to the final answer.
+2. **Every step computes something.** Reading a value off a form counts: `y = a/(x−4)` has asymptote `x = 4`. Copying a number the question states outright does not, and neither does repeating or reformatting an earlier result.
+3. **Depth at least two.** Ignoring steps that only copy from the question, the longest chain of steps must be two or more.
+4. **At least two different atoms.** Plain arithmetic — adding, multiplying, forming a fraction — is not an atom. Mark those steps `"atom_id":"arithmetic"`; they do not count toward the two.
+5. **Every step is needed.** Removing one leaves the solution incomplete.
 
-Move useful rejected bundles to `data/auxiliary_multipart.jsonl`; do not count them toward the strict-composite target.
+**Labels**
 
-### 9.2 Atom count and graph representation
+6. **Label what the step does,** not what the problem is about. A step that computes a vertex is not labelled *y-intercept*. If no atom fits and the step is not arithmetic, the curriculum is missing an atom — report it rather than choosing the nearest one.
 
-The composite size is the number of indispensable atom-application nodes, not the number of subquestions and not necessarily the number of unique atom IDs. If one atom is applied twice, it creates two graph nodes.
+**The question**
 
-The `atoms` list and `composition.nodes` must agree. `composition.edges` records which intermediate results are consumed downstream. Do not infer a dependency merely from the order of prose.
+7. **One question, one answer.** Do not ask for two things and return one. Independent `(a), (b), (c)` bundles are not composites; move them to `data/auxiliary_multipart.jsonl`.
+8. **Do not state what a step must find.** "Given (x−2) is a factor, verify p(2) = 0" is not a step.
+9. **Write it like a real exam question.** Every value a step uses must be readable from the text. No `+ -3`, `1x²`, `(x−-4)`, `-7 units up`, or `x^8y^0`. Answers are what a student would write: `first`, not `dilation_first`.
+10. **Naturalness:** mathematically motivated, not a random concatenation of atoms.
 
-The validation pipeline computes three different structural quantities:
+**Generation**
 
-- `node_count`: number of indispensable atom-application nodes;
-- `dependency_depth`: number of nodes on the longest directed path;
-- `topology`: chain, branch, merge, or mixed.
+11. **Exact and always valid.** The final answer is checkable symbolically, and every sampled instance is a valid question.
+12. **No no-op draws.** Exclude values that make a step do nothing: dilation by factor 1, shift by 0 units, a target of 1.
+13. **Answers must vary.** Sample 200 instances. Reject if one answer covers more than 60%, or if a step's output never changes — unless that step is a constant fact such as `C(n,0) = 1`.
 
-Do not call `node_count` the dependency depth. A four-node merge graph may have dependency depth three.
+### 9.2 Size and graph representation
+
+Composite size is the number of steps, not the number of subquestions and not the number of distinct atoms. One atom applied twice is two steps.
+
+Depth is the longest chain of steps, not the step count. A four-step graph in which three steps feed one final step has depth two.
+
+Every intermediate step must produce a single value: an int, a string, or a `Fraction`. A list, tuple or bool cannot round-trip through a model's written answer. Only the final step may return several parts.
 
 ### 9.3 Instance support
 
-A standard training template should support at least 128 distinct valid question-answer instances. The validation script should attempt 200 generations and confirm at least 128 unique questions.
+A standard template should support at least 128 distinct valid question-answer instances. The validation script should attempt 200 generations and confirm at least 128 unique questions.
 
-A mathematically useful template with genuinely finite support may be stored in `data/auxiliary_finite_support.jsonl` and exhaustively enumerated. It does not count toward the standard training-template quota unless the lead reviewer explicitly approves it.
+A mathematically useful template with genuinely finite support may be stored in `data/auxiliary_finite_support.jsonl` and exhaustively enumerated. It does not count toward the standard template quota unless the lead reviewer explicitly approves it.
 
 ## 10. Composite size and workload targets
 
-The default accepted-composite planning target per annotator is:
+Strict acceptance means most drafts do not survive, and deep graphs are rarer than they look. Plan for that.
+
+The default accepted-composite target per annotator is:
 
 | Required atom applications | Accepted templates |
 |---:|---:|
-| 2 | 16 |
-| 3 | 13 |
-| 4 | 9 |
-| 5 | 6 |
-| 6 | 4 |
-| 7 | 2 |
-| **Total** | **50** |
+| 2 | 10 |
+| 3 | 8 |
+| 4 | 4 |
+| 5 | 2 |
+| **Total** | **24** |
 
-These are team-planning quotas, not permission to create artificial long problems. Annotators may exchange size responsibilities with lead approval when one unit naturally supports more large connected compositions than another.
+Do not pad a problem with extra algebra to raise its step count; arithmetic steps do not count. A larger graph is accepted only when every step passes test 5.
 
-Do not pad a problem with unnecessary algebra to increase its atom count. A larger node count is accepted only when every node passes the indispensability test.
-
-With four annotators, this plan adds approximately 200 accepted composites. Combined with the re-audited current corpus, the expected final total is approximately 240-280 strict composites.
+With four annotators this adds approximately 96 accepted composites. Combined with the re-audited current corpus, the expected final total is 110-130 strict composites.
 
 ## 11. Reuse and interface coverage
 
-The benchmark requires repeated semantic components, not merely many unique records.
+The benchmark requires repeated semantic components, not merely many unique records. Check your own set:
 
-Use these project-level checks:
-
-- every composition-core atom should appear in at least three accepted training composites;
-- the median composition-core atom should appear in at least four accepted composites;
-- central atoms should appear in six or more structurally different composites;
-- every composition-core atom should interact with at least two different partner atoms;
-- each annotator should deliberately reuse at least 12 directed atom interfaces in two or more structurally different composites;
-- an interface labelled as seen should occur in at least two distinct training templates;
-- at least 70% of training edge occurrences should belong to repeated interface types;
-- all atoms used in held-out composites must have atomic exposure;
-- template splits are assigned centrally after annotation, using graph structure rather than random generated instances.
+- every atom you use should appear in at least three of your accepted composites;
+- every atom you use should interact with at least two different partner atoms;
+- deliberately reuse at least 12 directed atom interfaces in two or more structurally different composites.
 
 Do not repeatedly paraphrase the same composition skeleton merely to raise recurrence counts.
 
-## 12. Central split after annotation
-
-Annotators do not assign splits. After deduplication and QA, the lead creates graph-structural splits. At a final total near 260 strict composites, the planning allocation is:
-
-| Split | Templates | Purpose |
-|---|---:|---|
-| Train | 170 | Learn composition over exposed atoms and interfaces |
-| Development | 20 | Model selection and curriculum thresholds |
-| Same-size structural test | 40 | Held-out combinations or graph motifs at familiar sizes |
-| Deeper/interface stress test | 30 | Longer paths and deliberately held-out interfaces |
-| **Total** | **260** | |
-
-All test-composite atoms must receive atomic exposure. For a held-out interface, both endpoint atoms must occur in at least three training composites with other partners. Generated instances from one template never cross splits.
-
-## 13. Exclusions
+## 12. Exclusions
 
 Do not create strict benchmark templates that require:
 
@@ -329,7 +307,7 @@ Do not create strict benchmark templates that require:
 - redundant atoms that allow one listed atom to bypass the intended dependency;
 - a tiny finite set of repeated semantic cases without auxiliary routing.
 
-## 14. Automated validation and manual QA
+## 13. Automated validation and manual QA
 
 Before submission, validation must check:
 
@@ -341,7 +319,9 @@ Before submission, validation must check:
 - the solver runs successfully on 100 randomly generated or exhaustively enumerated cases;
 - generated questions and answers are deterministic for fixed variables;
 - standard templates pass the 128-unique-question support test;
-- no train/test split information is embedded in the template record.
+- every step carries an `atom_id`, or `"arithmetic"`;
+- no step repeats or only reformats an earlier step;
+- every value a step reads from the question appears in the question text.
 
 Manually inspect:
 
@@ -351,13 +331,13 @@ Manually inspect:
 
 Automated validity must be 100%. Output targets count accepted records after QA, not first drafts.
 
-## 15. Cross-review
+## 14. Cross-review
 
 Every accepted strict composite receives independent cross-review. Each annotator reviews one balanced batch from another annotator containing:
 
 - 15 atom-statement/source-code pairs;
 - 10 atomic templates with solver output on three generated cases each;
-- approximately 50 composite templates with their dependency graphs, solvers, and three generated cases each;
+- approximately 24 composite templates with their dependency graphs, solvers, and three generated cases each;
 - a few known correct or intentionally incorrect check items supplied by the lead.
 
 Mark each item:
@@ -368,9 +348,9 @@ incorrect
 uncertain
 ```
 
-Add a short note for `incorrect` or `uncertain`. The lead reviewer resolves remaining uncertain cases. Every composite with five or more nodes also receives lead review. Revisions required by cross-review are part of the annotator's accepted-output target.
+Add a short note for `incorrect` or `uncertain`. The lead reviewer resolves remaining uncertain cases. Every composite with four or more steps also receives lead review. Revisions required by cross-review are part of the annotator's accepted-output target.
 
-## 16. Expected output and time
+## 15. Expected output and time
 
 Expected output per annotator across both assigned units:
 
@@ -379,7 +359,7 @@ Expected output per annotator across both assigned units:
 - approximately 25-35 assigned canonical benchmark atoms reviewed;
 - no more than four proposed new benchmark atoms unless the lead approves an exception;
 - approximately 35-45 accepted atomic templates under the annotator's responsibility, counting retained existing templates;
-- 55-60 strict composite drafts or revisions and at least 50 accepted strict composites;
+- about 35 strict composite drafts or revisions and at least 24 accepted strict composites;
 - exact solver coverage for every submitted template;
 - generation code or shared-generator additions needed by those templates;
 - one completed cross-review record.
@@ -391,29 +371,28 @@ Approximate working time:
 | Source coverage and full-inventory reconciliation | 4 hours |
 | Canonical atom normalization and assignment review | 2 hours |
 | Atomic templates and solvers | 8 hours |
-| Composite planning and dependency graphs | 5 hours |
-| Composite templates and solvers | 30 hours |
+| Composite planning and dependency graphs | 4 hours |
+| Composite templates and solvers | 18 hours |
 | Automated generation and manual QA | 5 hours |
 | Cross-review, revisions, and final cleanup | 6 hours |
-| **Total** | **approximately 60 hours** |
+| **Total** | **approximately 45 hours** |
 
-Normal variation of approximately 55-65 hours is expected. No annotator should exceed 80 hours. If natural strict composites cannot be produced within the assigned units and time budget, report the shortfall to the lead rather than padding depth, duplicating templates, or weakening acceptance rules.
+Normal variation of approximately 40-50 hours is expected. No annotator should exceed 60 hours. If natural strict composites cannot be produced within the assigned units and time budget, report the shortfall to the lead rather than padding depth, duplicating templates, or weakening acceptance rules.
 
-## 17. Deliverable files
+## 16. Deliverable files
 
 Submit or update:
 
 ```text
-data/coverage_<unit>.tsv
-data/atoms.jsonl
-data/selected_atoms.json
-data/atom_templates.jsonl
-data/composite_templates.jsonl
+coverage_<unit>.tsv
+atoms.jsonl
+templates.jsonl                         # atomic templates
+composite.jsonl                         # composite questions
+graphs.jsonl                            # composite steps
+solver.py
+generate.py
 data/auxiliary_multipart.jsonl          # when applicable
 data/auxiliary_finite_support.jsonl     # when applicable
-solvers.py
-generate.py
-validation_report.json
 reviews/<annotator_id>.jsonl
 ```
 
