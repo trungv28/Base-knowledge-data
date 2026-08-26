@@ -10,7 +10,7 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 
 - approximately 25-35 atoms for your unit;
 - approximately 35-45 accepted atomic templates;
-- about 80 composite drafts, with at least **59 accepted strict composites** after review;
+- at least **59 accepted composites**, spread over the depths in section 9;
 - one completed cross-review batch.
 
 ## 2. Source links
@@ -228,7 +228,7 @@ Your accepted-composite target:
 
 The row is set by depth, not step count: six steps merging into one final node is depth 2 and belongs in the first row. `check.py` prints the depth.
 
-Plan more drafts than the target, allow extra time for the deep rows, and do not pad a problem with algebra to raise its step count.
+Expect to write more than 59 and discard some; the time in section 14 allows for that. Allow extra time for the deep rows, and do not pad a problem with algebra to raise its step count.
 
 ## 10. Reuse
 
