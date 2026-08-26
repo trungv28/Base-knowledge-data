@@ -20,16 +20,16 @@ Targets are global, not targets to multiply independently for every annotator.
 | Full source-derived atom inventory | No quota |
 | Canonical benchmark atom IDs | 114-128; hard planning ceiling 140 |
 | Accepted atomic generator templates | 160-180 |
-| Accepted strict composite templates | 110-130 |
+| Accepted strict composite templates | 240-280 |
 
-This pack contains 139 atoms, 116 atomic templates and 17 accepted composites. The 17 are what remained after re-auditing 63 candidates under the rules in section 9, and none exceeded depth 3. Expect the same attrition. First count the unique canonical atom IDs: 116 atomic templates do not necessarily mean 116 distinct atoms. Do not create hundreds of new atom IDs merely to cover every source statement in the executable benchmark.
+This pack contains 139 atoms, 116 atomic templates and 17 accepted composites. The 17 are what remained after re-auditing 63 candidates under the rules in section 9. Because the retained corpus is that small, nearly all of the composite target must be newly written, and the per-annotator share below is higher than a simple division would suggest. First count the unique canonical atom IDs: 116 atomic templates do not necessarily mean 116 distinct atoms. Do not create hundreds of new atom IDs merely to cover every source statement in the executable benchmark.
 
 Assuming four annotators, each annotator should normally be responsible for:
 
 - approximately 25-35 assigned canonical atoms;
 - approximately 35-45 accepted atomic templates in total under their responsibility, counting retained existing templates;
 - normally 12-20 new or substantially revised atomic templates when the current corpus is retained;
-- about 35 composite drafts or revisions, with at least **24 accepted strict composites** after review;
+- about 80 composite drafts or revisions, with at least **59 accepted strict composites** after review;
 - one completed cross-review batch.
 
 If the number of annotators changes, the lead reviewer must divide the remaining global gap. Do not multiply the project-wide atom target by the annotator count.
@@ -239,16 +239,15 @@ A composite is accepted only when all of the following are true.
 
 **The question**
 
-7. **One question, one answer.** Do not ask for two things and return one. Independent `(a), (b), (c)` bundles are not composites; move them to `data/auxiliary_multipart.jsonl`.
-8. **Do not state what a step must find.** "Given (x−2) is a factor, verify p(2) = 0" is not a step.
-9. **Write it like a real exam question.** Every value a step uses must be readable from the text. No `+ -3`, `1x²`, `(x−-4)`, `-7 units up`, or `x^8y^0`. Answers are what a student would write: `first`, not `dilation_first`.
-10. **Naturalness:** mathematically motivated, not a random concatenation of atoms.
+7. **One question, one answer.** Do not ask for two things and return one, and do not bundle independent `(a), (b), (c)` parts.
+8. **Naturalness:** mathematically motivated, not a random concatenation of atoms.
 
 **Generation**
 
-11. **Exact and always valid.** The final answer is checkable symbolically, and every sampled instance is a valid question.
-12. **No no-op draws.** Exclude values that make a step do nothing: dilation by factor 1, shift by 0 units, a target of 1.
-13. **Answers must vary.** Sample 200 instances. Reject if one answer covers more than 60%, or if a step's output never changes — unless that step is a constant fact such as `C(n,0) = 1`.
+9. **Exact and always valid.** The final answer is checkable symbolically, and every sampled instance is a valid question.
+10. **Every value a step reads from the question must appear in the question text.** Validation fails otherwise.
+11. **No no-op draws.** Exclude values that make a step do nothing: dilation by factor 1, shift by 0 units, a target of 1.
+12. **The final answer must vary.** Sample 200 instances and reject if one answer covers more than 60%. A step whose own output never changes is fine when its atom is a constant fact such as `C(n,0) = 1`.
 
 ### 9.2 Size and graph representation
 
@@ -266,21 +265,22 @@ A mathematically useful template with genuinely finite support may be stored in 
 
 ## 10. Composite size and workload targets
 
-Strict acceptance means most drafts do not survive, and deep graphs are rarer than they look. Plan for that.
+Strict acceptance means a share of drafts do not survive, so plan drafts above the accepted target. Deep graphs are also harder than they look once arithmetic steps stop counting: budget more time for the 5- and 6-step rows than their numbers suggest.
 
 The default accepted-composite target per annotator is:
 
 | Required atom applications | Accepted templates |
 |---:|---:|
-| 2 | 10 |
-| 3 | 8 |
-| 4 | 4 |
-| 5 | 2 |
-| **Total** | **24** |
+| 2 | 20 |
+| 3 | 16 |
+| 4 | 12 |
+| 5 | 7 |
+| 6 | 4 |
+| **Total** | **59** |
 
 Do not pad a problem with extra algebra to raise its step count; arithmetic steps do not count. A larger graph is accepted only when every step passes test 5.
 
-With four annotators this adds approximately 96 accepted composites. Combined with the re-audited current corpus, the expected final total is 110-130 strict composites.
+With four annotators this adds approximately 236 accepted composites. Combined with the 17 retained from the re-audit, the expected final total is 240-280 strict composites.
 
 ## 11. Reuse and interface coverage
 
@@ -337,7 +337,7 @@ Every accepted strict composite receives independent cross-review. Each annotato
 
 - 15 atom-statement/source-code pairs;
 - 10 atomic templates with solver output on three generated cases each;
-- approximately 24 composite templates with their dependency graphs, solvers, and three generated cases each;
+- approximately 30 composite templates with their dependency graphs, solvers, and three generated cases each;
 - a few known correct or intentionally incorrect check items supplied by the lead.
 
 Mark each item:
@@ -348,7 +348,7 @@ incorrect
 uncertain
 ```
 
-Add a short note for `incorrect` or `uncertain`. The lead reviewer resolves remaining uncertain cases. Every composite with four or more steps also receives lead review. Revisions required by cross-review are part of the annotator's accepted-output target.
+Add a short note for `incorrect` or `uncertain`. The lead reviewer resolves remaining uncertain cases. Every composite with five or more steps also receives lead review. Revisions required by cross-review are part of the annotator's accepted-output target.
 
 ## 15. Expected output and time
 
@@ -359,7 +359,7 @@ Expected output per annotator across both assigned units:
 - approximately 25-35 assigned canonical benchmark atoms reviewed;
 - no more than four proposed new benchmark atoms unless the lead approves an exception;
 - approximately 35-45 accepted atomic templates under the annotator's responsibility, counting retained existing templates;
-- about 35 strict composite drafts or revisions and at least 24 accepted strict composites;
+- about 80 strict composite drafts or revisions and at least 59 accepted strict composites;
 - exact solver coverage for every submitted template;
 - generation code or shared-generator additions needed by those templates;
 - one completed cross-review record.
@@ -371,13 +371,13 @@ Approximate working time:
 | Source coverage and full-inventory reconciliation | 4 hours |
 | Canonical atom normalization and assignment review | 2 hours |
 | Atomic templates and solvers | 8 hours |
-| Composite planning and dependency graphs | 4 hours |
-| Composite templates and solvers | 18 hours |
+| Composite planning and dependency graphs | 6 hours |
+| Composite templates and solvers | 40 hours |
 | Automated generation and manual QA | 5 hours |
-| Cross-review, revisions, and final cleanup | 6 hours |
-| **Total** | **approximately 45 hours** |
+| Cross-review, revisions, and final cleanup | 7 hours |
+| **Total** | **approximately 72 hours** |
 
-Normal variation of approximately 40-50 hours is expected. No annotator should exceed 60 hours. If natural strict composites cannot be produced within the assigned units and time budget, report the shortfall to the lead rather than padding depth, duplicating templates, or weakening acceptance rules.
+Normal variation of approximately 65-80 hours is expected. No annotator should exceed 90 hours. If natural strict composites cannot be produced within the assigned units and time budget, report the shortfall to the lead rather than padding depth, duplicating templates, or weakening acceptance rules.
 
 ## 16. Deliverable files
 
