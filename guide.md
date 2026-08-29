@@ -230,9 +230,21 @@ The row is set by depth, not step count: six steps merging into one final node i
 
 Expect to write more than 59 and discard some; the time in section 14 allows for that. Allow extra time for the deep rows, and do not pad a problem with algebra to raise its step count.
 
-## 10. Reuse
+## 10. Coverage and reuse
 
-- every atom you use should appear in at least three of your accepted composites;
+Composites must spread across your unit, not cluster on the few atoms that chain
+most easily. Run `python3 coverage.py`:
+
+- at least 70% of the atoms you wrote a template for appear in some composite;
+- every atom you use appears in at least two composites;
+- no single atom appears in more than a quarter of them.
+
+The last one is the trap. Atoms like "evaluate f at a point" fit into almost any
+chain, so they accumulate while whole topics get none. Check the list of atoms
+with a template but no composite and work from it.
+
+Also, by hand:
+
 - every atom you use should pair with at least two different partner atoms;
 - reuse at least 12 atom pairs across structurally different composites.
 

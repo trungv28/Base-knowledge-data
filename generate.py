@@ -11,8 +11,8 @@ def term(coef, suffix=""):
     return f" {'−' if coef < 0 else '+'} {body}"
 
 
-def linfac(a):
-    return f"(x − {a})" if a > 0 else f"(x + {-a})"
+def linfac(a, v="x"):
+    return f"({v} − {a})" if a > 0 else f"({v} + {-a})"
 
 
 def shift(v, pos, neg):
