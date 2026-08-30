@@ -8,12 +8,14 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 
 ## 1. Your targets
 
-| | | where |
-|---|---:|---|
-| Atoms for your unit | 25-35 | section 4 |
-| Accepted atomic templates | 35-45 | section 5 |
-| Accepted composite templates | **55-65** | section 8.5, by depth |
-| Cross-review batch | 1 | section 11 |
+You have two units. Work them one at a time; the numbers below are **per unit**.
+
+| | per unit | both units | where |
+|---|---:|---:|---|
+| Atoms | 13-18 | 25-35 | section 4 |
+| Accepted atomic templates | 18-23 | 35-45 | section 5 |
+| Accepted composite templates | 28-32 | 55-65 | section 8.5, by depth |
+| Cross-review batch | | 1 | section 11 |
 
 Each section repeats its own target, so you can work from the section rather
 than from this table.
@@ -41,7 +43,7 @@ ACMMM...    | exclude  | short reason
 
 ## 4. Atoms
 
-**Target: 25-35 atoms for your unit.**
+**Target: 13-18 atoms per unit** (25-35 across both).
 
 An atom is one reusable mathematical fact, rule, formula, constraint, or procedure, with one source code.
 
@@ -59,7 +61,7 @@ Name ids in the same style as the example pack (`func.*`, `trig.*`, `prob.*`) so
 
 ## 5. Atomic templates
 
-**Target: 35-45 accepted templates.**
+**Target: 18-23 accepted templates per unit** (35-45 across both).
 
 One template per atom you build on. Add a second only if it tests a different direction or representation.
 
@@ -110,7 +112,7 @@ def angle_deg_rad(deg):
 
 ## 8. Strict composite templates
 
-**Target: 55-65 accepted composites, spread over the depths in 8.5.**
+**Target: 28-32 accepted composites per unit** (55-65 across both), spread over the depths in 8.5.
 
 ### 8.1 Finding a composite
 
@@ -226,16 +228,16 @@ A template with genuinely finite support can be enumerated exhaustively instead,
 
 ### 8.5 How many, and how deep
 
-Your accepted-composite target:
+Your accepted-composite target, **per unit**:
 
 | Longest chain of steps | Accepted templates |
 |---:|---:|
-| 2 | 18-22 |
-| 3 | 14-18 |
-| 4 | 10-14 |
-| 5 | 6-8 |
-| 6 | 3-5 |
-| **Total** | **55-65** |
+| 2 | 9-11 |
+| 3 | 7-9 |
+| 4 | 5-7 |
+| 5 | 3-4 |
+| 6 | 2-3 |
+| **Total** | **28-32** |
 
 The row is set by depth, not step count: six steps merging into one final node is depth 2 and belongs in the first row. `check.py` prints the depth.
 
