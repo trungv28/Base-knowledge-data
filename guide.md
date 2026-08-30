@@ -8,10 +8,15 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 
 ## 1. Your targets
 
-- approximately 25-35 atoms for your unit;
-- approximately 35-45 accepted atomic templates;
-- at least **59 accepted composites**, spread over the depths in section 9;
-- one completed cross-review batch.
+| | | where |
+|---|---:|---|
+| Atoms for your unit | 25-35 | section 4 |
+| Accepted atomic templates | 35-45 | section 5 |
+| Accepted composite templates | **59** | section 8.5, by depth |
+| Cross-review batch | 1 | section 11 |
+
+Each section repeats its own target, so you can work from the section rather
+than from this table.
 
 ## 2. Source links
 
@@ -36,6 +41,8 @@ ACMMM...    | exclude  | short reason
 
 ## 4. Atoms
 
+**Target: 25-35 atoms for your unit.**
+
 An atom is one reusable mathematical fact, rule, formula, constraint, or procedure, with one source code.
 
 ```json
@@ -51,6 +58,8 @@ Name ids in the same style as the example pack (`func.*`, `trig.*`, `prob.*`) so
 - Merge two atoms that state the same rule in different words.
 
 ## 5. Atomic templates
+
+**Target: 35-45 accepted templates.**
 
 One template per atom you build on. Add a second only if it tests a different direction or representation.
 
@@ -101,13 +110,15 @@ def angle_deg_rad(deg):
 
 ## 8. Strict composite templates
 
+**Target: 59 accepted composites, spread over the depths in 8.5.**
+
 ### 8.1 Finding a composite
 
 **Start from a question, not from atoms.** Take a multi-step problem from your unit's textbook exercises, past papers, or the standard problem types you already know, and adapt it. Solve it, see which atoms it uses, and check it against 8.2. Most of the work is choosing well and adapting, not inventing.
 
 A question built by bolting atoms together usually reads like it. `Express C(n,0) + C(n,n) + C(n,1) as a fraction of C(n,r)` chains three atoms correctly and no exam would ever ask it; it fails test 9.
 
-**When nothing comes to mind,** or when you need a specific depth for section 9, work from the atoms instead. Write down what each atom in your unit needs and what it gives:
+**When nothing comes to mind,** or when you need a specific depth for 8.5, work from the atoms instead. Write down what each atom in your unit needs and what it gives:
 
 ```text
 func.hyperbola.vertical_asymptote   needs  a/(x−b)       gives  an x-value
@@ -121,7 +132,7 @@ Two atoms compose when one gives what the other needs. Keep going while somethin
 asymptote gives x = p   ->   axis rule turns p into b   ->   evaluate the quadratic at p
 ```
 
-That run is the spine of `asymptote_vertex_y`. Two atoms is the minimum: the deeper rows in section 9 are this same move continued. If neither atom needs what the other gives, only arithmetic joins them and the composite fails test 4.
+That run is the spine of `asymptote_vertex_y`. Two atoms is the minimum: the deeper rows in 8.5 are this same move continued. If neither atom needs what the other gives, only arithmetic joins them and the composite fails test 4.
 
 Either way, the rest is the same.
 
@@ -213,7 +224,7 @@ A standard template should support at least 128 distinct valid question-answer i
 
 A template with genuinely finite support can be enumerated exhaustively instead, but flag it to the lead; it does not count toward the target unless approved.
 
-## 9. Composite size
+### 8.5 How many, and how deep
 
 Your accepted-composite target:
 
@@ -228,9 +239,9 @@ Your accepted-composite target:
 
 The row is set by depth, not step count: six steps merging into one final node is depth 2 and belongs in the first row. `check.py` prints the depth.
 
-Expect to write more than 59 and discard some; the time in section 14 allows for that. Allow extra time for the deep rows, and do not pad a problem with algebra to raise its step count.
+Expect to write more than 59 and discard some; the time in section 12 allows for that. Allow extra time for the deep rows, and do not pad a problem with algebra to raise its step count.
 
-## 10. Coverage and reuse
+### 8.6 Coverage and reuse
 
 Composites must spread across your unit, not cluster on the few atoms that chain
 most easily. Run `python3 coverage.py`:
@@ -250,7 +261,7 @@ Also, by hand:
 
 Do not paraphrase the same skeleton to raise the counts.
 
-## 11. Exclusions
+## 9. Exclusions
 
 Do not build templates that need:
 
@@ -264,7 +275,7 @@ Do not build templates that need:
 - several independent questions presented as one composite;
 - a tiny finite set of repeated cases.
 
-## 12. Validation and QA
+## 10. Validation and QA
 
 ```bash
 python3 annotate_graphs.py     # after editing graphs.jsonl
@@ -282,7 +293,7 @@ Then read:
 
 Everything must pass before you submit.
 
-## 13. Cross-review
+## 11. Cross-review
 
 Review one batch from another annotator:
 
@@ -292,7 +303,7 @@ Review one batch from another annotator:
 
 Mark each `correct`, `incorrect` or `uncertain`, with a short note for the last two. The lead resolves uncertain cases and reviews every composite with five or more steps.
 
-## 14. Time
+## 12. Time
 
 | Stage | Time |
 |---|---:|
@@ -305,7 +316,7 @@ Mark each `correct`, `incorrect` or `uncertain`, with a short note for the last 
 | Cross-review and cleanup | 7 hours |
 | **Total** | **approximately 72 hours** |
 
-## 15. Deliverable files
+## 13. Deliverable files
 
 ```text
 coverage_<unit>.tsv
