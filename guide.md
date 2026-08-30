@@ -12,7 +12,7 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 |---|---:|---|
 | Atoms for your unit | 25-35 | section 4 |
 | Accepted atomic templates | 35-45 | section 5 |
-| Accepted composite templates | **59** | section 8.5, by depth |
+| Accepted composite templates | **55-65** | section 8.5, by depth |
 | Cross-review batch | 1 | section 11 |
 
 Each section repeats its own target, so you can work from the section rather
@@ -110,7 +110,7 @@ def angle_deg_rad(deg):
 
 ## 8. Strict composite templates
 
-**Target: 59 accepted composites, spread over the depths in 8.5.**
+**Target: 55-65 accepted composites, spread over the depths in 8.5.**
 
 ### 8.1 Finding a composite
 
@@ -230,16 +230,16 @@ Your accepted-composite target:
 
 | Longest chain of steps | Accepted templates |
 |---:|---:|
-| 2 | 20 |
-| 3 | 16 |
-| 4 | 12 |
-| 5 | 7 |
-| 6 | 4 |
-| **Total** | **59** |
+| 2 | 18-22 |
+| 3 | 14-18 |
+| 4 | 10-14 |
+| 5 | 6-8 |
+| 6 | 3-5 |
+| **Total** | **55-65** |
 
 The row is set by depth, not step count: six steps merging into one final node is depth 2 and belongs in the first row. `check.py` prints the depth.
 
-Expect to write more than 59 and discard some; the time in section 12 allows for that. Allow extra time for the deep rows, and do not pad a problem with algebra to raise its step count.
+Expect to write more than that and discard some; the time in section 12 allows for that. Allow extra time for the deep rows, and do not pad a problem with algebra to raise its step count.
 
 ### 8.6 Coverage and reuse
 
