@@ -1,3 +1,4 @@
+import ast
 import argparse, inspect, json, math, random
 from fractions import Fraction
 from pathlib import Path
@@ -11,7 +12,18 @@ def term(coef, suffix=""):
     return f" {'−' if coef < 0 else '+'} {body}"
 
 
+def coef(a, body=""):
+    """Leading coefficient as it should be read: 1 vanishes, -1 becomes a sign."""
+    if a == 1:
+        return body
+    if a == -1:
+        return "−" + body
+    return f"{a}{body}"
+
+
 def linfac(a, v="x"):
+    if a == 0:
+        return v
     return f"({v} − {a})" if a > 0 else f"({v} + {-a})"
 
 
@@ -26,7 +38,9 @@ SAFE = {
     "comb": math.comb, "gcd": math.gcd,
     "Fraction": Fraction, "sqrt": sympy.sqrt,
     "pi": sympy.pi, "ceiling": sympy.ceiling,
+    "coef": coef,
     "pf": solver.pf,
+    "lineq": solver.lineq,
     "ordinal": solver.ordinal,
     "pi_coeff": solver._pi_coeff_str,
     "sin_base_angle": solver.sin_base_angle,
@@ -39,6 +53,56 @@ SAFE = {
 }
 
 MAX_TRIES = 500
+
+
+# --- structured values (audit section 11)
+#
+# Specialist Mathematics needs points, vectors, complex numbers, matrices and
+# finite sets as step outputs. One convention covers all of them: a tuple of
+# exact scalars, rendered with canon() and read back with parse_struct().
+#
+#   point / vector       (3, -4)
+#   complex (re, im)     (2, 5)
+#   matrix               ((1, 2), (3, 4))
+#   finite set           sorted tuple
+#
+# A step may emit one only if canon() round-trips it exactly, so it survives the
+# model's text trace like any scalar.
+
+def canon(v):
+    """Canonical text for a step output. Exact -- never a float."""
+    if isinstance(v, tuple):
+        return "(" + ", ".join(canon(x) for x in v) + ")"
+    if isinstance(v, Fraction):
+        return str(v.numerator) if v.denominator == 1 else f"{v.numerator}/{v.denominator}"
+    if isinstance(v, float):
+        raise TypeError("floats are not exact; use Fraction")
+    if isinstance(v, bool):
+        raise TypeError("a bool cannot round-trip; emit the value it decides")
+    return str(v)
+
+
+def parse_struct(text):
+    """Inverse of canon() for tuples of exact scalars. Evaluates nothing else."""
+    def walk(n):
+        if isinstance(n, ast.Tuple):
+            return tuple(walk(e) for e in n.elts)
+        if isinstance(n, ast.Constant) and type(n.value) is int:
+            return n.value
+        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub):
+            return -walk(n.operand)
+        if isinstance(n, ast.BinOp) and isinstance(n.op, ast.Div):
+            return Fraction(walk(n.left), walk(n.right))
+        raise ValueError(f"not a structured value: {ast.dump(n)[:40]}")
+    return walk(ast.parse(text.strip(), mode="eval").body)
+
+
+def round_trips(v):
+    """True if v is a structured value that survives being written out and read back."""
+    try:
+        return parse_struct(canon(v)) == v
+    except Exception:
+        return False
 
 
 def run_graph(t, vals):
@@ -75,15 +139,41 @@ def sample_var(rule, ctx):
     raise ValueError(rule["type"])
 
 
+def derive_order(derive):
+    """derive names, dependencies first. Declaration order in the JSON must not
+    decide whether a derive can see the value it reads."""
+    deps = {}
+    for name, expr in derive.items():
+        reads = {n.id for n in ast.walk(ast.parse(expr, mode="eval"))
+                 if isinstance(n, ast.Name)}
+        deps[name] = reads & set(derive) - {name}
+    out, seen = [], set()
+
+    def visit(n, stack):
+        if n in seen:
+            return
+        if n in stack:
+            raise ValueError(f"derive cycle: {' -> '.join(list(stack) + [n])}")
+        for d in sorted(deps[n]):
+            visit(d, stack | {n})
+        seen.add(n)
+        out.append(n)
+
+    for n in derive:
+        visit(n, set())
+    return out
+
+
 def sample(t):
+    order = derive_order(t.get("derive") or {})
     for _ in range(MAX_TRIES):
         vals = {}
         if t.get("cases"):
             vals.update(random.choice(t["cases"]))
         for k, r in (t.get("vars") or {}).items():
             vals[k] = sample_var(r, vals)
-        for name, expr in (t.get("derive") or {}).items():
-            vals[name] = evaluate(expr, vals)
+        for name in order:
+            vals[name] = evaluate(t["derive"][name], vals)
         if all(evaluate(c, vals) for c in (t.get("constraints") or [])):
             return enrich(vals)
     raise RuntimeError(f"{t['id']}: no assignment satisfied constraints in {MAX_TRIES} tries")

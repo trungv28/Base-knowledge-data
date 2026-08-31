@@ -2,8 +2,8 @@ import ast, json
 from pathlib import Path
 
 HERE = Path(__file__).parent
-ORDER = ["id", "atoms", "template", "cases", "vars", "derive", "constraints",
-         "solver", "graph"]
+ORDER = ["id", "unit", "atoms", "template", "cases", "vars", "derive", "constraints",
+         "solver", "finite_support", "graph"]
 
 
 def load(path):
@@ -22,18 +22,16 @@ def wiring(expr, prior, question_vars):
     return ins
 
 
-def build(composite_path=None, graphs_path=None):
-    composite_path = composite_path or HERE / "composite.jsonl"
-    graphs_path = graphs_path or HERE / "graphs.jsonl"
-    graphs = {g["id"]: g["nodes"] for g in load(graphs_path)}
-
-    out, done, missing = [], 0, []
-    for c in load(composite_path):
+def expand(composites, graphs):
+    """Composite rows with their graph rebuilt from the specs. Pure -- validate.py
+    calls this to prove composite.jsonl is not stale against graphs.jsonl."""
+    out, missing = [], []
+    for c in composites:
+        c = dict(c)
         spec = graphs.get(c["id"])
         if spec is None:
             missing.append(c["id"])
-            out.append(json.dumps(c, separators=(",", ":"),
-                                  ensure_ascii=False) + "\n")
+            out.append(c)
             continue
         qvars = set(c.get("vars") or {}) | set(c.get("derive") or {})
         for case in (c.get("cases") or []):
@@ -57,13 +55,19 @@ def build(composite_path=None, graphs_path=None):
             if nd["atom_id"] and nd["atom_id"] != "arithmetic" and nd["atom_id"] not in seen:
                 seen.append(nd["atom_id"])
         c["atoms"] = seen
-        c = {k: c[k] for k in ORDER if k in c}
-        out.append(json.dumps(c, separators=(",", ":"),
-                              ensure_ascii=False) + "\n")
-        done += 1
+        out.append({k: c[k] for k in ORDER if k in c})
+    return out, missing
 
-    open(composite_path, "w", encoding="utf-8").writelines(out)
-    print(f"annotated {done} composites; unannotated: {len(missing)} {missing}")
+
+def build(composite_path=None, graphs_path=None):
+    composite_path = composite_path or HERE / "composite.jsonl"
+    graphs_path = graphs_path or HERE / "graphs.jsonl"
+    graphs = {g["id"]: g["nodes"] for g in load(graphs_path)}
+    rows, missing = expand(load(composite_path), graphs)
+    open(composite_path, "w", encoding="utf-8").writelines(
+        json.dumps(r, separators=(",", ":"), ensure_ascii=False) + "\n" for r in rows)
+    print(f"annotated {len(rows) - len(missing)} composites; "
+          f"unannotated: {len(missing)} {missing}")
 
 
 if __name__ == "__main__":

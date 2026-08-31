@@ -3,11 +3,13 @@ import argparse, collections, inspect, itertools, json, random, sys
 from pathlib import Path
 
 import generate
+import annotate_graphs
 import solver
 
 HERE = Path(__file__).parent
 ENUM_LIMIT = 200_000
 MC_DRAWS = 4_000
+MIN_SUPPORT = 128
 
 
 def domains(t):
@@ -22,17 +24,17 @@ def domains(t):
 
 
 def support(t):
+    """Distinct rendered questions, per guide 8.4 -- not distinct parameter
+    assignments. Two assignments that render the same text are one question, so
+    a variable the template never prints inflates the assignment count without
+    adding a single instance."""
     doms = domains(t)
     cases = t.get("cases") or [None]
     raw = len(cases)
     for _, vs in doms:
         raw *= len(vs)
-    sym = any(isinstance(x, str)
-              for r in (t.get("vars") or {}).values() for x in r.get("exclude", []))
-    if not t.get("constraints") and not sym:
-        return raw, True
     if raw <= ENUM_LIMIT:
-        n = 0
+        seen = set()
         for case in cases:
             for combo in itertools.product(*[vs for _, vs in doms]):
                 vals = dict(case) if case else {}
@@ -47,19 +49,29 @@ def support(t):
                     vals[k] = v
                 if not ok:
                     continue
-                for name, expr in (t.get("derive") or {}).items():
-                    vals[name] = generate.evaluate(expr, vals)
-                if all(generate.evaluate(c, vals) for c in (t.get("constraints") or [])):
-                    n += 1
-        return n, True
-    hits = 0
+                try:
+                    for name, expr in (t.get("derive") or {}).items():
+                        vals[name] = generate.evaluate(expr, vals)
+                    if not all(generate.evaluate(c, vals)
+                               for c in (t.get("constraints") or [])):
+                        continue
+                    seen.add(t["template"].format(**generate.enrich(dict(vals))))
+                except Exception:
+                    continue
+        return len(seen), True
+    # too large to enumerate: sample, and scale the accept rate by the rate at
+    # which accepted draws collide onto text already seen
+    seen, hits = set(), 0
     for _ in range(MC_DRAWS):
         try:
-            generate.sample(t)
+            vals = generate.sample(t)
+            seen.add(t["template"].format(**vals))
             hits += 1
         except Exception:
             pass
-    return round(raw * hits / MC_DRAWS), False
+    if not hits:
+        return 0, False
+    return round(raw * len(seen) / MC_DRAWS), False
 
 
 def graph_edges(g):
@@ -112,6 +124,71 @@ def main():
 
     def bad(kind, tid, msg):
         fail.append(f"[{kind}] {tid}: {msg}")
+
+    # 12.1: a name in both cases and vars is sampled over its case value, so a
+    # question can state a premise the answer contradicts.
+    for t in tem + comp:
+        for case in (t.get("cases") or []):
+            ov = sorted(set(case) & set(t.get("vars") or {}))
+            if ov:
+                bad("cases", t["id"], f"also sampled in vars: {', '.join(ov)}")
+                break
+
+    # 5: a string exclusion silently does nothing if the name it reads has not
+    # been sampled yet, and a derive that reads an undeclared name only shows up
+    # as a mystery rejection. Both are declaration-order traps -- fail on them.
+    for t in tem + comp:
+        seen_vars = set(t.get("cases") and t["cases"][0] or {})
+        for k, rule in (t.get("vars") or {}).items():
+            for e in rule.get("exclude", []):
+                if isinstance(e, str) and e not in seen_vars:
+                    bad("order", t["id"],
+                        f"{k} excludes {e!r}, which is not sampled before it")
+            seen_vars.add(k)
+        known = seen_vars | set(generate.SAFE)
+        try:
+            for name in generate.derive_order(t.get("derive") or {}):
+                expr = t["derive"][name]
+                for n in ast.walk(ast.parse(expr, mode="eval")):
+                    if isinstance(n, ast.Name) and n.id not in known:
+                        bad("order", t["id"],
+                            f"derive {name} reads {n.id!r}, which is not defined")
+                known.add(name)
+        except ValueError as e:
+            bad("order", t["id"], str(e))
+
+    # A pack is one unit; eight are merged later, so the merge key is
+    # (unit, id). That is unique only if every record names its unit and ids do
+    # not repeat inside the pack.
+    for kind, rows in (("atoms", atoms), ("atomic", tem), ("composite", comp)):
+        seen = set()
+        for r in rows:
+            if not r.get("unit"):
+                bad("unit", r["id"], "no unit field")
+            if r["id"] in seen:
+                bad("unit", r["id"], f"duplicate {kind} id")
+            seen.add(r["id"])
+    dup = ({t["id"] for t in tem} & {c["id"] for c in comp}) | \
+          ({a["id"] for a in atoms} & ({t["id"] for t in tem} | {c["id"] for c in comp}))
+    for d in sorted(dup):
+        bad("unit", d, "id used by more than one record kind")
+    units = {r.get("unit") for r in atoms + tem + comp if r.get("unit")}
+    if len(units) > 1:
+        bad("unit", "pack", f"one pack is one unit, found {sorted(units)}")
+
+    # graphs.jsonl is the source; composite.jsonl carries an expansion of it.
+    # Rebuild in memory and diff, so an edited spec that was never re-annotated
+    # fails here instead of silently validating the old graph.
+    specs = {g["id"]: g["nodes"] for g in generate.load(HERE / "graphs.jsonl")}
+    for gid in sorted(set(specs) - {c["id"] for c in comp}):
+        bad("graphs", gid, "graph spec has no composite in composite.jsonl")
+    fresh, ungraphed = annotate_graphs.expand(comp, specs)
+    for cid in ungraphed:
+        bad("graphs", cid, "composite has no graph spec in graphs.jsonl")
+    for old, new in zip(comp, fresh):
+        if old.get("graph") != new.get("graph") or old.get("atoms") != new.get("atoms"):
+            bad("graphs", old["id"],
+                "stale against graphs.jsonl -- run: python3 annotate_graphs.py")
 
     for t in tem:
         if t["atom"] not in atom_ids:
@@ -173,10 +250,14 @@ def main():
             _, outs = generate.run_graph(c, vals)
             final = c["graph"]["final"].split(".")[0]
             for nid, o in outs.items():
-                if nid != final and isinstance(o, (list, tuple, dict, bool)):
+                if nid == final or not isinstance(o, (list, tuple, dict, bool, set)):
+                    continue
+                # a structured value is fine if it survives canon() -> parse(),
+                # which is what the model's text trace has to carry (section 11)
+                if not generate.round_trips(o):
                     bad("graphs", c["id"],
-                        f"node {nid} emits a non-scalar {type(o).__name__}; "
-                        f"intermediate outputs must round-trip as text")
+                        f"node {nid} emits {type(o).__name__} {o!r}, which does not "
+                        f"round-trip as text; use a tuple of exact scalars")
                     break
             question = c["template"].format(**vals)
             # a value can be shown through a derived display string ("3 units left"
@@ -212,17 +293,30 @@ def main():
     else:
         print("all checks passed")
 
-    small = []
+    # 8.4: a standard template must make 128 distinct questions. A genuinely
+    # finite one is allowed through only if it says so, and the lead reviews the
+    # flag -- an undeclared shortfall is a failure, not a note.
+    small, stale = [], []
     for t in tem + comp:
         n, exact = support(t)
-        if n < 128:
+        if n < MIN_SUPPORT and not t.get("finite_support"):
             small.append((t["id"], n, "exact" if exact else "approx"))
-    print(f"\ntemplates that cannot make 128 distinct questions: {len(small)}")
-    for i, n, e in sorted(small, key=lambda x: x[1])[:15]:
-        print(f"   {i:<46} {n:>6}  ({e})")
-    if len(small) > 15:
-        print(f"   ... and {len(small) - 15} more")
-    return 1 if fail else 0
+        elif n >= MIN_SUPPORT and t.get("finite_support"):
+            stale.append((t["id"], n))
+    declared = sum(1 for t in tem + comp if t.get("finite_support"))
+    print(f"\nfinite_support declared: {declared}   "
+          f"(excluded from the 8.4 target; lead must approve each)")
+    if small:
+        print(f"\nFAILED: {len(small)} templates make under {MIN_SUPPORT} distinct "
+              f"questions and are not marked finite_support")
+        for i, n, e in sorted(small, key=lambda x: x[1]):
+            print(f"   {i:<46} {n:>6}  ({e})")
+    if stale:
+        print(f"\nFAILED: {len(stale)} marked finite_support but reach "
+              f"{MIN_SUPPORT}; drop the flag")
+        for i, n in stale:
+            print(f"   {i:<46} {n:>6}")
+    return 1 if (fail or small or stale) else 0
 
 
 if __name__ == "__main__":

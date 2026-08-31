@@ -42,12 +42,29 @@ def check(t, covered):
             or n["expr"].strip() in {f"str({p})" for p in par[n["node_id"]]}]
     rule(2, "every step computes something", not dead, ", ".join(dead))
 
-    copies = {n["node_id"] for n in nodes if n["expr"].strip() in qvars}
+    def reads_only(expr):
+        """the bare question variable this node hands on, or None. str(a_val) and
+        Fraction(a_val) are the same direct read as a_val -- none is a step."""
+        e = expr.strip()
+        for w in ("str(", "int(", "Fraction("):
+            if e.startswith(w) and e.endswith(")"):
+                e = e[len(w):-1].strip()
+        return e if e in qvars else None
 
-    def depth(nid):
-        return 0 if nid in copies else 1 + max([depth(p) for p in par[nid]], default=0)
-    d = max(depth(n) for n in ids)
-    rule(3, "depth at least two", d >= 2, f"depth {d}, {len(copies)} copied from question")
+    copies = {n["node_id"] for n in nodes if reads_only(n["expr"])}
+    plumbing = copies | {n["node_id"] for n in nodes if n["atom_id"] == "arithmetic"}
+
+    def chain(nid):
+        step = 0 if nid in plumbing else 1
+        return step + max([chain(p) for p in par[nid]], default=0)
+    real = len(ids) - len(plumbing)
+    d = max(chain(n) for n in ids)
+    # steps is the project's depth: how many atoms are actually applied. A direct
+    # read of a question variable and a plain arithmetic combine are neither.
+    rule(3, "at least two real steps", real >= 2,
+         f"{real} real steps, longest chain {d}, {len(ids)} nodes, "
+         f"{len(copies)} direct reads, {len(plumbing) - len(copies)} arithmetic"
+         + ("   [wide, not deep: no atom feeds another]" if real >= 2 and d < 2 else ""))
 
     atoms = {n["atom_id"] for n in nodes if n["atom_id"] and n["atom_id"] != "arithmetic"}
     rule(4, "at least two different atoms", len(atoms) >= 2, f"{len(atoms)} real atoms")
