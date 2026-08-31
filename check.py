@@ -30,10 +30,14 @@ def check(t, covered):
     ids = [n["node_id"] for n in nodes]
     par = parents(nodes)
     qvars = set(t.get("vars") or {}) | set(t.get("derive") or {})
-    out = []
+    out, reviews = [], []
 
     def rule(n, name, ok, detail=""):
         out.append((n, name, ok, detail))
+
+    def review(msg):
+        """Not a pass/fail -- something a human must judge before acceptance."""
+        reviews.append(msg)
 
     rule(1, "connected and acyclic", not validate.check_graph(t["graph"]),
          "; ".join(validate.check_graph(t["graph"])))
@@ -59,12 +63,26 @@ def check(t, covered):
         return step + max([chain(p) for p in par[nid]], default=0)
     real = len(ids) - len(plumbing)
     d = max(chain(n) for n in ids)
-    # steps is the project's depth: how many atoms are actually applied. A direct
-    # read of a question variable and a plain arithmetic combine are neither.
-    rule(3, "at least two real steps", real >= 2,
-         f"{real} real steps, longest chain {d}, {len(ids)} nodes, "
-         f"{len(copies)} direct reads, {len(plumbing) - len(copies)} arithmetic"
-         + ("   [wide, not deep: no atom feeds another]" if real >= 2 and d < 2 else ""))
+    # Two atoms joined only by arithmetic are parallel facts, not a composition.
+    # Require two DIFFERENT real atoms on one dependency path.
+    atom_of = {n["node_id"]: n["atom_id"] for n in nodes}
+
+    def path_atoms(nid):
+        """best (count of distinct real atoms, set) along any path ending at nid"""
+        here = set() if nid in plumbing else {atom_of[nid]}
+        best = set()
+        for p in par[nid]:
+            got = path_atoms(p)
+            if len(got) > len(best):
+                best = got
+        return best | here
+
+    deep = max((path_atoms(n) for n in ids), key=len, default=set())
+    rule(3, "two different atoms on one path", len(deep) >= 2,
+         f"{len(deep)} chained atoms {sorted(deep)}; {real} real steps, longest chain {d}, "
+         f"{len(ids)} nodes, {len(copies)} direct reads, "
+         f"{len(plumbing) - len(copies)} arithmetic"
+         + ("   [wide, not deep: no atom feeds another]" if real >= 2 and len(deep) < 2 else ""))
 
     atoms = {n["atom_id"] for n in nodes if n["atom_id"] and n["atom_id"] != "arithmetic"}
     rule(4, "at least two different atoms", len(atoms) >= 2, f"{len(atoms)} real atoms")
@@ -105,11 +123,16 @@ def check(t, covered):
     noop = [f"{k} on {v * 100 // DRAWS}% of draws"
             for k, v in equal_parent.items() if v > DRAWS * 0.9]
     rule(12, "no step repeats its input", not noop, ", ".join(noop))
+    seen_eq = sorted(((v, k) for k, v in equal_parent.items() if 0 < v <= DRAWS * 0.9),
+                     reverse=True)
+    for v, k in seen_eq:
+        review(f"{k} repeats its input on {v * 100 // DRAWS}% of draws "
+               f"-- genuine no-op, or numerical coincidence?")
     if answers:
         top, n = answers.most_common(1)[0]
         rule(13, "final answer varies", n / DRAWS <= 0.6,
              f"{top!r} on {n / DRAWS:.0%}, {len(answers)} distinct")
-    return out, answers, identity_candidates(t)
+    return out, answers, identity_candidates(t), reviews
 
 
 def identity_candidates(t):
@@ -150,10 +173,15 @@ def main():
 
     worst = 0
     for t in comp:
-        out, answers, ident = check(t, covered)
+        out, answers, ident, reviews = check(t, covered)
         failed = [r for r in out if not r[2]]
         worst = max(worst, len(failed))
-        print(f"\n{t['id']}   {'OK' if not failed else str(len(failed)) + ' FAILED'}")
+        flag = "OK" if not failed else f"{len(failed)} FAILED"
+        if reviews and not failed:
+            flag = "REVIEW REQUIRED"
+        print(f"\n{t['id']}   {flag}")
+        for m in reviews:
+            print(f"  REVIEW  {m}")
         for n, name, ok, detail in out:
             tag = "test " + str(n)
             print(f"  {'pass' if ok else 'FAIL'}  {tag:8} {name}"

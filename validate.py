@@ -59,19 +59,32 @@ def support(t):
                 except Exception:
                     continue
         return len(seen), True
-    # too large to enumerate: sample, and scale the accept rate by the rate at
-    # which accepted draws collide onto text already seen
-    seen, hits = set(), 0
+    # too large to enumerate: draw until MIN_SUPPORT distinct questions actually
+    # appear. Never extrapolate from the raw domain -- scaling by an unconstrained
+    # domain reported 25,000 for a template whose true support was 100.
+    seen = set()
     for _ in range(MC_DRAWS):
         try:
-            vals = generate.sample(t)
-            seen.add(t["template"].format(**vals))
-            hits += 1
+            seen.add(t["template"].format(**generate.sample(t)))
         except Exception:
             pass
-    if not hits:
-        return 0, False
-    return round(raw * len(seen) / MC_DRAWS), False
+        if len(seen) >= MIN_SUPPORT:
+            return len(seen), True          # threshold met: no estimate needed
+    return len(seen), False                 # a floor, not an estimate
+
+
+def canonical(v):
+    """One exact value that survives being written out and read back.
+
+    Scalars (int, str, Fraction, sympy) pass; a tuple passes only if canon() and
+    parse_struct() reproduce it. dict, list, set, bool and float never do."""
+    if isinstance(v, bool) or isinstance(v, float):
+        return False
+    if isinstance(v, tuple):
+        return generate.round_trips(v)
+    if isinstance(v, (dict, list, set)):
+        return False
+    return True
 
 
 def graph_edges(g):
@@ -210,9 +223,28 @@ def main():
             except Exception as e:
                 bad("generation", t["id"], f"{type(e).__name__}: {e}")
                 break
+            if not canonical(a):
+                bad("answer", t["id"],
+                    f"answer is {type(a).__name__} {a!r}; an answer must be one "
+                    f"canonical value (no dict, list, set, bool or float)")
+                break
             key = json.dumps(a, sort_keys=True, default=str)
             if seen.setdefault(q, key) != key:
                 bad("determinism", t["id"], "same question, two different answers")
+                break
+
+    # 10: the same question under two templates -- worse when their atom labels
+    # differ, since the two rows then teach contradictory credit for one question
+    origin = {}
+    for t in tem + comp:
+        for _ in range(args.draws):
+            try:
+                q = t["template"].format(**generate.sample(t))
+            except Exception:
+                break
+            prev = origin.setdefault(q, t["id"])
+            if prev != t["id"]:
+                bad("duplicate", t["id"], f"renders a question {prev} also renders: {q!r}")
                 break
 
     for c in comp:
@@ -250,14 +282,12 @@ def main():
             _, outs = generate.run_graph(c, vals)
             final = c["graph"]["final"].split(".")[0]
             for nid, o in outs.items():
-                if nid == final or not isinstance(o, (list, tuple, dict, bool, set)):
-                    continue
-                # a structured value is fine if it survives canon() -> parse(),
-                # which is what the model's text trace has to carry (section 11)
-                if not generate.round_trips(o):
+                # every node, final included: what a node emits has to survive the
+                # model's text trace, and a float is never exact
+                if not canonical(o):
                     bad("graphs", c["id"],
-                        f"node {nid} emits {type(o).__name__} {o!r}, which does not "
-                        f"round-trip as text; use a tuple of exact scalars")
+                        f"node {nid} emits {type(o).__name__} {o!r}, which is not one "
+                        f"canonical exact value")
                     break
             question = c["template"].format(**vals)
             # a value can be shown through a derived display string ("3 units left"

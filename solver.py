@@ -18,8 +18,8 @@ def midpoint_compute_y(x1, y1, x2, y2):
 def direct_prop_equation(k, x):
     return str(k * x)
 
-def direct_prop_constant_ratio(y1, x1, x2):
-    return pf(y1 * x2, x1)
+def direct_prop_constant_ratio(y1, x1):
+    return pf(y1, x1)
 
 def linearly_related_equation(m, b, x):
     return str(m * x + b)
@@ -51,12 +51,58 @@ def linear_form_x_intercept(m, c):
         return "none"
     return pf(-c, m)
 
+def poly(pairs, v="x"):
+    """Canonical polynomial text from (power, coefficient) pairs.
+
+    Combines equal powers, drops zero terms, hides a coefficient of 1, and uses a
+    real minus sign -- so no template ever renders '+ -3', '1x', or '+ 0x'."""
+    terms = {}
+    for p, k in pairs:
+        terms[p] = terms.get(p, 0) + k
+    out = ""
+    for p in sorted((p for p, k in terms.items() if k), reverse=True):
+        k = terms[p]
+        body = "" if p == 0 else v if p == 1 else f"{v}^{p}"
+        mag = "" if abs(k) == 1 and body else str(abs(k))
+        piece = f"{mag}{body}"
+        if not out:
+            out = f"−{piece}" if k < 0 else piece
+        else:
+            out += f" {'−' if k < 0 else '+'} {piece}"
+    return out or "0"
+
+
+def bracket(pairs, v="x"):
+    return "(" + poly(pairs, v) + ")"
+
+
+def quad(a, b, c, v="x"):
+    return poly([(2, a), (1, b), (0, c)], v)
+
+
+def cubic(a, b, c, d, v="x"):
+    return poly([(3, a), (2, b), (1, c), (0, d)], v)
+
+
+def lineq(m, x1, y1):
+    """Point-slope line through (x1, y1) with slope m, as display text. Shared by
+    the solver and the graph node so the two cannot drift apart."""
+    m = Fraction(m)
+    b = Fraction(y1) - m * Fraction(x1)
+    if m == 0:
+        return f"y = {pf(b.numerator, b.denominator)}"
+    ms = "x" if m == 1 else "-x" if m == -1 else f"{pf(m.numerator, m.denominator)}x"
+    if b == 0:
+        return f"y = {ms}"
+    sign = "+" if b > 0 else "−"
+    return f"y = {ms} {sign} {pf(abs(b.numerator), b.denominator)}"
+
+
 def linear_equation_slope_yint(m, c):
-    return f"y = {m}x + {c}"
+    return lineq(m, 0, c)
 
 def linear_equation_slope_point(m, x1, y1):
-    b = y1 - m * x1
-    return f"y = {m}x + {b}"
+    return lineq(m, x1, y1)
 
 def linear_perpendicular_find_slope(m, c):
     return pf(-1, m)
@@ -102,7 +148,10 @@ def quad_discriminant_value(a, b, c):
 def quad_complete_square_identity(b):
     p = Fraction(b, 2)
     q = -p * p
-    return f"(x + {pf(p.numerator, p.denominator)})² + {pf(q.numerator, q.denominator)}"
+    ps = pf(p.numerator, p.denominator)
+    sign, mag = ("+", ps) if p >= 0 else ("−", ps.lstrip("-"))
+    return f"(x {sign} {mag})² {'+' if q >= 0 else '−'} {pf(abs(q.numerator), q.denominator)}"
+
 
 def quad_complete_square_p(a, b, c):
     return pf(b, 2 * a)
@@ -132,32 +181,19 @@ def poly_coefficient(a, n, b, m, c, d, k):
     return _collect(a, n, b, m, c, d).get(k, 0)
 
 def poly_quadratic_two_linear(a, b):
-    return f"x^2 - {a+b}x + {a*b}"
+    return poly([(2, 1), (1, -(a + b)), (0, a * b)])
 
 
 def poly_quadratic_repeated(a):
-    return f"x^2 - {2*a}x + {a*a}"
+    return poly([(2, 1), (1, -2 * a), (0, a * a)])
 
 
 def poly_quadratic_leading(p, q, a, b):
-    coeff_x2 = p * q
-    coeff_x = -(p * b + q * a)
-    const = a * b
-    return f"{coeff_x2}x^2 - {-(coeff_x)}x + {const}" if coeff_x < 0 else f"{coeff_x2}x^2 + {coeff_x}x + {const}"
+    return poly([(2, p * q), (1, -(p * b + q * a)), (0, a * b)])
 
 
 def poly_cubic_three_linear(a, b, c):
-    coeff_x2 = -(a + b + c)
-    coeff_x = a*b + b*c + c*a
-    const = -(a * b * c)
-    parts = ["x^3"]
-    if coeff_x2 != 0:
-        parts.append(f"{coeff_x2}x^2" if coeff_x2 < 0 else f"+ {coeff_x2}x^2")
-    if coeff_x != 0:
-        parts.append(f"{coeff_x}x" if coeff_x < 0 else f"+ {coeff_x}x")
-    if const != 0:
-        parts.append(f"{const}" if const < 0 else f"+ {const}")
-    return " ".join(parts)
+    return poly([(3, 1), (2, -(a + b + c)), (1, a*b + b*c + c*a), (0, -(a * b * c))])
 
 
 def poly_cubic_repeated(a):
@@ -175,17 +211,8 @@ def poly_cubic_repeated(a):
 
 
 def poly_cubic_repeated_distinct(a, b):
-    coeff_x2 = -(2*a + b)
-    coeff_x = a*a + 2*a*b
-    const = -(a*a * b)
-    parts = ["x^3"]
-    if coeff_x2 != 0:
-        parts.append(f"{coeff_x2}x^2" if coeff_x2 < 0 else f"+ {coeff_x2}x^2")
-    if coeff_x != 0:
-        parts.append(f"{coeff_x}x" if coeff_x < 0 else f"+ {coeff_x}x")
-    if const != 0:
-        parts.append(f"{const}" if const < 0 else f"+ {const}")
-    return " ".join(parts)
+    return poly([(3, 1), (2, -(2*a + b)), (1, a*a + 2*a*b), (0, -(a*a * b))])
+
 
 def _p_at(a, b, c, d):
     """p(a) for the monic cubic p(x) = x^3 + bx^2 + cx + d."""
@@ -198,48 +225,13 @@ def poly_factor_theorem(a, b, c, d):
 def poly_cubic_factor_quotient(a, b, c, d):
     if a**3 + b * a**2 + c * a + d != 0:
         return "not a factor"
-    coeffs = [1, b, c, d]
-    result = []
-    carry = 0
+    q2 = 1
+    q1 = b + a * q2
+    q0 = c + a * q1
+    return poly([(2, q2), (1, q1), (0, q0)])
 
-    for coeff in coeffs[:-1]:
-        val = coeff + carry
-        result.append(val)
-        carry = val * a
-
-    coeff_x2 = result[0]
-    coeff_x = result[1]
-    const = result[2]
-
-    parts = []
-    if coeff_x2 == 1:
-        parts.append("x^2")
-    elif coeff_x2 == -1:
-        parts.append("-x^2")
-    else:
-        parts.append(f"{coeff_x2}x^2")
-
-    if coeff_x != 0:
-        if coeff_x == 1:
-            parts.append("+ x")
-        elif coeff_x == -1:
-            parts.append("- x")
-        elif coeff_x > 0:
-            parts.append(f"+ {coeff_x}x")
-        else:
-            parts.append(f"{coeff_x}x")
-
-    if const != 0:
-        if const > 0:
-            parts.append(f"+ {const}")
-        else:
-            parts.append(f"{const}")
-
-    return " ".join(parts)
 
 def cubic_factor_quotient(a_val, b_val, c_val, d_val):
-    if _p_at(a_val, b_val, c_val, d_val) != 0:
-        return "not a factor"
     return poly_cubic_factor_quotient(a_val, b_val, c_val, d_val)
 
 
@@ -656,12 +648,7 @@ def tan_asymptotes_and_equation(B, C, a_choice):
     }
 
 def func_midpoint_formula(x1, y1, x2, y2):
-    mx = midpoint_compute_x(x1, y1, x2, y2)
-    my = midpoint_compute_y(x1, y1, x2, y2)
-    return {
-        "midpoint_x": mx,
-        "midpoint_y": my,
-    }
+    return f"({pf(x1 + x2, 2)}, {pf(y1 + y2, 2)})"
 
 
 def func_direct_proportion_full(x1, y1, x2):
@@ -768,19 +755,11 @@ def func_linear_form_from_two_points(x1, y1, x2, y2):
 
 
 def func_linear_equation_slope_yint(m, c):
-    equation = linear_equation_slope_yint(m, c)
-    return {
-        "equation": equation,
-    }
+    return linear_equation_slope_yint(m, c)
 
 
 def func_linear_equation_slope_point(m, x1, y1):
-    point_slope = f"y - {y1} = {m}(x - {x1})"
-    simplified = linear_equation_slope_point(m, x1, y1)
-    return {
-        "point_slope_form": point_slope,
-        "simplified_form": simplified,
-    }
+    return linear_equation_slope_point(m, x1, y1)
 
 
 def func_linear_equation_horizontal_vertical(a, b):
@@ -961,21 +940,11 @@ def quad_hyperbola_intersect(c_val, axis_val, d_val):
     return str(int(k)) if k == int(k) else str(k)
 
 
-def hyperbola_limit_direction(a_val, b_val, d_val, large_x):
-    asymptote = Fraction(d_val)
-    g_val = Fraction(a_val, large_x - b_val) + asymptote
-    return "greater" if g_val > asymptote else "less"
-
-
 def quad_power_vertex(a_val, axis_val, c_val, n_val):
     b = -2 * a_val * axis_val
     vertex_y = a_val * axis_val**2 + b * axis_val + c_val
     power_val = axis_val ** n_val
     return f"{int(vertex_y) if vertex_y == int(vertex_y) else vertex_y}, {power_val}"
-
-
-def invprop_directprop_product(x_val, y_val, z_val):
-    return str(Fraction(y_val * x_val) * Fraction(z_val, x_val))
 
 
 def asymptote_vertex_y(a_val, b_val, d_val, a_quad):
@@ -994,13 +963,6 @@ def poly_degree_coefficient(a_val, n_val, b_val, m_val, c_val, d_val, k_val):
     leading_coeff = poly_leading_coefficient(a_val, n_val, b_val, m_val, c_val, d_val)
     coeff_k = poly_coefficient(a_val, n_val, b_val, m_val, c_val, d_val, k_val)
     return f"{degree}, {leading_coeff}, {coeff_k}"
-
-def quadratic_expand_compare(a_val, b_val, rep_val):
-    const_two_linear = a_val * b_val
-    const_repeated = rep_val * rep_val
-    diff = const_repeated - const_two_linear
-    return str(int(diff)) if diff == int(diff) else str(diff)
-
 
 def quadratic_leading_expand(p_val, a_val, q_val, b_val):
     return str(p_val * q_val)
@@ -1030,12 +992,6 @@ def poly_match_expanded(sum_val, prod_val):
     leading_coeff = 1
     return f"{a_plus_b}, {a_times_b}, {degree}, {leading_coeff}"
 
-
-def cubic_compare_forms(a_val, b_val, c_val, rep_val):
-    coeff_three_linear = -(a_val + b_val + c_val)
-    coeff_repeated = -3 * rep_val
-    larger = "first" if coeff_three_linear > coeff_repeated else "second"
-    return larger
 
 def cubic_vertex_form(a_val, b_val, c_val, n_val):
     turning_point = f"({b_val}, {c_val})"
@@ -1096,10 +1052,6 @@ def cubic_endbehavior_from_coeffs(a_val, b_val, c_val, d_val, test_x, large_x):
 def repeated_root_identify(a_val, b_val):
     return str(a_val)
 
-def repeated_root_third(b_val, root_val):
-    return str(-b_val - 2 * root_val)
-
-
 def circle_standard_point(r_sq_val, x_val):
     import sympy as _s
     y_sq = r_sq_val - x_val**2
@@ -1129,10 +1081,10 @@ def transform_vertical_sequence(c_val, a_val, eval_x):
     return f"{final_eq}, {y_at_eval}"
 
 
-def transform_horizontal_sequence(k_val, shift_val):
-    h = shift_val * k_val
-    final_eq = f"y = ({k_val}x - {h})²" if h > 0 else f"y = ({k_val}x + {-h})²"
-    return final_eq
+def transform_horizontal_sequence(m_val, k_val, shift_val):
+    a = m_val * k_val
+    return (f"y = ({a}x - {a * shift_val})²" if shift_val > 0
+            else f"y = ({a}x + {-a * shift_val})²")
 
 
 def transform_combined_order(k_val, c_val, h_val, v_val):
@@ -1155,11 +1107,6 @@ def transform_dilation_point(x_val, y_val, c_val, k_val):
 def transform_reverse_find_original(c_val, v_val, h_val, final_h, final_v):
     return f"({final_h - h_val}, {pf(final_v - v_val, c_val)})"
 
-
-def transform_compare_outputs(c_val, a_val, eval_x):
-    y1 = c_val * eval_x**2 + a_val
-    y2 = c_val * (eval_x**2 + a_val)
-    return "first" if y1 > y2 else "second"
 
 def transform_horizontal_dilation_eval(k_val, h_val, eval_x):
     transformed_x = k_val * (eval_x - h_val)
@@ -1254,9 +1201,6 @@ def binom_row_sum_compare(n_val, m_val):
     ratio = pf(sum_n, sum_m) if sum_n >= sum_m else pf(sum_m, sum_n)
     return f"{sum_n}, {sum_m}, {ratio}"
 
-
-def binom_specific_term_value(n_val, k_val, n_minus_k_val):
-    return str(math.comb(n_val, k_val) * (2 ** n_minus_k_val))
 
 def pascal_symmetry_sum(n_val, r_val, n_minus_r_val):
     total = math.comb(n_val, r_val) + math.comb(n_val, n_minus_r_val)
@@ -1630,7 +1574,7 @@ def hyperbola_horizontal_asymptote(a, b, d):
 
 
 def inv_proportion_equation(x1, y1):
-    return f"y = {x1 * y1}/x"
+    return str(x1 * y1)
 
 
 def pow_natural_even_limit(n):
@@ -1650,11 +1594,11 @@ def power_sqrt_domain():
 
 
 def quad_general_y_intercept(a, b, c):
-    return f"(0, {c})"
+    return str(c)
 
 
-def binom_coeff_name(n):
-    return "binomial coefficients"
+def binom_coeff_value(n, r):
+    return str(math.comb(n, r))
 
 
 def comb_boundary_zero(n):
@@ -1702,10 +1646,6 @@ def quad_axis_evaluate(a_val, b_val, c_val):
     return str(a_val * axis**2 + b_val * axis + c_val)
 
 
-def repeated_root_product(a_val, b_val):
-    return str(-(a_val * a_val * b_val))
-
-
 def cubic_intercept_translate(a_val, b_val, c_val, v_val):
     return str(-(a_val * b_val * c_val) + v_val)
 
@@ -1745,20 +1685,12 @@ def directprop_evaluate(z1_val, x1_val, x2_val):
     return str(Fraction(z1_val, x1_val) * x2_val)
 
 
-def pascal_row_minus_entry(n_val, r_val):
-    return str(2 ** n_val - math.comb(n_val, r_val))
-
-
 def event_union_complement(total_val, a_val, b_val, i_val):
     return pf(total_val - (a_val + b_val - i_val), total_val)
 
 
 def factor_theorem_find_constant(a_val, b_val, c_val):
     return str(-(a_val**3 + b_val * a_val**2 + c_val * a_val))
-
-
-def pascal_recurrence_larger(n_val, r_val):
-    return str(max(math.comb(n_val - 1, r_val - 1), math.comb(n_val - 1, r_val)))
 
 
 def circle_translate_membership(p_val, q_val, h_val, k_val, x0_val, y0_val):
@@ -1776,20 +1708,16 @@ def quad_vertex_below_intercept(a_val, b_val, c_val):
     return str(c_val - (a_val * axis**2 + b_val * axis + c_val))
 
 
-def binom_coeff_fraction(n_val, k_val):
-    return pf(math.comb(n_val, k_val), 2 ** n_val)
-
-
 def event_intersection_probability(total_val, a_val, b_val, u_val):
     return pf(a_val + b_val - u_val, total_val)
 
 
 def quad_two_linear_translate(a_val, b_val, v_val):
-    return str(a_val * b_val + v_val)
+    return poly([(2, 1), (1, -(a_val + b_val)), (0, a_val * b_val + v_val)])
 
 
 def quad_repeated_dilate(a_val, c_val):
-    return str(c_val * -2 * a_val)
+    return poly([(2, c_val), (1, -2 * a_val * c_val), (0, a_val * a_val * c_val)])
 
 
 def transform_chain_evaluate(c_val, v_val, h_val, e_val):
@@ -1807,8 +1735,6 @@ def transform_chain_inverse(k_val, c_val, h_val, v_val, y_val):
 
 
 def cubic_quotient_chain(a_val, b_val, c_val, d_val):
-    if _p_at(a_val, b_val, c_val, d_val) != 0:
-        return "not a factor"
     return str(-(b_val + a_val))
 
 
@@ -1823,19 +1749,14 @@ def transform_deep_chain_inverse(k_val, c_val, c2_val, h_val, v_val, y_val):
 
 
 def cubic_quotient_roots(a_val, b_val, c_val, d_val, r1_val, r2_val):
-    if _p_at(a_val, b_val, c_val, d_val) != 0:
-        return "not a factor"
     return f"{max(r1_val, r2_val)}, {min(r1_val, r2_val)}"
 
 
-def cubic_expand_divide_vertex(r1_val, r2_val):
-    axis = Fraction(r1_val + r2_val, 2)
-    return str(axis**2 - (r1_val + r2_val) * axis + r1_val * r2_val)
-
-
-def quad_translate_intercept_gap(a_val, b_val, c_val, h_val):
+def quad_translate_intercept_gap(a_val, b_val, c_val, h_val, v_val):
     axis = Fraction(-b_val, 2 * a_val)
-    return str(a_val * (axis + h_val) ** 2)
+    vertex_y = a_val * axis**2 + b_val * axis + c_val
+    x, y = axis + h_val, vertex_y + v_val
+    return f"({pf(x.numerator, x.denominator)}, {pf(y.numerator, y.denominator)})"
 
 
 def quad_axis_translate(a_val, b_val, h_val):
@@ -1891,19 +1812,76 @@ def cubic_vertex_inflection_point(a, b, c):
     return f"({b}, {c})"
 
 
-def lineq(m, x1, y1):
-    """Point-slope line through (x1, y1) with slope m, as display text. Shared by
-    the solver and the graph node so the two cannot drift apart."""
-    m = Fraction(m)
-    b = Fraction(y1) - m * Fraction(x1)
-    if m == 0:
-        return f"y = {pf(b.numerator, b.denominator)}"
-    ms = "x" if m == 1 else "-x" if m == -1 else f"{pf(m.numerator, m.denominator)}x"
-    if b == 0:
-        return f"y = {ms}"
-    sign = "+" if b > 0 else "−"
-    return f"y = {ms} {sign} {pf(abs(b.numerator), b.denominator)}"
-
-
 def line_through_two_points(x1, y1, x2, y2):
     return lineq(Fraction(y2 - y1, x2 - x1), x1, y1)
+
+
+# --- audit section 6 replacements
+
+def repeated_root_vieta(a_val, b_val):
+    return str(-(2 * a_val + b_val))
+
+
+def transform_dilate_translate_point(p_val, q_val, a_val, c_val):
+    return f"({p_val}, {a_val * q_val + c_val})"
+
+
+def pascal_symmetry_recurrence(n_val, r_val):
+    return str(math.comb(n_val, r_val) + math.comb(n_val, n_val - r_val + 1))
+
+
+def cubic_quotient_vertex_translate(a_val, b_val, c_val, d_val, v_val):
+    q1 = b_val + a_val
+    q0 = c_val + a_val * q1
+    axis = Fraction(-q1, 2)
+    y = axis * axis + q1 * axis + q0 + v_val
+    return pf(y.numerator, y.denominator)
+
+
+# --- audit section 3: atoms split off the overloaded quad.formula / circle radius
+
+def sqrt_principal(t_val):
+    import sympy as _s
+    return str(_s.sqrt(t_val))
+
+
+def circle_point_membership(h_val, k_val, r_val, x0_val, y0_val):
+    inside = (x0_val - h_val) ** 2 + (y0_val - k_val) ** 2
+    return "yes" if inside == r_val ** 2 else "no"
+
+
+def circle_y_from_x(h_val, k_val, r_val, x0_val):
+    import sympy as _s
+    root = _s.sqrt(r_val**2 - (x0_val - h_val) ** 2)
+    return f"{k_val + root}, {k_val - root}"
+
+
+# --- audit section 3: func.transform.* acts on one coordinate and returns it.
+# Point-valued transformations live under func.transform.point.* instead.
+
+def transform_v_translate_y(q, a):
+    return str(q + a)
+
+
+def transform_v_dilate_y(q, c):
+    return str(c * q)
+
+
+def transform_h_translate_x(p, b):
+    return str(p - b)
+
+
+def transform_h_dilate_x(p, k):
+    return pf(p, k)
+
+
+def transform_point_v_translate(p, q, a):
+    return f"({p}, {q + a})"
+
+
+def transform_point_v_dilate(p, q, c):
+    return f"({p}, {c * q})"
+
+
+def transform_point_h_translate(p, q, b):
+    return f"({p - b}, {q})"

@@ -3,7 +3,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 ORDER = ["id", "unit", "atoms", "template", "cases", "vars", "derive", "constraints",
-         "solver", "finite_support", "graph"]
+         "solver", "graph"]
 
 
 def load(path):
