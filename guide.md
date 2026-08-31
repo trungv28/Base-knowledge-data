@@ -54,10 +54,12 @@ Granularity rules:
 
 For example, degree/radian conversion is one reversible atom. Calculating a discriminant and classifying roots from it are two atoms.
 
+Keep each unit in its own pack folder and validate it separately; `validate.py` rejects a pack holding more than one unit.
+
 Record only the selected 13–18 atoms in `atoms.jsonl`. Every selected atom needs an atomic template. Use the shared ID style (`func.*`, `trig.*`, `prob.*`). IDs must be unique across the combined dataset. Reuse an existing ID only for the same rule.
 
 ```json
-{"id":"trig.period.tan_linear",
+{"id":"trig.period.tan_linear","unit":"MM1",
  "statement":"The fundamental period of tan(b*x+c) is pi/abs(b), for b != 0.",
  "source":"ACMMM038"}
 ```
@@ -67,14 +69,14 @@ Record only the selected 13–18 atoms in `atoms.jsonl`. Every selected atom nee
 An atomic template must execute its named atom exactly once. Give every other non-background prerequisite and ask for exactly the atom's output. Add a second template only for a different direction or representation.
 
 ```json
-{"id":"angle_deg_rad",
+{"id":"angle_deg_rad","unit":"MM1",
  "atom":"trig.degree_radian_conversion",
  "template":"Convert {deg} degrees to radians.",
  "vars":{"deg":{"type":"int","min":1,"max":360}},
  "solver":"angle_deg_rad"}
 ```
 
-Required fields are `id`, `atom`, `template`, `solver`, and either `vars`, `cases`, or both.
+Required fields are `id`, `unit`, `atom`, `template`, `solver`, and either `vars`, `cases`, or both. Every record in every file carries `unit`.
 
 - `vars` contains independently sampled fields.
 - `cases` contains complete combinations that must stay together.
@@ -103,7 +105,7 @@ The graph records one valid reference solution, not the only solution. Annotate 
 Store the question in `composite.jsonl` and one node per atom application in `graphs.jsonl`. Raw graph nodes contain only `node_id`, `atom_id`, and `expr`; `annotate_graphs.py` adds the generated fields. Write nodes in dependency order; the last node is the final answer. Refer to earlier outputs by `node_id`.
 
 ```json
-{"id":"quadratic_root_nature","nodes":[
+{"id":"quadratic_root_nature","unit":"MM1","nodes":[
   {"node_id":"n1","atom_id":"func.quad.discriminant","expr":"b*b-4*a*c"},
   {"node_id":"n2","atom_id":"func.quad.root_nature",
    "expr":"'two real' if n1>0 else ('repeated real' if n1==0 else 'no real')"}]}
