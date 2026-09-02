@@ -1,8 +1,14 @@
 from fractions import Fraction
+
+
 import math
+
+
 from sympy import sqrt, Rational
 
+
 import common_solvers
+
 
 def ordinal(n):
     n = int(n)
@@ -80,41 +86,6 @@ def pf(num, den):
     return f"{f.numerator}/{f.denominator}"
 
 
-_UNIT_CIRCLE_TABLE = [
-    (0,  Rational(1),      Rational(0)),
-    (1,  sqrt(3)/2,        Rational(1,2)),
-    (2,  Rational(1,2),    sqrt(3)/2),
-    (3,  Rational(0),      Rational(1)),
-    (4,  -Rational(1,2),   sqrt(3)/2),
-    (5,  -sqrt(3)/2,       Rational(1,2)),
-    (6,  -Rational(1),     Rational(0)),
-    (7,  -sqrt(3)/2,       -Rational(1,2)),
-    (8,  -Rational(1,2),   -sqrt(3)/2),
-    (9,  Rational(0),      -Rational(1)),
-    (10, Rational(1,2),    -sqrt(3)/2),
-    (11, sqrt(3)/2,        -Rational(1,2)),
-]
-
-
-_SIN_SPECIAL_MAP = {
-    0: ("0", "π"),
-    1: ("π/6", "5π/6"),
-    2: ("π/2", "π/2"),
-    3: ("π/3", "2π/3"),
-    4: ("7π/6", "11π/6"),
-    5: ("4π/3", "5π/3"),
-}
-
-_SIN_SPECIAL_PI = {
-    0: (Fraction(0), Fraction(1)),
-    1: (Fraction(1, 6), Fraction(5, 6)),
-    2: (Fraction(1, 2), Fraction(1, 2)),
-    3: (Fraction(1, 3), Fraction(2, 3)),
-    4: (Fraction(7, 6), Fraction(11, 6)),
-    5: (Fraction(4, 3), Fraction(5, 3)),
-}
-
-
 def _pi_coeff_str(f):
     f = Fraction(f)
     if f == 0:
@@ -132,14 +103,6 @@ def _pi_coeff_str(f):
     return f"{f.numerator}π/{f.denominator}"
 
 
-_TAN_SPECIAL_MAP = {
-    0: "0",
-    1: "π/4",
-    2: "-π/4",
-    3: "π/3",
-}
-
-
 def quad_hyperbola_intersect(c_val, axis_val, d_val):
     h = axis_val
     d = d_val
@@ -148,33 +111,13 @@ def quad_hyperbola_intersect(c_val, axis_val, d_val):
     return str(int(k)) if k == int(k) else str(k)
 
 
-def asymptote_vertex_y(a_val, b_val, d_val, a_quad):
-    p = b_val
-    q = d_val
-    b_quad = -2 * a_quad * p
-    vertex_y = a_quad * p**2 + b_quad * p + q
-    return str(int(vertex_y)) if vertex_y == int(vertex_y) else str(vertex_y)
-
-
 def transform_horizontal_dilation_eval(k_val, h_val, eval_x):
     transformed_x = k_val * (eval_x - h_val)
     y_at_eval = transformed_x**2
     return str(int(y_at_eval)) if y_at_eval == int(y_at_eval) else str(y_at_eval)
 
 
-from fractions import Fraction
-
-
 import sympy as _sp
-
-
-_SIN_EQ_SOLUTIONS = {
-    "0": [(0, 1), (1, 1)],
-    "1/2": [(1, 6), (5, 6)],
-    "sqrt(2)/2": [(1, 4), (3, 4)],
-    "sqrt(3)/2": [(1, 3), (2, 3)],
-    "-1/2": [(7, 6), (11, 6)],
-}
 
 
 _SIN_BASE_BY_VALUE = {
@@ -199,8 +142,10 @@ def quad_axis_evaluate(a_val, b_val, c_val):
     return str(a_val * axis**2 + b_val * axis + c_val)
 
 
-def cubic_intercept_translate(a_val, b_val, c_val, v_val):
-    return str(-(a_val * b_val * c_val) + v_val)
+def cubic_intercept_translate(b_val, c_val, d_val, e_val, v_val):
+    y = CALL["func.notation.evaluate"](coeffs=(1, b_val, c_val, d_val), x=e_val)
+    return common_solvers.render(
+        CALL["func.transform.vertical_translation"](y=y, a=v_val))
 
 
 def transform_vertical_sequence_eval(c_val, v_val, e_val):
@@ -221,10 +166,6 @@ def invprop_shifted_evaluate(y1_val, x1_val, v_val, x2_val):
 
 def directprop_evaluate(z1_val, x1_val, x2_val):
     return str(Fraction(z1_val, x1_val) * x2_val)
-
-
-def cubic_quotient_root_sum(a_val, b_val):
-    return str(-(b_val + a_val))
 
 
 def quad_vertex_below_intercept(a_val, b_val, c_val):
@@ -251,20 +192,6 @@ def transform_full_chain_evaluate(k_val, c_val, h_val, v_val, e_val):
 def transform_chain_inverse(k_val, c_val, h_val, v_val, y_val):
     import sympy as _s
     inner = _s.sqrt(Fraction(y_val - v_val, c_val))
-    return str(Fraction(int(inner), k_val) + h_val)
-
-
-def cubic_quotient_chain(a_val, b_val, c_val, d_val):
-    return str(-(b_val + a_val))
-
-
-def transform_deep_chain_evaluate(k_val, c_val, c2_val, h_val, v_val, e_val):
-    return str(c2_val * (c_val * (k_val * (e_val - h_val)) ** 2 + v_val))
-
-
-def transform_deep_chain_inverse(k_val, c_val, c2_val, h_val, v_val, y_val):
-    import sympy as _s
-    inner = _s.sqrt(Fraction(Fraction(y_val, c2_val) - v_val, c_val))
     return str(Fraction(int(inner), k_val) + h_val)
 
 
@@ -406,12 +333,8 @@ def poly_cubic_three_linear_atom(a, b, c):
     return coeff_poly(CALL["func.poly.cubic_three_linear"](a=a, b=b, c=c))
 
 
-def poly_roots_sum_atom(a, b, c):
-    return common_solvers.render(CALL["func.poly.roots_sum"](coeffs=(a, b, c)))
-
-
 def quad_coefficient_from_axis_atom(a, axis):
-    return common_solvers.render(CALL["func.quad_general.coefficient_from_axis"](a=a, axis=axis))
+    return common_solvers.render(CALL["func.quad_general.axis_coefficient"](a=a, axis=axis))
 
 
 def poly_v_translate_atom(a, b, c, v):
@@ -424,3 +347,7 @@ def poly_v_dilate_atom(a, b, c, k):
 
 def inv_prop_evaluate_atom(k, x):
     return common_solvers.render(CALL["func.inv_proportion.evaluate"](k=k, x=x))
+
+
+def poly_factor_theorem_atom(a, pa):
+    return CALL["func.poly.factor_theorem"](p_at_a=pa).capitalize()

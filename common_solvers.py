@@ -100,15 +100,9 @@ def hyperbola_evaluate(a, b, d, x):
     return Fraction(a, x - b) + d
 
 
-@atom("func.quad_general.coefficient_from_axis")
+@atom("func.quad_general.axis_coefficient")
 def quad_coefficient_from_axis(a, axis):
     return -2 * a * axis
-
-
-@atom("func.poly.roots_sum")
-def poly_roots_sum(coeffs):
-    a, b, _ = coeffs
-    return Fraction(-b, a)
 
 
 @atom("func.notation.evaluate")

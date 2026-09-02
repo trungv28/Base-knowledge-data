@@ -107,15 +107,6 @@ def _(f):
     return True
 
 
-@check("func.poly.roots_sum")
-def _(f):
-    for a, b, c in ((1, -5, 6), (2, 7, 3)):
-        want = sum(sp.solve(sp.Eq(a * x**2 + b * x + c, 0), x))
-        if sp.simplify(want - f(coeffs=(a, b, c))) != 0:
-            return False
-    return True
-
-
 @check("func.hyperbola.vertical_asymptote")
 def _(f):
     for a, b in ((3, 4), (-2, -5)):
@@ -242,7 +233,7 @@ def _(f):
     return True
 
 
-@check("func.quad_general.coefficient_from_axis")
+@check("func.quad_general.axis_coefficient")
 def _(f):
     for a, p in ((2, 1), (-3, sp.Rational(5, 2))):
         b = f(a=a, axis=p)
@@ -306,12 +297,6 @@ def _(v):
     return g.subs(x, v["e_val"])
 
 
-@composite("transform_deep_chain_evaluate")
-def _(v):
-    g = v["c2_val"] * (v["c_val"] * (v["k_val"] * (x - v["h_val"]))**2 + v["v_val"])
-    return g.subs(x, v["e_val"])
-
-
 @composite("transform_hdilate_translate_eval")
 def _(v):
     return ((v["k_val"] * x)**2 + v["v_val"]).subs(x, v["e_val"])
@@ -329,13 +314,6 @@ def _(v):
     return max(roots)
 
 
-@composite("transform_deep_chain_inverse")
-def _(v):
-    g = v["c2_val"] * (v["c_val"] * (v["k_val"] * (x - v["h_val"]))**2 + v["v_val"])
-    roots = [r for r in sp.solve(sp.Eq(g, v["y_val"]), x) if r.is_real]
-    return max(roots)
-
-
 @composite("directprop_evaluate")
 def _(v):
     return sp.Rational(v["z1_val"], v["x1_val"]) * v["x2_val"]
@@ -348,21 +326,8 @@ def _(v):
 
 @composite("cubic_intercept_translate")
 def _(v):
-    p = sp.expand((x - v["a_val"]) * (x - v["b_val"]) * (x - v["c_val"])) + v["v_val"]
-    return p.subs(x, 0)
-
-
-@composite("cubic_quotient_root_sum")
-def _(v):
-    p = x**3 + v["b_val"]*x**2 + v["c_val"]*x + v["d_val"]
-    q, r = sp.div(p, x - v["a_val"], x)
-    assert r == 0
-    return sum(root * m for root, m in sp.roots(sp.Poly(q, x)).items())
-
-
-@composite("cubic_quotient_chain")
-def _(v):
-    return COMPOSITE_CHECKS["cubic_quotient_root_sum"](v)
+    p = x**3 + v["b_val"] * x**2 + v["c_val"] * x + v["d_val"]
+    return p.subs(x, v["e_val"]) + v["v_val"]
 
 
 @composite("cubic_quotient_vertex_translate")
@@ -393,14 +358,6 @@ def _(v):
 def _(v):
     g = sp.Rational(v["a_val"], 1) / (x - (v["b_val"] + v["h_val"])) + v["d_val"]
     return g.subs(x, v["e_val"])
-
-
-@composite("asymptote_vertex_y")
-def _(v):
-    p, q, a = v["b_val"], v["d_val"], v["a_quad"]
-    quad = a*x**2 + (-2*a*p)*x + q
-    assert sp.solve(sp.diff(quad, x), x)[0] == p
-    return quad.subs(x, p)
 
 
 @composite("quad_hyperbola_intersect")
