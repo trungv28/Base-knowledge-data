@@ -6,9 +6,6 @@ from pathlib import Path
 import sympy
 import solver
 
-# Names a template may use inside "derive", "constraints" and graph node
-# expressions. Node expressions are the per-atom executors: each one applies a
-# single atom to its declared inputs, independently of the monolithic solver.
 def term(coef, suffix=""):
     if coef == 0:
         return ""
@@ -17,7 +14,6 @@ def term(coef, suffix=""):
 
 
 def coef(a, body=""):
-    """Leading coefficient as it should be read: 1 vanishes, -1 becomes a sign."""
     if a == 1:
         return body
     if a == -1:
@@ -50,7 +46,7 @@ SAFE = {
     "lineq": solver.lineq,
     "pf": solver.pf,
     "ordinal": solver.ordinal,
-    "pi_coeff": solver._pi_coeff_str,   # rendering helper only, not maths
+    "pi_coeff": solver._pi_coeff_str,
     "sin_base_angle": solver.sin_base_angle,
     "poly_factor_theorem": solver.poly_factor_theorem,
     "poly_degree": solver.poly_degree,
@@ -63,22 +59,7 @@ SAFE = {
 MAX_TRIES = 500
 
 
-# --- structured values (audit section 11)
-#
-# Specialist Mathematics needs points, vectors, complex numbers, matrices and
-# finite sets as step outputs. One convention covers all of them: a tuple of
-# exact scalars, rendered with canon() and read back with parse_struct().
-#
-#   point / vector       (3, -4)
-#   complex (re, im)     (2, 5)
-#   matrix               ((1, 2), (3, 4))
-#   finite set           sorted tuple
-#
-# A step may emit one only if canon() round-trips it exactly, so it survives the
-# model's text trace like any scalar.
-
 def canon(v):
-    """Canonical text for a step output. Exact -- never a float."""
     if isinstance(v, tuple):
         if len(v) == 1:
             return f"({canon(v[0])},)"
@@ -93,7 +74,6 @@ def canon(v):
 
 
 def parse_struct(text):
-    """Inverse of canon() for tuples of exact scalars. Evaluates nothing else."""
     def walk(n):
         if isinstance(n, ast.Tuple):
             return tuple(walk(e) for e in n.elts)
@@ -108,7 +88,6 @@ def parse_struct(text):
 
 
 def round_trips(v):
-    """True if v is a structured value that survives being written out and read back."""
     try:
         return parse_struct(canon(v)) == v
     except Exception:
@@ -116,21 +95,14 @@ def round_trips(v):
 
 
 def run_graph(t, vals):
-    """Execute a composite's DAG node by node.
-
-    Each node's `expr` is evaluated against the question variables plus the
-    outputs of earlier nodes (bound under their node_id). Returns
-    (final_answer, {node_id: output}), or (None, None) if unannotated.
-    """
     g = t.get("graph")
     if not g:
         return None, None
     env, outs = dict(vals), {}
     for node in g["nodes"]:
         v = evaluate(node["expr"], env)
-        # a structured output is carried between steps as its canonical text, the
-        # same form the model's trace has to write (§11); the live value stays in
-        # env so the next node still computes on it
+
+
         outs[node["node_id"]] = canon(v) if isinstance(v, tuple) else v
         env[node["node_id"]] = v
     return outs[g["final"].split(".")[0]], outs
@@ -146,8 +118,6 @@ def evaluate(expr, vals):
 
 
 def sample_var(rule, ctx):
-    """Sample one variable. `exclude` entries may be literals or names of
-    already-sampled variables ("must differ from a_val")."""
     if rule["type"] == "choice":
         return random.choice(rule["values"])
     if rule["type"] == "int":
@@ -161,8 +131,6 @@ def sample_var(rule, ctx):
 
 
 def derive_order(derive):
-    """derive names, dependencies first. Declaration order in the JSON must not
-    decide whether a derive can see the value it reads."""
     deps = {}
     for name, expr in derive.items():
         reads = {n.id for n in ast.walk(ast.parse(expr, mode="eval"))
@@ -186,7 +154,6 @@ def derive_order(derive):
 
 
 def sample(t):
-    """Sample vars/cases, add derived values, and enforce constraints by rejection."""
     order = derive_order(t.get("derive") or {})
     for _ in range(MAX_TRIES):
         vals = {}
@@ -287,7 +254,6 @@ def make(t):
 
 
 def instances(t, want, tries_per_hit=40):
-    """Up to `want` instances of one template, no repeated rendered question."""
     fn = getattr(solver, t["solver"])
     params = inspect.signature(fn).parameters
     seen, rows = set(), []
@@ -305,9 +271,6 @@ def instances(t, want, tries_per_hit=40):
     return rows
 
 
-# §8: how many instances each partition draws per template, in order. The
-# partitions of one template are carved from a single deduplicated pool, so no
-# rendered question is ever shared across partitions.
 ATOMIC_PARTITIONS = [("atomic_train", 64), ("atomic_dev", 32), ("atomic_test", 32)]
 COMPOSITE_PARTITIONS = {
     "train": [("composite_train_prompts", 64), ("composite_train_unseen_value", 64)],
@@ -318,14 +281,6 @@ COMPOSITE_PARTITIONS = {
 
 
 def allocate(pool, plan):
-    """How many instances each partition gets.
-
-    Full quota when the pool allows it. When a template's support is too small,
-    share proportionally (largest remainder) instead of filling the first
-    partition and starving the rest — a template with no dev instances cannot be
-    used for atom-mastery classification at all (§15). §8 forbids duplicating to
-    make up the difference, so the partitions simply come out smaller.
-    """
     want = [w for _, w in plan]
     total = sum(want)
     if pool >= total:
@@ -340,7 +295,6 @@ def allocate(pool, plan):
 
 
 def write_partitioned(rows, t, plan, pub, prv, counts):
-    """Carve one template's instance pool into its partitions, in order."""
     sizes = allocate(len(rows), plan)
     i = 0
     for (name, want), size in zip(plan, sizes):
@@ -355,8 +309,8 @@ def write_partitioned(rows, t, plan, pub, prv, counts):
                 public["step_ids"] = [x["node_id"] for x in t["graph"]["nodes"]]
             pub[name].write(json.dumps(public, separators=(",", ":"),
                                        ensure_ascii=False) + "\n")
-            # question_vars lets the verifier check root bindings against values
-            # actually shown in the question (§10). Private, like the rest.
+
+
             prv[name].write(json.dumps({"instance_id": iid, "answer": answer,
                                         "node_outputs": node_outputs,
                                         "question_vars": vals},

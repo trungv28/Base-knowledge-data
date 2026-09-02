@@ -26,6 +26,10 @@ def shown(t):
 
 
 def check(t, covered):
+
+
+    if "graph" not in t:
+        return None, None, None, None
     nodes = t["graph"]["nodes"]
     ids = [n["node_id"] for n in nodes]
     par = parents(nodes)
@@ -36,7 +40,6 @@ def check(t, covered):
         out.append((n, name, ok, detail))
 
     def review(msg):
-        """Not a pass/fail -- something a human must judge before acceptance."""
         reviews.append(msg)
 
     rule(1, "connected and acyclic", not validate.check_graph(t["graph"]),
@@ -47,8 +50,6 @@ def check(t, covered):
     rule(2, "every step computes something", not dead, ", ".join(dead))
 
     def reads_only(expr):
-        """the bare question variable this node hands on, or None. str(a_val) and
-        Fraction(a_val) are the same direct read as a_val -- none is a step."""
         e = expr.strip()
         for w in ("str(", "int(", "Fraction("):
             if e.startswith(w) and e.endswith(")"):
@@ -63,12 +64,11 @@ def check(t, covered):
         return step + max([chain(p) for p in par[nid]], default=0)
     real = len(ids) - len(plumbing)
     d = max(chain(n) for n in ids)
-    # Two atoms joined only by arithmetic are parallel facts, not a composition.
-    # Require two DIFFERENT real atoms on one dependency path.
+
+
     atom_of = {n["node_id"]: n["atom_id"] for n in nodes}
 
     def path_atoms(nid):
-        """best (count of distinct real atoms, set) along any path ending at nid"""
         here = set() if nid in plumbing else {atom_of[nid]}
         best = set()
         for p in par[nid]:
@@ -171,9 +171,12 @@ def main():
         if not comp:
             raise SystemExit(f"no composite with id {args.id!r}")
 
-    worst = 0
+    worst, program_form = 0, []
     for t in comp:
         out, answers, ident, reviews = check(t, covered)
+        if out is None:
+            program_form.append(t["id"])
+            continue
         failed = [r for r in out if not r[2]]
         worst = max(worst, len(failed))
         flag = "OK" if not failed else f"{len(failed)} FAILED"
@@ -191,6 +194,10 @@ def main():
                   + "  -- does any of these make a step do nothing?")
         if args.id and answers:
             print("  answers: " + ", ".join(f"{a!r}x{c}" for a, c in answers.most_common(5)))
+    if program_form:
+        print(f"\n{len(program_form)} composites in reference-program form "
+              f"-- run check_program.py for those:")
+        print("   " + ", ".join(program_form))
     return 1 if worst else 0
 
 

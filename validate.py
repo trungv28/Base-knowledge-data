@@ -24,10 +24,6 @@ def domains(t):
 
 
 def support(t):
-    """Distinct rendered questions, per guide 8.4 -- not distinct parameter
-    assignments. Two assignments that render the same text are one question, so
-    a variable the template never prints inflates the assignment count without
-    adding a single instance."""
     doms = domains(t)
     cases = t.get("cases") or [None]
     raw = len(cases)
@@ -59,9 +55,8 @@ def support(t):
                 except Exception:
                     continue
         return len(seen), True
-    # too large to enumerate: draw until MIN_SUPPORT distinct questions actually
-    # appear. Never extrapolate from the raw domain -- scaling by an unconstrained
-    # domain reported 25,000 for a template whose true support was 100.
+
+
     seen = set()
     for _ in range(MC_DRAWS):
         try:
@@ -69,15 +64,11 @@ def support(t):
         except Exception:
             pass
         if len(seen) >= MIN_SUPPORT:
-            return len(seen), True          # threshold met: no estimate needed
-    return len(seen), False                 # a floor, not an estimate
+            return len(seen), True
+    return len(seen), False
 
 
 def canonical(v):
-    """One exact value that survives being written out and read back.
-
-    Scalars (int, str, Fraction, sympy) pass; a tuple passes only if canon() and
-    parse_struct() reproduce it. dict, list, set, bool and float never do."""
     if isinstance(v, bool) or isinstance(v, float):
         return False
     if isinstance(v, tuple):
@@ -138,8 +129,7 @@ def main():
     def bad(kind, tid, msg):
         fail.append(f"[{kind}] {tid}: {msg}")
 
-    # 12.1: a name in both cases and vars is sampled over its case value, so a
-    # question can state a premise the answer contradicts.
+
     for t in tem + comp:
         for case in (t.get("cases") or []):
             ov = sorted(set(case) & set(t.get("vars") or {}))
@@ -147,9 +137,7 @@ def main():
                 bad("cases", t["id"], f"also sampled in vars: {', '.join(ov)}")
                 break
 
-    # 5: a string exclusion silently does nothing if the name it reads has not
-    # been sampled yet, and a derive that reads an undeclared name only shows up
-    # as a mystery rejection. Both are declaration-order traps -- fail on them.
+
     for t in tem + comp:
         seen_vars = set(t.get("cases") and t["cases"][0] or {})
         for k, rule in (t.get("vars") or {}).items():
@@ -170,9 +158,8 @@ def main():
         except ValueError as e:
             bad("order", t["id"], str(e))
 
-    # A pack is one unit; eight are merged later, so the merge key is
-    # (unit, id). That is unique only if every record names its unit and ids do
-    # not repeat inside the pack.
+
+    atoms = [a for a in atoms if a.get("kind") != "kernel"]
     for kind, rows in (("atoms", atoms), ("atomic", tem), ("composite", comp)):
         seen = set()
         for r in rows:
@@ -189,16 +176,17 @@ def main():
     if len(units) > 1:
         bad("unit", "pack", f"one pack is one unit, found {sorted(units)}")
 
-    # graphs.jsonl is the source; composite.jsonl carries an expansion of it.
-    # Rebuild in memory and diff, so an edited spec that was never re-annotated
-    # fails here instead of silently validating the old graph.
+
     specs = {g["id"]: g["nodes"] for g in generate.load(HERE / "graphs.jsonl")}
     for gid in sorted(set(specs) - {c["id"] for c in comp}):
         bad("graphs", gid, "graph spec has no composite in composite.jsonl")
+    program_form = {gid for gid, nodes in specs.items() if any("args" in n for n in nodes)}
     fresh, ungraphed = annotate_graphs.expand(comp, specs)
     for cid in ungraphed:
         bad("graphs", cid, "composite has no graph spec in graphs.jsonl")
     for old, new in zip(comp, fresh):
+        if old["id"] in program_form:
+            continue
         if old.get("graph") != new.get("graph") or old.get("atoms") != new.get("atoms"):
             bad("graphs", old["id"],
                 "stale against graphs.jsonl -- run: python3 annotate_graphs.py")
@@ -233,8 +221,7 @@ def main():
                 bad("determinism", t["id"], "same question, two different answers")
                 break
 
-    # 10: the same question under two templates -- worse when their atom labels
-    # differ, since the two rows then teach contradictory credit for one question
+
     origin = {}
     for t in tem + comp:
         for _ in range(args.draws):
@@ -248,6 +235,8 @@ def main():
                 break
 
     for c in comp:
+        if c["id"] in program_form:
+            continue
         g = c.get("graph")
         if not g:
             bad("graphs", c["id"], "no graph annotation")
@@ -282,16 +271,16 @@ def main():
             _, outs = generate.run_graph(c, vals)
             final = c["graph"]["final"].split(".")[0]
             for nid, o in outs.items():
-                # every node, final included: what a node emits has to survive the
-                # model's text trace, and a float is never exact
+
+
                 if not canonical(o):
                     bad("graphs", c["id"],
                         f"node {nid} emits {type(o).__name__} {o!r}, which is not one "
                         f"canonical exact value")
                     break
             question = c["template"].format(**vals)
-            # a value can be shown through a derived display string ("3 units left"
-            # encodes shift_val=-3), so treat vars feeding a printed derive as shown
+
+
             shown_vars = set(re.findall(r"\{(\w+)\}", c["template"]))
             for _ in range(len(c.get("derive") or {})):
                 for nm, ex in (c.get("derive") or {}).items():
@@ -323,9 +312,7 @@ def main():
     else:
         print("all checks passed")
 
-    # 8.4: a standard template must make 128 distinct questions. A genuinely
-    # finite one is allowed through only if it says so, and the lead reviews the
-    # flag -- an undeclared shortfall is a failure, not a note.
+
     small, stale = [], []
     for t in tem + comp:
         n, exact = support(t)

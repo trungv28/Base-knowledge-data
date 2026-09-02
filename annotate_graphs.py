@@ -23,8 +23,6 @@ def wiring(expr, prior, question_vars):
 
 
 def expand(composites, graphs):
-    """Composite rows with their graph rebuilt from the specs. Pure -- validate.py
-    calls this to prove composite.jsonl is not stale against graphs.jsonl."""
     out, missing = [], []
     for c in composites:
         c = dict(c)
@@ -32,6 +30,12 @@ def expand(composites, graphs):
         if spec is None:
             missing.append(c["id"])
             out.append(c)
+            continue
+        if any("args" in n for n in spec):
+
+
+            c.pop("graph", None)
+            out.append({k: c[k] for k in ORDER if k in c})
             continue
         qvars = set(c.get("vars") or {}) | set(c.get("derive") or {})
         for case in (c.get("cases") or []):

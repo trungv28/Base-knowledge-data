@@ -4,9 +4,9 @@ from pathlib import Path
 import generate
 
 HERE = Path(__file__).parent
-FLOOR_COVERED = 0.70      # share of templated atoms that must appear in a composite
-FLOOR_REUSE = 2           # composites per atom, once it is used at all
-CEILING_SHARE = 0.25      # no single atom in more than this share of composites
+FLOOR_COVERED = 0.70
+FLOOR_REUSE = 2
+CEILING_SHARE = 0.25
 
 
 def main():

@@ -2,6 +2,8 @@ from fractions import Fraction
 import math
 from sympy import sqrt, Rational
 
+import common_solvers
+
 def ordinal(n):
     n = int(n)
     if 10 <= n % 100 <= 20:
@@ -17,9 +19,6 @@ def midpoint_compute_y(x1, y1, x2, y2):
 
 def direct_prop_equation(k, x):
     return str(k * x)
-
-def direct_prop_constant_ratio(y1, x1):
-    return pf(y1, x1)
 
 def linearly_related_equation(m, b, x):
     return str(m * x + b)
@@ -52,10 +51,6 @@ def linear_form_x_intercept(m, c):
     return pf(-c, m)
 
 def poly(pairs, v="x"):
-    """Canonical polynomial text from (power, coefficient) pairs.
-
-    Combines equal powers, drops zero terms, hides a coefficient of 1, and uses a
-    real minus sign -- so no template ever renders '+ -3', '1x', or '+ 0x'."""
     terms = {}
     for p, k in pairs:
         terms[p] = terms.get(p, 0) + k
@@ -85,8 +80,6 @@ def cubic(a, b, c, d, v="x"):
 
 
 def lineq(m, x1, y1):
-    """Point-slope line through (x1, y1) with slope m, as display text. Shared by
-    the solver and the graph node so the two cannot drift apart."""
     m = Fraction(m)
     b = Fraction(y1) - m * Fraction(x1)
     if m == 0:
@@ -112,9 +105,6 @@ def linear_perpendicular_check(m1, c1, m2, c2):
         return "yes"
     else:
         return "no"
-
-def func_linear_solve_one_step(a, b):
-    return pf(b, a)
 
 def func_linear_solve_two_step(a, b, c):
     return pf(c - b, a)
@@ -156,11 +146,7 @@ def quad_complete_square_identity(b):
 def quad_complete_square_p(a, b, c):
     return pf(b, 2 * a)
 
-def quad_general_axis(a, b, c):
-    return pf(-b, 2 * a)
-
 def _collect(a, n, b, m, c, d):
-    """power -> coefficient, with equal exponents summed. 3x^2 - 3x^2 + 5 is degree 0."""
     terms = {}
     for power, coeff in ((n, a), (m, b), (1, c), (0, d)):
         terms[power] = terms.get(power, 0) + coeff
@@ -179,14 +165,6 @@ def poly_leading_coefficient(a, n, b, m, c, d):
 
 def poly_coefficient(a, n, b, m, c, d, k):
     return _collect(a, n, b, m, c, d).get(k, 0)
-
-def poly_quadratic_two_linear(a, b):
-    return poly([(2, 1), (1, -(a + b)), (0, a * b)])
-
-
-def poly_quadratic_repeated(a):
-    return poly([(2, 1), (1, -2 * a), (0, a * a)])
-
 
 def poly_quadratic_leading(p, q, a, b):
     return poly([(2, p * q), (1, -(p * b + q * a)), (0, a * b)])
@@ -215,20 +193,7 @@ def poly_cubic_repeated_distinct(a, b):
 
 
 def _p_at(a, b, c, d):
-    """p(a) for the monic cubic p(x) = x^3 + bx^2 + cx + d."""
     return a**3 + b * a**2 + c * a + d
-
-
-def poly_factor_theorem(a, b, c, d):
-    return "Yes" if _p_at(a, b, c, d) == 0 else "No"
-
-def poly_cubic_factor_quotient(a, b, c, d):
-    if a**3 + b * a**2 + c * a + d != 0:
-        return "not a factor"
-    q2 = 1
-    q1 = b + a * q2
-    q0 = c + a * q1
-    return poly([(2, q2), (1, q1), (0, q0)])
 
 
 def cubic_factor_quotient(a_val, b_val, c_val, d_val):
@@ -237,10 +202,6 @@ def cubic_factor_quotient(a_val, b_val, c_val, d_val):
 
 def poly_repeated_root(a, b):
     return f"x = {a} (repeated), x = {b}"
-
-def func_evaluate(a, b, c, k):
-    return a*k**2 + b*k + c
-
 
 def func_vertical_translation(p, q, a):
     return f"({p}, {q + a})"
@@ -313,8 +274,8 @@ def set_complement_described(k):
     return str(6 - k)
 
 def set_intersection_size(a, b):
-    # numbers divisible by BOTH a and b are the multiples of lcm(a, b); gcd counts
-    # far too many and made 20 of the 25 reachable assignments wrong
+
+
     lcm = a * b // math.gcd(a, b)
     return str(10 // lcm)
 
@@ -1565,18 +1526,6 @@ def sin_eq_special(val):
 INF, NEG_INF = "∞", "−∞"
 
 
-def hyperbola_vertical_asymptote(a, b):
-    return f"x = {b}"
-
-
-def hyperbola_horizontal_asymptote(a, b, d):
-    return f"y = {d}"
-
-
-def inv_proportion_equation(x1, y1):
-    return str(x1 * y1)
-
-
 def pow_natural_even_limit(n):
     return INF
 
@@ -1591,10 +1540,6 @@ def pow_neg1_asymptotes():
 
 def power_sqrt_domain():
     return "x >= 0"
-
-
-def quad_general_y_intercept(a, b, c):
-    return str(c)
 
 
 def binom_coeff_value(n, r):
@@ -1783,10 +1728,7 @@ def event_conditional_probability(total_val, b_val, i_val):
     return str(Fraction(i_val, total_val) / Fraction(b_val, total_val))
 
 
-# --- section 2 curriculum pass: one atom per solver, points returned whole
-
 def cubic_end_behaviour(a, dirn):
-    """One rule for all four sign/direction cases, replacing four sign-variant solvers."""
     rises = (a > 0) == (dirn == INF)
     return f"y → {INF if rises else NEG_INF}"
 
@@ -1816,8 +1758,6 @@ def line_through_two_points(x1, y1, x2, y2):
     return lineq(Fraction(y2 - y1, x2 - x1), x1, y1)
 
 
-# --- audit section 6 replacements
-
 def repeated_root_vieta(a_val, b_val):
     return str(-(2 * a_val + b_val))
 
@@ -1838,13 +1778,6 @@ def cubic_quotient_vertex_translate(a_val, b_val, c_val, d_val, v_val):
     return pf(y.numerator, y.denominator)
 
 
-# --- audit section 3: atoms split off the overloaded quad.formula / circle radius
-
-def sqrt_principal(t_val):
-    import sympy as _s
-    return str(_s.sqrt(t_val))
-
-
 def circle_point_membership(h_val, k_val, r_val, x0_val, y0_val):
     inside = (x0_val - h_val) ** 2 + (y0_val - k_val) ** 2
     return "yes" if inside == r_val ** 2 else "no"
@@ -1854,25 +1787,6 @@ def circle_y_from_x(h_val, k_val, r_val, x0_val):
     import sympy as _s
     root = _s.sqrt(r_val**2 - (x0_val - h_val) ** 2)
     return f"{k_val + root}, {k_val - root}"
-
-
-# --- audit section 3: func.transform.* acts on one coordinate and returns it.
-# Point-valued transformations live under func.transform.point.* instead.
-
-def transform_v_translate_y(q, a):
-    return str(q + a)
-
-
-def transform_v_dilate_y(q, c):
-    return str(c * q)
-
-
-def transform_h_translate_x(p, b):
-    return str(p - b)
-
-
-def transform_h_dilate_x(p, k):
-    return pf(p, k)
 
 
 def transform_point_v_translate(p, q, a):
@@ -1885,3 +1799,132 @@ def transform_point_v_dilate(p, q, c):
 
 def transform_point_h_translate(p, q, b):
     return f"({p - b}, {q})"
+
+
+CALL = common_solvers.REGISTRY
+
+
+def coeff_poly(coeffs):
+    top = len(coeffs) - 1
+    return poly([(top - i, k) for i, k in enumerate(coeffs)])
+
+
+def direct_prop_constant_ratio(y1, x1):
+    return common_solvers.render(CALL["func.direct_proportion.constant_ratio"](y=y1, x=x1))
+
+
+def inv_proportion_equation(x1, y1):
+    return common_solvers.render(CALL["func.inv_proportion.definition"](x=x1, y=y1))
+
+
+def func_linear_solve_one_step(a, b):
+    return common_solvers.render(CALL["func.linear_solve.one_step"](a=a, b=b))
+
+
+def quad_general_axis(a, b, c):
+    return common_solvers.render(CALL["func.quad_general.axis"](coeffs=(a, b, c)))
+
+
+def quad_general_y_intercept(a, b, c):
+    return common_solvers.render(CALL["func.quad_general.y_intercept"](coeffs=(a, b, c)))
+
+
+def func_evaluate(a, b, c, k):
+    return common_solvers.render(CALL["func.notation.evaluate"](coeffs=(a, b, c), x=k))
+
+
+def transform_v_translate_y(q, a):
+    return common_solvers.render(CALL["func.transform.vertical_translation"](y=q, a=a))
+
+
+def transform_h_translate_x(p, b):
+    return common_solvers.render(CALL["func.transform.inverse_horizontal_translation"](x=p, h=b))
+
+
+def transform_v_dilate_y(q, c):
+    return common_solvers.render(CALL["func.transform.vertical_dilation"](y=q, c=c))
+
+
+def transform_h_dilate_x(p, k):
+    return common_solvers.render(CALL["func.transform.horizontal_dilation"](x=p, k=k))
+
+
+def hyperbola_vertical_asymptote(a, b):
+    return f"x = {common_solvers.render(CALL['func.hyperbola.vertical_asymptote'](b=b))}"
+
+
+def hyperbola_horizontal_asymptote(a, b, d):
+    return f"y = {common_solvers.render(CALL['func.hyperbola.horizontal_asymptote'](d=d))}"
+
+
+def sqrt_principal(t_val):
+    return common_solvers.render(CALL["func.sqrt.principal"](t=t_val))
+
+
+def poly_quadratic_two_linear(a, b):
+    return coeff_poly(CALL["func.poly.quadratic_two_linear"](a=a, b=b))
+
+
+def poly_quadratic_repeated(a):
+    return coeff_poly(CALL["func.poly.quadratic_repeated"](a=a))
+
+
+def poly_factor_theorem(a, b, c, d):
+    p_at_a = CALL["func.notation.evaluate"](coeffs=(1, b, c, d), x=a)
+    return CALL["func.poly.factor_theorem"](p_at_a=p_at_a).capitalize()
+
+
+def poly_cubic_factor_quotient(a, b, c, d):
+    try:
+        quotient = CALL["func.poly.cubic_factor_quotient"](a=a, b=b, c=c, d=d)
+    except ValueError:
+        return "not a factor"
+    return coeff_poly(quotient)
+
+
+def transform_h_translate_forward(p, h):
+    return common_solvers.render(CALL["func.transform.horizontal_translation"](x=p, h=h))
+
+
+def transform_inv_h_dilate(p, k):
+    return common_solvers.render(CALL["func.transform.inverse_horizontal_dilation"](x=p, k=k))
+
+
+def transform_inv_v_translate(q, a):
+    return common_solvers.render(CALL["func.transform.inverse_vertical_translation"](y=q, a=a))
+
+
+def transform_inv_v_dilate(q, c):
+    return common_solvers.render(CALL["func.transform.inverse_vertical_dilation"](y=q, c=c))
+
+
+def direct_prop_evaluate_atom(k, x):
+    return common_solvers.render(CALL["func.direct_proportion.evaluate"](k=k, x=x))
+
+
+def hyperbola_evaluate_atom(a, b, d, x):
+    return common_solvers.render(CALL["func.hyperbola.evaluate"](a=a, b=b, d=d, x=x))
+
+
+def poly_cubic_three_linear_atom(a, b, c):
+    return coeff_poly(CALL["func.poly.cubic_three_linear"](a=a, b=b, c=c))
+
+
+def poly_roots_sum_atom(a, b, c):
+    return common_solvers.render(CALL["func.poly.roots_sum"](coeffs=(a, b, c)))
+
+
+def quad_coefficient_from_axis_atom(a, axis):
+    return common_solvers.render(CALL["func.quad_general.coefficient_from_axis"](a=a, axis=axis))
+
+
+def poly_v_translate_atom(a, b, c, v):
+    return coeff_poly(CALL["func.transform.poly_vertical_translation"](coeffs=(a, b, c), a=v))
+
+
+def poly_v_dilate_atom(a, b, c, k):
+    return coeff_poly(CALL["func.transform.poly_vertical_dilation"](coeffs=(a, b, c), c=k))
+
+
+def inv_prop_evaluate_atom(k, x):
+    return common_solvers.render(CALL["func.inv_proportion.evaluate"](k=k, x=x))
