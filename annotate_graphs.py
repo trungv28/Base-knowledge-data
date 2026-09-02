@@ -32,8 +32,12 @@ def expand(composites, graphs):
             out.append(c)
             continue
         if any("args" in n for n in spec):
-
-
+            live = []
+            for n in spec:
+                a = n["atom_id"]
+                if a and not a.startswith("kernel.") and a not in live:
+                    live.append(a)
+            c["atoms"] = live
             c.pop("graph", None)
             out.append({k: c[k] for k in ORDER if k in c})
             continue
