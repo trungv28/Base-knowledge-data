@@ -153,7 +153,7 @@ For composites, also reject a template if one final answer occurs in more than 6
 
 ## 5. Composite coverage
 
-Calculate coverage from atom calls in `graphs.jsonl`; ignore `kernel.*` operations:
+`validate.py` reports this; it counts atom calls in `graphs.jsonl` and ignores `kernel.*` operations:
 
 - at least 70% of atoms with templates appear in a composite;
 - every atom used in composites appears in at least two composites;
@@ -172,9 +172,8 @@ Do not create templates requiring subjective judgement, open-ended modelling, pr
 ```bash
 python3 annotate_graphs.py     # after every graph edit
 python3 check_program.py <id>  # one composite reference program
-python3 validate.py
-python3 audit_atoms.py         # atom functions, re-derived with sympy
-python3 audit_composites.py    # composite answers, re-derived with sympy
+python3 validate.py            # the whole bank, plus your atom-spread targets
+python3 audit.py               # answers re-derived with sympy, independently
 ```
 
 The audits re-derive answers independently of the atom functions, so they catch wrong mathematics. They still cannot tell you whether a node carries the right atom label, whether every node is needed, or whether the question is natural: two atoms with the same arithmetic pass either way. Read every composite yourself. Do not rely on the exit code alone; resolve every reported problem.
