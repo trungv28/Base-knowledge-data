@@ -68,6 +68,44 @@ def support(t):
     return len(seen), False
 
 
+FLOOR_COVERED = 0.70
+FLOOR_REUSE = 2
+CEILING_SHARE = 0.25
+
+
+def spread_report(tem, comp):
+    templated = {t["atom"] for t in tem}
+    use = collections.Counter(a for c in comp for a in c["atoms"])
+    used = set(use)
+
+    covered = len(used & templated) / len(templated)
+    thin = sorted(a for a, k in use.items() if k < FLOOR_REUSE)
+    hot = [(a, k) for a, k in use.most_common() if k / len(comp) > CEILING_SHARE]
+    missing = sorted(templated - used)
+
+    print(f"composites {len(comp)}   templated atoms {len(templated)}   "
+          f"used by a composite {len(used & templated)}")
+    print()
+    ok = True
+    def check(name, good, detail=""):
+        nonlocal ok
+        ok = ok and good
+        print(f"  {'pass' if good else 'FAIL'}  {name}{('   ' + detail) if detail else ''}")
+
+    check(f"coverage >= {FLOOR_COVERED:.0%}", covered >= FLOOR_COVERED, f"{covered:.0%}")
+    check(f"every used atom in >= {FLOOR_REUSE} composites", not thin,
+          f"{len(thin)} below: {', '.join(thin[:4])}{' ...' if len(thin) > 4 else ''}")
+    check(f"no atom in > {CEILING_SHARE:.0%} of composites", not hot,
+          "; ".join(f"{a} {k}/{len(comp)}" for a, k in hot[:3]))
+
+    print(f"\n  atoms with a template but no composite: {len(missing)}")
+    for a in missing[:12]:
+        print(f"     {a}")
+    if len(missing) > 12:
+        print(f"     ... and {len(missing) - 12} more")
+    return 0 if ok else 1
+
+
 def canonical(v):
     if isinstance(v, bool) or isinstance(v, float):
         return False
@@ -321,6 +359,9 @@ def main():
         elif n >= MIN_SUPPORT and t.get("finite_support"):
             stale.append((t["id"], n))
     declared = sum(1 for t in tem + comp if t.get("finite_support"))
+    print("\natom spread across composites (section 1 targets, not a correctness gate):")
+    spread_report(tem, comp)
+
     print(f"\nfinite_support declared: {declared}   "
           f"(excluded from the 8.4 target; lead must approve each)")
     if small:

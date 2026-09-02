@@ -1,16 +1,29 @@
-import json
+import argparse, json, random
 import sympy as sp
 from fractions import Fraction
 
-import common_solvers
+import common_solvers, generate, program, solver
 
 x = sp.Symbol("x")
-CHECKS = {}
+ATOM_CHECKS = {}
+COMPOSITE_CHECKS = {}
+DRAWS = 12
+
+
+def norm(v):
+    return str(v).replace(" ", "").replace("\u2212", "-").replace("*", "")
 
 
 def check(atom_id):
     def deco(f):
-        CHECKS[atom_id] = f
+        ATOM_CHECKS[atom_id] = f
+        return f
+    return deco
+
+
+def composite(cid):
+    def deco(f):
+        COMPOSITE_CHECKS[cid] = f
         return f
     return deco
 
@@ -244,12 +257,172 @@ def _(f):
                for k in (60, -35) for v in (4, -7))
 
 
-def main():
+@composite("quad_axis_evaluate")
+def _(v):
+    q = v["a_val"]*x**2 + v["b_val"]*x + v["c_val"]
+    return q.subs(x, sp.solve(sp.diff(q, x), x)[0])
+
+
+@composite("quad_vertex_translate")
+def _(v):
+    q = v["a_val"]*x**2 + v["b_val"]*x + v["c_val"]
+    return q.subs(x, sp.solve(sp.diff(q, x), x)[0]) + v["v_val"]
+
+
+@composite("quad_axis_translate")
+def _(v):
+    q = v["a_val"]*x**2 + v["b_val"]*x + v["c_val"]
+    return sp.solve(sp.diff(q, x), x)[0] + v["h_val"]
+
+
+@composite("quad_vertex_below_intercept")
+def _(v):
+    q = v["a_val"]*x**2 + v["b_val"]*x + v["c_val"]
+    vy = q.subs(x, sp.solve(sp.diff(q, x), x)[0])
+    return q.subs(x, 0) - vy
+
+
+@composite("quad_translate_intercept_gap")
+def _(v):
+    q = v["a_val"]*x**2 + v["b_val"]*x + v["c_val"]
+    ax = sp.solve(sp.diff(q, x), x)[0]
+    return f"({ax + v['h_val']}, {q.subs(x, ax) + v['v_val']})"
+
+
+@composite("transform_vertical_sequence_eval")
+def _(v):
+    return (v["c_val"] * x**2 + v["v_val"]).subs(x, v["e_val"])
+
+
+@composite("transform_chain_evaluate")
+def _(v):
+    g = v["c_val"] * (x - v["h_val"])**2 + v["v_val"]
+    return g.subs(x, v["e_val"])
+
+
+@composite("transform_full_chain_evaluate")
+def _(v):
+    g = v["c_val"] * (v["k_val"] * (x - v["h_val"]))**2 + v["v_val"]
+    return g.subs(x, v["e_val"])
+
+
+@composite("transform_deep_chain_evaluate")
+def _(v):
+    g = v["c2_val"] * (v["c_val"] * (v["k_val"] * (x - v["h_val"]))**2 + v["v_val"])
+    return g.subs(x, v["e_val"])
+
+
+@composite("transform_hdilate_translate_eval")
+def _(v):
+    return ((v["k_val"] * x)**2 + v["v_val"]).subs(x, v["e_val"])
+
+
+@composite("transform_horizontal_dilation_eval")
+def _(v):
+    return ((v["k_val"] * (x - v["h_val"]))**2).subs(x, v["eval_x"])
+
+
+@composite("transform_chain_inverse")
+def _(v):
+    g = v["c_val"] * (v["k_val"] * (x - v["h_val"]))**2 + v["v_val"]
+    roots = [r for r in sp.solve(sp.Eq(g, v["y_val"]), x) if r.is_real]
+    return max(roots)
+
+
+@composite("transform_deep_chain_inverse")
+def _(v):
+    g = v["c2_val"] * (v["c_val"] * (v["k_val"] * (x - v["h_val"]))**2 + v["v_val"])
+    roots = [r for r in sp.solve(sp.Eq(g, v["y_val"]), x) if r.is_real]
+    return max(roots)
+
+
+@composite("directprop_evaluate")
+def _(v):
+    return sp.Rational(v["z1_val"], v["x1_val"]) * v["x2_val"]
+
+
+@composite("invprop_shifted_evaluate")
+def _(v):
+    return sp.Rational(v["y1_val"] * v["x1_val"], v["x2_val"]) + v["v_val"]
+
+
+@composite("cubic_intercept_translate")
+def _(v):
+    p = sp.expand((x - v["a_val"]) * (x - v["b_val"]) * (x - v["c_val"])) + v["v_val"]
+    return p.subs(x, 0)
+
+
+@composite("cubic_quotient_root_sum")
+def _(v):
+    p = x**3 + v["b_val"]*x**2 + v["c_val"]*x + v["d_val"]
+    q, r = sp.div(p, x - v["a_val"], x)
+    assert r == 0
+    return sum(root * m for root, m in sp.roots(sp.Poly(q, x)).items())
+
+
+@composite("cubic_quotient_chain")
+def _(v):
+    return COMPOSITE_CHECKS["cubic_quotient_root_sum"](v)
+
+
+@composite("cubic_quotient_vertex_translate")
+def _(v):
+    p = x**3 + v["b_val"]*x**2 + v["c_val"]*x + v["d_val"]
+    q, r = sp.div(p, x - v["a_val"], x)
+    assert r == 0
+    return q.subs(x, sp.solve(sp.diff(q, x), x)[0]) + v["v_val"]
+
+
+@composite("factor_theorem_shift")
+def _(v):
+    p = x**3 + v["b_val"]*x**2 + v["c_val"]*x + v["d_val"] + v["v_val"]
+    return "yes" if p.subs(x, v["a_val"]) == 0 else "no"
+
+
+@composite("quad_two_linear_translate")
+def _(v):
+    return sp.expand((x - v["a_val"]) * (x - v["b_val"])) + v["v_val"]
+
+
+@composite("quad_repeated_dilate")
+def _(v):
+    return sp.expand(v["c_val"] * (x - v["a_val"])**2)
+
+
+@composite("hyperbola_translate_evaluate")
+def _(v):
+    g = sp.Rational(v["a_val"], 1) / (x - (v["b_val"] + v["h_val"])) + v["d_val"]
+    return g.subs(x, v["e_val"])
+
+
+@composite("asymptote_vertex_y")
+def _(v):
+    p, q, a = v["b_val"], v["d_val"], v["a_quad"]
+    quad = a*x**2 + (-2*a*p)*x + q
+    assert sp.solve(sp.diff(quad, x), x)[0] == p
+    return quad.subs(x, p)
+
+
+@composite("quad_hyperbola_intersect")
+def _(v):
+    k = sp.Symbol("k")
+    hyp = k / (x - v["axis_val"]) + v["d_val"]
+    return sp.solve(sp.Eq(hyp.subs(x, 0), v["c_val"]), k)[0]
+
+
+def as_poly(text):
+    t = text.replace("^", "**").replace("−", "-").replace(" ", "")
+    import re
+    t = re.sub(r"(\d)(x)", r"\1*\2", t)
+    return sp.sympify(t, locals={"x": x})
+
+
+def audit_atoms():
     reg = common_solvers.REGISTRY
     knowledge = [a for a, k in common_solvers.KIND.items() if k == "knowledge"]
     bad, missing = [], []
     for a in knowledge:
-        fn = CHECKS.get(a)
+        fn = ATOM_CHECKS.get(a)
         if fn is None:
             missing.append(a)
             continue
@@ -258,14 +431,64 @@ def main():
                 bad.append((a, "disagrees with sympy"))
         except Exception as e:
             bad.append((a, f"{type(e).__name__}: {e}"))
-    print(f"independently audited {len(knowledge) - len(missing)}/{len(knowledge)} "
-          f"knowledge atoms; agree: {len(knowledge) - len(missing) - len(bad)}   "
-          f"disagree: {len(bad)}")
+    print(f"atoms: independently audited {len(knowledge) - len(missing)}/{len(knowledge)}; "
+          f"agree: {len(knowledge) - len(missing) - len(bad)}   disagree: {len(bad)}")
     for a, why in bad:
         print(f"   MISMATCH {a}: {why}")
     if missing:
         print(f"   no check written: {missing}")
-    return 1 if bad or missing else 0
+    return bad or missing
+
+
+def audit_composites():
+    comps = {json.loads(l)["id"]: json.loads(l) for l in open("composite.jsonl")}
+    specs = {json.loads(l)["id"]: json.loads(l) for l in open("graphs.jsonl")}
+    bad, ok, missing = [], 0, []
+    for cid, spec in specs.items():
+        fn = COMPOSITE_CHECKS.get(cid)
+        if fn is None:
+            missing.append(cid)
+            continue
+        for _ in range(DRAWS):
+            v = generate.sample(comps[cid])
+            got, _n = program.run(spec["nodes"], v, program.returned(spec))
+            try:
+                want = fn(v)
+            except Exception as e:
+                bad.append((cid, f"AUDIT ERROR {type(e).__name__}: {e}"))
+                break
+            shown = common_solvers.render(got)
+            hit = norm(shown) == norm(want)
+            if not hit and isinstance(got, tuple):
+                hit = sp.simplify(as_poly(solver.coeff_poly(got)) - want) == 0
+            if not hit:
+                try:
+                    hit = sp.simplify(sp.sympify(norm(shown)) - want) == 0
+                except Exception:
+                    pass
+            if not hit:
+                bad.append((cid, f"program {shown!r} vs sympy {want!r}  "
+                                 f"vars={dict(list(v.items())[:5])}"))
+                break
+        else:
+            ok += 1
+    print(f"composites: independently re-derived {len(specs) - len(missing)}/{len(specs)}; "
+          f"agree: {ok}   disagree: {len(bad)}")
+    for cid, why in bad:
+        print(f"   MISMATCH {cid}: {why}")
+    if missing:
+        print(f"   no check written: {missing}")
+    return bad or missing
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seed", type=int, default=3)
+    a = ap.parse_args()
+    random.seed(a.seed)
+    bad_atoms = audit_atoms()
+    bad_comps = audit_composites()
+    return 1 if (bad_atoms or bad_comps) else 0
 
 
 if __name__ == "__main__":
