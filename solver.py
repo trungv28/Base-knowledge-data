@@ -1,12 +1,6 @@
 from fractions import Fraction
 
 
-import math
-
-
-from sympy import sqrt, Rational
-
-
 import kernel, atoms
 
 
@@ -103,23 +97,6 @@ def _pi_coeff_str(f):
     return f"{f.numerator}π/{f.denominator}"
 
 
-def quad_hyperbola_intersect(c_val, axis_val, d_val):
-    h = axis_val
-    d = d_val
-    y_int = c_val
-    k = (y_int - d) * (-h)
-    return str(int(k)) if k == int(k) else str(k)
-
-
-def transform_horizontal_dilation_eval(k_val, h_val, eval_x):
-    transformed_x = k_val * (eval_x - h_val)
-    y_at_eval = transformed_x**2
-    return str(int(y_at_eval)) if y_at_eval == int(y_at_eval) else str(y_at_eval)
-
-
-import sympy as _sp
-
-
 _SIN_BASE_BY_VALUE = {
     "0": (Fraction(0), Fraction(1)),
     "1/2": (Fraction(1, 6), Fraction(5, 6)),
@@ -135,92 +112,6 @@ def sin_base_angle(a_value, which):
 
 
 INF, NEG_INF = "∞", "−∞"
-
-
-def quad_axis_evaluate(a_val, b_val, c_val):
-    axis = Fraction(-b_val, 2 * a_val)
-    return str(a_val * axis**2 + b_val * axis + c_val)
-
-
-def cubic_intercept_translate(b_val, c_val, d_val, e_val, v_val):
-    y = e_val**3 + b_val * e_val**2 + c_val * e_val + d_val
-    return str(y + v_val)
-
-
-def transform_vertical_sequence_eval(c_val, v_val, e_val):
-    return str(c_val * e_val**2 + v_val)
-
-
-def transform_hdilate_translate_eval(k_val, v_val, e_val):
-    return str((k_val * e_val) ** 2 + v_val)
-
-
-def hyperbola_translate_evaluate(a_val, b_val, d_val, h_val, e_val):
-    return str(Fraction(a_val, e_val - (b_val + h_val)) + d_val)
-
-
-def invprop_shifted_evaluate(y1_val, x1_val, v_val, x2_val):
-    return str(Fraction(y1_val * x1_val, x2_val) + v_val)
-
-
-def directprop_evaluate(z1_val, x1_val, x2_val):
-    return str(Fraction(z1_val, x1_val) * x2_val)
-
-
-def quad_vertex_below_intercept(a_val, b_val, c_val):
-    axis = Fraction(-b_val, 2 * a_val)
-    return str(c_val - (a_val * axis**2 + b_val * axis + c_val))
-
-
-def quad_two_linear_translate(a_val, b_val, v_val):
-    return poly([(2, 1), (1, -(a_val + b_val)), (0, a_val * b_val + v_val)])
-
-
-def quad_repeated_dilate(a_val, c_val):
-    return poly([(2, c_val), (1, -2 * a_val * c_val), (0, a_val * a_val * c_val)])
-
-
-def transform_chain_evaluate(c_val, v_val, h_val, e_val):
-    return str(c_val * (e_val - h_val) ** 2 + v_val)
-
-
-def transform_full_chain_evaluate(k_val, c_val, h_val, v_val, e_val):
-    return str(c_val * (k_val * (e_val - h_val)) ** 2 + v_val)
-
-
-def transform_chain_inverse(k_val, c_val, h_val, v_val, y_val):
-    import sympy as _s
-    inner = _s.sqrt(Fraction(y_val - v_val, c_val))
-    return str(Fraction(int(inner), k_val) + h_val)
-
-
-def quad_translate_intercept_gap(a_val, b_val, c_val, h_val, v_val):
-    axis = Fraction(-b_val, 2 * a_val)
-    vertex_y = a_val * axis**2 + b_val * axis + c_val
-    x, y = axis + h_val, vertex_y + v_val
-    return f"({pf(x.numerator, x.denominator)}, {pf(y.numerator, y.denominator)})"
-
-
-def quad_axis_translate(a_val, b_val, h_val):
-    return str(Fraction(-b_val, 2 * a_val) + h_val)
-
-
-def quad_vertex_translate(a_val, b_val, c_val, v_val):
-    axis = Fraction(-b_val, 2 * a_val)
-    return str(a_val * axis**2 + b_val * axis + c_val + v_val)
-
-
-def factor_theorem_shift(a_val, b_val, c_val, d_val, v_val):
-    p_at_a = a_val**3 + b_val * a_val**2 + c_val * a_val + d_val
-    return "yes" if p_at_a + v_val == 0 else "no"
-
-
-def cubic_quotient_vertex_translate(a_val, b_val, c_val, d_val, v_val):
-    q1 = b_val + a_val
-    q0 = c_val + a_val * q1
-    axis = Fraction(-q1, 2)
-    y = axis * axis + q1 * axis + q0 + v_val
-    return pf(y.numerator, y.denominator)
 
 
 CALL = kernel.REGISTRY
