@@ -67,7 +67,7 @@ Record the 13–18 atoms selected from each unit in `atoms.jsonl`. Every new ato
 
 The `statement` must describe what the function returns, not a general fact about the graph. `concept` groups atoms that are the same idea, and coverage is counted per concept; give two atoms the same `concept` when they are one rule you had to split. Omit it and the atom is its own concept.
 
-## 3. Atomic templates and solvers
+## 3. Atomic templates
 
 An atomic template must execute its named atom exactly once. Give every other non-background prerequisite and ask for exactly the atom's output. Add a second template only for a different direction or representation.
 
@@ -76,21 +76,18 @@ An atomic template must execute its named atom exactly once. Give every other no
  "atom":"trig.degree_radian_conversion",
  "template":"Convert {deg} degrees to radians.",
  "vars":{"deg":{"type":"int","min":1,"max":360}},
- "solver":"angle_deg_rad"}
+ "args":{"deg":{"question":"deg"}}}
 ```
 
-Required fields are `id`, `atom`, `template`, `solver`, and either `vars`, `cases`, or both. Use `vars` for independent draws, `cases` for combinations that must stay together, and `derive` for fields computed from earlier values. A field cannot appear in both `vars` and `cases`. Process them in this order: `cases` → `vars` → `derive` → constraints. Keep constraints in the template data.
+Required fields are `id`, `atom`, `template`, `args`, and either `vars`, `cases`, or both. Use `vars` for independent draws, `cases` for combinations that must stay together, and `derive` for fields computed from earlier values. A field cannot appear in both `vars` and `cases`. Process them in this order: `cases` → `vars` → `derive` → constraints. Keep constraints in the template data.
 
 Questions must read naturally: use `2x-3`, not `2x+-3`, `1x+0`, or `+0`.
 
-Every atomic template names a function in `solver.py`. The solver must:
+An atomic template is a one-node program: `args` binds the atom's parameters the same way a composite node does. Use `{"question":"deg"}` for a sampled field and `{"literal":3}` for an exact literal. The answer is the atom's output, so you write no code for a template.
 
-- match the name in the template;
-- accept the sampled values it needs;
-- return one exact value, not a float when an exact answer exists;
-- reject invalid inputs rather than changing the question.
+Add `"display"` only when the answer needs a form other than the plain value: `"polynomial"` for a coefficient tuple, `"capitalize"`, or a pattern such as `"x = {}"`.
 
-Each atom ID maps to one reusable function in `atoms.py`. `kernel.py` contains the shared background operations and must not be edited. `solver.py` contains only thin wrappers for atomic templates.
+Each atom ID maps to one reusable function in `atoms.py`, which returns an exact value and never display text. `kernel.py` contains the shared background operations and must not be edited.
 
 Each function in `atoms.py` must implement only its named atom. If a solution applies the same atom more than once, use one graph node per application.
 
@@ -111,9 +108,9 @@ Store the question in `composite.jsonl` and the reference program in `graphs.jso
  "return":{"ref":"n2"}}
 ```
 
-Each graph node calls an existing atom or `kernel.*` function. Do not rewrite atom formulas directly in the graph. The reference program is also the composite solver.
+Each graph node calls an existing atom or `kernel.*` function. Do not rewrite atom formulas directly in the graph. 
 
-Composites name no solver. Record one worked example in `composite.jsonl`: the values you used and the answer you computed by hand.
+Record one worked example in `composite.jsonl`: the values you used and the answer you computed by hand.
 
 ```json
 "example": {"vars": {"a_val": 1, "b_val": -5, "c_val": 6}, "answer": "-8"}
@@ -185,7 +182,7 @@ Time for both assigned units:
 | Stage | Time |
 |---|---:|
 | Source coverage and atom selection | 6 hours |
-| Atomic templates and solvers | 9 hours |
+| Atomic templates | 9 hours |
 | Composite templates and reference programs | 48 hours |
 | Cross-review | 7 hours |
 | **Total** | **approximately 70 hours** |
@@ -201,6 +198,5 @@ templates.jsonl
 composite.jsonl
 graphs.jsonl
 atoms.py
-solver.py
 reviews/<annotator_id>.jsonl
 ```

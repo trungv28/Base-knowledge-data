@@ -4,7 +4,6 @@ from pathlib import Path
 
 import generate
 import annotate_graphs
-import solver
 
 HERE = Path(__file__).parent
 ENUM_LIMIT = 200_000
@@ -237,8 +236,8 @@ def main():
     for t in tem:
         if t["atom"] not in atom_ids:
             bad("references", t["id"], f"unknown atom {t['atom']}")
-        if not hasattr(solver, t["solver"]):
-            bad("references", t["id"], f"missing solver {t['solver']}")
+        if not t.get("args"):
+            bad("references", t["id"], "atomic template has no args")
     for c in comp:
         for a in c["atoms"]:
             if a not in atom_ids:
@@ -337,7 +336,7 @@ def main():
                             f"node {node['node_id']} binds {src['field']}={val!r}, "
                             f"which the question never shows")
 
-    covered = {t["atom"] for t in tem if hasattr(solver, t["solver"])}
+    covered = {t["atom"] for t in tem}
     for c in comp:
         for a in set(c["atoms"]) - covered:
             bad("coverage", c["id"], f"atom {a} has no working atomic template")

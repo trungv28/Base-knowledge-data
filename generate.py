@@ -4,7 +4,8 @@ import argparse, collections, inspect, json, math, random
 from fractions import Fraction
 from pathlib import Path
 import sympy
-import solver
+
+import kernel, atoms
 
 def term(coef, suffix=""):
     if coef == 0:
@@ -39,20 +40,18 @@ SAFE = {
     "Fraction": Fraction, "sqrt": sympy.sqrt,
     "pi": sympy.pi, "ceiling": sympy.ceiling,
     "coef": coef,
-    "poly": solver.poly,
-    "bracket": solver.bracket,
-    "quad": solver.quad,
-    "cubic": solver.cubic,
-    "lineq": solver.lineq,
-    "pf": solver.pf,
-    "ordinal": solver.ordinal,
-    "pi_coeff": solver._pi_coeff_str,
-    "sin_base_angle": solver.sin_base_angle,
-    "poly_factor_theorem": solver.poly_factor_theorem,
-    "poly_degree": solver.poly_degree,
-    "poly_leading_coefficient": solver.poly_leading_coefficient,
-    "poly_coefficient": solver.poly_coefficient,
-    "poly_cubic_factor_quotient": solver.poly_cubic_factor_quotient,
+    "poly": kernel.poly,
+    "bracket": kernel.bracket,
+    "quad": kernel.quad,
+    "cubic": kernel.cubic,
+    "lineq": kernel.lineq,
+    "pf": kernel.pf,
+    "ordinal": kernel.ordinal,
+    "pi_coeff": kernel._pi_coeff_str,
+    "sin_base_angle": kernel.sin_base_angle,
+    "poly_degree": kernel.poly_degree,
+    "poly_leading_coefficient": kernel.poly_leading_coefficient,
+    "poly_coefficient": kernel.poly_coefficient,
     "term": term, "linfac": linfac, "shift": shift,
 }
 
@@ -264,16 +263,15 @@ def enrich(vals):
 
 
 def answer_of(t, vals):
-    """A reference-program composite defines its own answer by executing; an
-    atomic template still names a solver."""
+    import program, kernel
     spec = GRAPHS.get(t["id"])
     if spec is not None:
-        import program, kernel
-        got, _ = program.run(spec["nodes"], vals, (spec.get("return") or {}).get("ref"))
-        return kernel.render(got)
-    fn = getattr(solver, t["solver"])
-    names = inspect.signature(fn).parameters
-    return fn(**{k: vals[k] for k in names if k in vals})
+        got, _ = program.run(spec["nodes"], vals,
+                             (spec.get("return") or {}).get("ref"))
+        return kernel.display(got, t.get("display"))
+    node = [{"node_id": "n1", "atom_id": t["atom"], "args": t["args"]}]
+    got, _ = program.run(node, vals, "n1")
+    return kernel.display(got, t.get("display"))
 
 
 def make(t):
