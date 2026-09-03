@@ -1,12 +1,28 @@
+{"id":"kernel.absolute_value","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x"],"returns":"|x| for a real x; rejects a complex argument"}
 {"id":"kernel.add","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x + y"}
 {"id":"kernel.divide","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x / y, exact; rejects a zero divisor"}
 {"id":"kernel.equal","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x == y"}
+{"id":"kernel.get_column","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["m","j"],"returns":"column j of m"}
 {"id":"kernel.get_coordinate","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["p","i"],"returns":"coordinate i of a point"}
 {"id":"kernel.get_entry","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["v","i"],"returns":"entry i of a vector"}
+{"id":"kernel.get_row","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["m","i"],"returns":"row i of m"}
+{"id":"kernel.greater_equal","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x >= y"}
+{"id":"kernel.greater_than","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x > y"}
+{"id":"kernel.imaginary_part","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["z"],"returns":"the imaginary part of z"}
 {"id":"kernel.integer_power","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","n"],"returns":"x ** n"}
+{"id":"kernel.less_equal","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x <= y"}
 {"id":"kernel.less_than","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x < y"}
+{"id":"kernel.logical_and","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"both are true"}
+{"id":"kernel.logical_not","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x"],"returns":"the negation"}
+{"id":"kernel.logical_or","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"at least one is true"}
+{"id":"kernel.make_complex","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["re_part","im_part"],"returns":"re_part + im_part*i"}
+{"id":"kernel.make_interval","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["a","b","left_open","right_open"],"returns":"an interval; rejects endpoints out of order"}
+{"id":"kernel.make_matrix","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["rows"],"returns":"a matrix of the given rows"}
 {"id":"kernel.make_point","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"the point (x, y)"}
+{"id":"kernel.make_set","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["xs"],"returns":"a finite set of the given elements"}
 {"id":"kernel.make_vector","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["xs"],"returns":"a vector of the given entries"}
 {"id":"kernel.multiply","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x * y"}
 {"id":"kernel.negate","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x"],"returns":"-x"}
+{"id":"kernel.not_equal","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x != y"}
+{"id":"kernel.real_part","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["z"],"returns":"the real part of z"}
 {"id":"kernel.subtract","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x - y"}

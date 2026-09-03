@@ -32,6 +32,17 @@ def render(v):
         return "(" + ", ".join(render(x) for x in v) + ")"
     if isinstance(v, Fraction):
         return str(v.numerator) if v.denominator == 1 else f"{v.numerator}/{v.denominator}"
+    if isinstance(v, sp.Interval):
+        lo = "(" if v.left_open else "["
+        hi = ")" if v.right_open else "]"
+        return f"{lo}{render(v.start)}, {render(v.end)}{hi}"
+    if isinstance(v, sp.FiniteSet):
+        return "{" + ", ".join(render(x) for x in sorted(v, key=str)) + "}"
+    if isinstance(v, sp.MatrixBase):
+        return "[" + "; ".join(", ".join(render(x) for x in v.row(i))
+                               for i in range(v.rows)) + "]"
+    if isinstance(v, bool):
+        return "yes" if v else "no"
     return str(v)
 
 
@@ -147,3 +158,73 @@ def display(v, mode=None):
     if mode and "{}" in mode:
         return mode.format(render(v))
     return render(v)
+
+
+@kernel("kernel.greater_than")
+def _greater_than(x, y): return x > y
+
+
+@kernel("kernel.less_equal")
+def _less_equal(x, y): return x <= y
+
+
+@kernel("kernel.greater_equal")
+def _greater_equal(x, y): return x >= y
+
+
+@kernel("kernel.not_equal")
+def _not_equal(x, y): return x != y
+
+
+@kernel("kernel.logical_and")
+def _logical_and(x, y): return bool(x) and bool(y)
+
+
+@kernel("kernel.logical_or")
+def _logical_or(x, y): return bool(x) or bool(y)
+
+
+@kernel("kernel.logical_not")
+def _logical_not(x): return not bool(x)
+
+
+@kernel("kernel.absolute_value")
+def _absolute_value(x):
+    if isinstance(x, sp.Expr) and not x.is_real:
+        raise ValueError("absolute_value is for real numbers; use a modulus atom")
+    return abs(x)
+
+
+@kernel("kernel.make_set")
+def _make_set(xs): return sp.FiniteSet(*xs)
+
+
+@kernel("kernel.make_interval")
+def _make_interval(a, b, left_open=False, right_open=False):
+    if a > b:
+        raise ValueError("interval endpoints out of order")
+    return sp.Interval(a, b, bool(left_open), bool(right_open))
+
+
+@kernel("kernel.make_complex")
+def _make_complex(re_part, im_part): return sp.sympify(re_part) + sp.sympify(im_part) * sp.I
+
+
+@kernel("kernel.real_part")
+def _real_part(z): return sp.re(sp.sympify(z))
+
+
+@kernel("kernel.imaginary_part")
+def _imaginary_part(z): return sp.im(sp.sympify(z))
+
+
+@kernel("kernel.make_matrix")
+def _make_matrix(rows): return sp.Matrix([list(r) for r in rows])
+
+
+@kernel("kernel.get_row")
+def _get_row(m, i): return sp.Matrix(m).row(i)
+
+
+@kernel("kernel.get_column")
+def _get_column(m, j): return sp.Matrix(m).col(j)
