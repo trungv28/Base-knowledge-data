@@ -108,6 +108,24 @@ def run_graph(t, vals):
     return outs[g["final"].split(".")[0]], outs
 
 
+def _load_graphs():
+    import json as _j
+    from pathlib import Path as _P
+    f = _P(__file__).parent / "graphs.jsonl"
+    if not f.exists():
+        return {}
+    out = {}
+    for line in open(f, encoding="utf-8"):
+        if line.strip():
+            g = _j.loads(line)
+            if "return" in g:
+                out[g["id"]] = g
+    return out
+
+
+GRAPHS = _load_graphs()
+
+
 def load(path):
     with open(path) as f:
         return [json.loads(x) for x in f if x.strip()]
@@ -245,17 +263,25 @@ def enrich(vals):
     return vals
 
 
-def make(t):
-    vals = sample(t)
+def answer_of(t, vals):
+    """A reference-program composite defines its own answer by executing; an
+    atomic template still names a solver."""
+    spec = GRAPHS.get(t["id"])
+    if spec is not None:
+        import program, kernel
+        got, _ = program.run(spec["nodes"], vals, (spec.get("return") or {}).get("ref"))
+        return kernel.render(got)
     fn = getattr(solver, t["solver"])
     names = inspect.signature(fn).parameters
-    args = {k: vals[k] for k in names if k in vals}
-    return t["template"].format(**vals), fn(**args)
+    return fn(**{k: vals[k] for k in names if k in vals})
+
+
+def make(t):
+    vals = sample(t)
+    return t["template"].format(**vals), answer_of(t, vals)
 
 
 def instances(t, want, tries_per_hit=40):
-    fn = getattr(solver, t["solver"])
-    params = inspect.signature(fn).parameters
     seen, rows = set(), []
     for _ in range(want * tries_per_hit):
         if len(rows) >= want:
@@ -265,7 +291,7 @@ def instances(t, want, tries_per_hit=40):
         if q in seen:
             continue
         seen.add(q)
-        answer = fn(**{k: vals[k] for k in params if k in vals})
+        answer = answer_of(t, vals)
         _, node_outputs = run_graph(t, vals)
         rows.append((q, answer, node_outputs, vals))
     return rows

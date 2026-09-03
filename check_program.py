@@ -1,15 +1,15 @@
 import argparse, collections, inspect, json, random, sys
 from pathlib import Path
 
-import common_solvers, generate, program, solver
+import kernel, atoms, generate, program
 
 HERE = Path(__file__).parent
-DRAWS = 25
+DRAWS = 200
 
 
 def knowledge_depth(nodes, final=None):
     deps = program.dependencies(nodes)
-    kind = {n["node_id"]: common_solvers.KIND.get(n["atom_id"]) for n in nodes}
+    kind = {n["node_id"]: kernel.KIND.get(n["atom_id"]) for n in nodes}
     memo = {}
 
     def d(nid):
@@ -38,13 +38,13 @@ def check(comp, spec):
     rule("node ids unique", len(set(ids)) == len(ids))
     rule("returned node exists", final in ids, final)
 
-    bad_atom = [n["node_id"] for n in nodes if n["atom_id"] not in common_solvers.REGISTRY]
+    bad_atom = [n["node_id"] for n in nodes if n["atom_id"] not in kernel.REGISTRY]
     rule("every atom is registered", not bad_atom, ", ".join(bad_atom))
 
     bad_arg, bad_ref, forward = [], [], []
     seen = []
     for n in nodes:
-        fn = common_solvers.REGISTRY.get(n["atom_id"])
+        fn = kernel.REGISTRY.get(n["atom_id"])
         args = n.get("args") or {}
         if fn is not None:
             want = set(inspect.signature(fn).parameters)
@@ -72,7 +72,7 @@ def check(comp, spec):
     rule("every node reaches the answer", not orphan, ", ".join(orphan))
 
 
-    kind = {n["node_id"]: common_solvers.KIND.get(n["atom_id"]) for n in nodes}
+    kind = {n["node_id"]: kernel.KIND.get(n["atom_id"]) for n in nodes}
     atom_of = {n["node_id"]: n["atom_id"] for n in nodes}
     deps = program.dependencies(nodes)
     best = set()
@@ -110,31 +110,25 @@ def check(comp, spec):
     rule("executes on every draw", not crash, crash)
 
 
-    sv = getattr(solver, comp.get("solver", ""), None)
-    if sv is not None and not crash:
-        params = inspect.signature(sv).parameters
+    ex = comp.get("example")
+    if ex and not crash:
         mismatch = ""
-        for _ in range(DRAWS):
-            try:
-                v = generate.sample(comp)
-                got, _ = program.run(nodes, v, final)
-                want = sv(**{k: v[k] for k in params if k in v})
-            except Exception as e:
-                mismatch = f"{type(e).__name__}: {e}"
-                break
-            shown = {str(common_solvers.render(got)).strip()}
-            if isinstance(got, tuple):
-                shown.add(solver.poly([(len(got) - 1 - i, k)
-                                         for i, k in enumerate(got)]).strip())
-            if str(want).strip() not in shown:
-                mismatch = f"program {sorted(shown)} vs solver {want!r}"
-                break
-        rule("agrees with the independent solver", not mismatch, mismatch)
+        try:
+            v = dict(ex["vars"])
+            for name in generate.derive_order(comp.get("derive") or {}):
+                v[name] = generate.evaluate(comp["derive"][name], v)
+            got, _ = program.run(nodes, v, final)
+            shown = str(kernel.render(got)).strip()
+            if shown != str(ex["answer"]).strip():
+                mismatch = f"program gave {shown!r}, worked example says {ex['answer']!r}"
+        except Exception as e:
+            mismatch = f"{type(e).__name__}: {e}"
+        rule("reproduces the worked example", not mismatch, mismatch)
     if answers:
         top, k = answers.most_common(1)[0]
         rule("answers vary", k / DRAWS <= 0.6, f"{top!r} on {k*100//DRAWS}%, {len(answers)} distinct")
         const = [i for i in ids if len(per_node[i]) == 1
-                 and common_solvers.KIND.get(atom_of.get(i)) == "knowledge"]
+                 and kernel.KIND.get(atom_of.get(i)) == "knowledge"]
         rule("no node is constant", not const, ", ".join(const))
         noop = [f"{i} on {c*100//DRAWS}%" for i, c in novar.items() if c > DRAWS * 0.5]
         rule("no step is a no-op", not noop, ", ".join(noop))

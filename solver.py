@@ -7,7 +7,7 @@ import math
 from sympy import sqrt, Rational
 
 
-import common_solvers
+import kernel, atoms
 
 
 def ordinal(n):
@@ -143,9 +143,8 @@ def quad_axis_evaluate(a_val, b_val, c_val):
 
 
 def cubic_intercept_translate(b_val, c_val, d_val, e_val, v_val):
-    y = CALL["func.notation.evaluate"](coeffs=(1, b_val, c_val, d_val), x=e_val)
-    return common_solvers.render(
-        CALL["func.transform.vertical_translation"](y=y, a=v_val))
+    y = e_val**3 + b_val * e_val**2 + c_val * e_val + d_val
+    return str(y + v_val)
 
 
 def transform_vertical_sequence_eval(c_val, v_val, e_val):
@@ -224,7 +223,7 @@ def cubic_quotient_vertex_translate(a_val, b_val, c_val, d_val, v_val):
     return pf(y.numerator, y.denominator)
 
 
-CALL = common_solvers.REGISTRY
+CALL = kernel.REGISTRY
 
 
 def coeff_poly(coeffs):
@@ -233,55 +232,55 @@ def coeff_poly(coeffs):
 
 
 def direct_prop_constant_ratio(y1, x1):
-    return common_solvers.render(CALL["func.direct_proportion.constant_ratio"](y=y1, x=x1))
+    return kernel.render(CALL["func.direct_proportion.constant_ratio"](y=y1, x=x1))
 
 
 def inv_proportion_equation(x1, y1):
-    return common_solvers.render(CALL["func.inv_proportion.definition"](x=x1, y=y1))
+    return kernel.render(CALL["func.inv_proportion.definition"](x=x1, y=y1))
 
 
 def func_linear_solve_one_step(a, b):
-    return common_solvers.render(CALL["func.linear_solve.one_step"](a=a, b=b))
+    return kernel.render(CALL["func.linear_solve.one_step"](a=a, b=b))
 
 
 def quad_general_axis(a, b, c):
-    return common_solvers.render(CALL["func.quad_general.axis"](coeffs=(a, b, c)))
+    return kernel.render(CALL["func.quad_general.axis"](coeffs=(a, b, c)))
 
 
 def quad_general_y_intercept(a, b, c):
-    return common_solvers.render(CALL["func.quad_general.y_intercept"](coeffs=(a, b, c)))
+    return kernel.render(CALL["func.quad_general.y_intercept"](coeffs=(a, b, c)))
 
 
 def func_evaluate(a, b, c, k):
-    return common_solvers.render(CALL["func.notation.evaluate"](coeffs=(a, b, c), x=k))
+    return kernel.render(CALL["func.notation.evaluate"](coeffs=(a, b, c), x=k))
 
 
 def transform_v_translate_y(q, a):
-    return common_solvers.render(CALL["func.transform.vertical_translation"](y=q, a=a))
+    return kernel.render(CALL["func.transform.vertical_translation"](y=q, a=a))
 
 
 def transform_h_translate_x(p, b):
-    return common_solvers.render(CALL["func.transform.inverse_horizontal_translation"](x=p, h=b))
+    return kernel.render(CALL["func.transform.inverse_horizontal_translation"](x=p, h=b))
 
 
 def transform_v_dilate_y(q, c):
-    return common_solvers.render(CALL["func.transform.vertical_dilation"](y=q, c=c))
+    return kernel.render(CALL["func.transform.vertical_dilation"](y=q, c=c))
 
 
 def transform_h_dilate_x(p, k):
-    return common_solvers.render(CALL["func.transform.horizontal_dilation"](x=p, k=k))
+    return kernel.render(CALL["func.transform.horizontal_dilation"](x=p, k=k))
 
 
 def hyperbola_vertical_asymptote(a, b):
-    return f"x = {common_solvers.render(CALL['func.hyperbola.vertical_asymptote'](b=b))}"
+    return f"x = {kernel.render(CALL['func.hyperbola.vertical_asymptote'](b=b))}"
 
 
 def hyperbola_horizontal_asymptote(a, b, d):
-    return f"y = {common_solvers.render(CALL['func.hyperbola.horizontal_asymptote'](d=d))}"
+    return f"y = {kernel.render(CALL['func.hyperbola.horizontal_asymptote'](d=d))}"
 
 
 def sqrt_principal(t_val):
-    return common_solvers.render(CALL["func.sqrt.principal"](t=t_val))
+    return kernel.render(CALL["func.sqrt.principal"](t=t_val))
 
 
 def poly_quadratic_two_linear(a, b):
@@ -306,27 +305,27 @@ def poly_cubic_factor_quotient(a, b, c, d):
 
 
 def transform_h_translate_forward(p, h):
-    return common_solvers.render(CALL["func.transform.horizontal_translation"](x=p, h=h))
+    return kernel.render(CALL["func.transform.horizontal_translation"](x=p, h=h))
 
 
 def transform_inv_h_dilate(p, k):
-    return common_solvers.render(CALL["func.transform.inverse_horizontal_dilation"](x=p, k=k))
+    return kernel.render(CALL["func.transform.inverse_horizontal_dilation"](x=p, k=k))
 
 
 def transform_inv_v_translate(q, a):
-    return common_solvers.render(CALL["func.transform.inverse_vertical_translation"](y=q, a=a))
+    return kernel.render(CALL["func.transform.inverse_vertical_translation"](y=q, a=a))
 
 
 def transform_inv_v_dilate(q, c):
-    return common_solvers.render(CALL["func.transform.inverse_vertical_dilation"](y=q, c=c))
+    return kernel.render(CALL["func.transform.inverse_vertical_dilation"](y=q, c=c))
 
 
 def direct_prop_evaluate_atom(k, x):
-    return common_solvers.render(CALL["func.direct_proportion.evaluate"](k=k, x=x))
+    return kernel.render(CALL["func.direct_proportion.evaluate"](k=k, x=x))
 
 
 def hyperbola_evaluate_atom(a, b, d, x):
-    return common_solvers.render(CALL["func.hyperbola.evaluate"](a=a, b=b, d=d, x=x))
+    return kernel.render(CALL["func.hyperbola.evaluate"](a=a, b=b, d=d, x=x))
 
 
 def poly_cubic_three_linear_atom(a, b, c):
@@ -334,7 +333,7 @@ def poly_cubic_three_linear_atom(a, b, c):
 
 
 def quad_coefficient_from_axis_atom(a, axis):
-    return common_solvers.render(CALL["func.quad_general.axis_coefficient"](a=a, axis=axis))
+    return kernel.render(CALL["func.quad_general.axis_coefficient"](a=a, axis=axis))
 
 
 def poly_v_translate_atom(a, b, c, v):
@@ -346,7 +345,7 @@ def poly_v_dilate_atom(a, b, c, k):
 
 
 def inv_prop_evaluate_atom(k, x):
-    return common_solvers.render(CALL["func.inv_proportion.evaluate"](k=k, x=x))
+    return kernel.render(CALL["func.inv_proportion.evaluate"](k=k, x=x))
 
 
 def poly_factor_theorem_atom(a, pa):

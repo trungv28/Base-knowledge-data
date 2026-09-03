@@ -1,4 +1,4 @@
-import common_solvers
+import kernel, atoms
 
 CONSTANTS = {"pi", "e"}
 
@@ -42,7 +42,7 @@ def run(nodes, qvars, final=None):
         nid, aid = node["node_id"], node["atom_id"]
         if nid in seen:
             raise ProgramError(f"duplicate node {nid}")
-        fn = common_solvers.REGISTRY.get(aid)
+        fn = kernel.REGISTRY.get(aid)
         if fn is None:
             raise ProgramError(f"unknown atom {aid!r}")
         args = {k: resolve(v, qvars, seen) for k, v in (node.get("args") or {}).items()}

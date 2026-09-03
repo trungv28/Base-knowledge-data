@@ -2,4 +2,3 @@ __pycache__/
 *.pyc
 generated/
 samples.jsonl
-requirements.txt

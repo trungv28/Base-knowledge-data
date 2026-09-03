@@ -1,6 +1,6 @@
 # Annotation Guide: Executable Mathematical Knowledge
 
-You are assigned one Mathematical Methods unit and one Specialist Mathematics unit. Complete one unit before starting the next. Existing files show the format only; recheck their mathematics before reuse.
+You are assigned one Mathematical Methods unit and one Specialist Mathematics unit. Select atoms for both units first. After the lead merges all unit atom lists, complete the remaining work one unit at a time.
 
 - **Atom:** one reusable, independently executable mathematical rule.
 - **Background operation:** routine exact work used to connect atoms; it is not counted as an atom.
@@ -13,7 +13,7 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 |---|---:|---:|
 | Selected atoms | 13–18 | 26–36 |
 | Atomic templates | 18–23 | 36–46 |
-| Composite templates | 28–32 | 56–64 |
+| Composite templates | 32–36 | 64–72 |
 
 Official sources:
 
@@ -42,7 +42,7 @@ Treat each official content description as the initial atom candidate.
 - If it has no exact executable output, defer or exclude it.
 - Do not identify every possible sub-atom in the unit.
 
-An atom must have clear inputs, necessary preconditions, one procedure, one exact semantic output, and a directly supporting source code.
+An atom must have clear inputs, necessary preconditions, one procedure, one exact output, and a directly supporting source code.
 
 Granularity rules:
 
@@ -50,19 +50,22 @@ Granularity rules:
 - Merge two directions of a simple reversible relation when they use the same procedure.
 - Split when the output, theorem, or procedure changes.
 - If one rule produces an input needed by another, use two atoms.
-- Only lead-provided exact scalar arithmetic, comparison, and typed construction or access are background operations. Formatting and normalization are automatic, not nodes.
-- Every selected transformation, substitution, classification, recurrence rule, or solution method is an atom. Do not replace it with a generic `transform`, `case`, `iterate`, `solve`, or `simplify` operation.
+- Use only the background operations already provided in `kernel.py`; do not add new ones.
+- A mathematical rule containing selected curriculum knowledge must be an atom, not a background operation.
 - A point, vector, matrix, complex number, interval, or finite set is one output, not several coordinate atoms.
 
 For example, degree/radian conversion is one reversible atom. Calculating a discriminant and classifying roots from it are two atoms.
 
-Record only the selected 13–18 atoms in `atoms.jsonl`. Every selected atom needs an atomic template. Use the shared ID style (`func.*`, `trig.*`, `prob.*`). IDs must be unique across the combined dataset. Reuse an existing ID only for the same rule.
+Record the 13–18 atoms selected from each unit in `atoms.jsonl`. Every new atom needs an atomic template. Use the shared ID style (`func.*`, `trig.*`, `prob.*`). Atom IDs and functions are shared across all units: reuse an existing atom for the same rule and do not create another atomic template for it. Ask the lead before adding a missing cross-unit atom.
 
 ```json
 {"id":"trig.period.tan_linear",
  "statement":"The fundamental period of tan(b*x+c) is pi/abs(b), for b != 0.",
- "source":"ACMMM038"}
+ "source":"ACMMM038",
+ "concept":"tan_period"}
 ```
+
+The `statement` must describe what the function returns, not a general fact about the graph. `concept` groups atoms that are the same idea, and coverage is counted per concept; give two atoms the same `concept` when they are one rule you had to split. Omit it and the atom is its own concept.
 
 ## 3. Atomic templates and solvers
 
@@ -76,37 +79,26 @@ An atomic template must execute its named atom exactly once. Give every other no
  "solver":"angle_deg_rad"}
 ```
 
-Required fields are `id`, `atom`, `template`, `solver`, and either `vars`, `cases`, or both.
+Required fields are `id`, `atom`, `template`, `solver`, and either `vars`, `cases`, or both. Use `vars` for independent draws, `cases` for combinations that must stay together, and `derive` for fields computed from earlier values. A field cannot appear in both `vars` and `cases`. Process them in this order: `cases` → `vars` → `derive` → constraints. Keep constraints in the template data.
 
-- `vars` contains independently sampled fields.
-- `cases` contains complete combinations that must stay together.
-- A field must not appear in both `vars` and `cases`.
-- Process fields in this order: `cases` → `vars` → `derive` in written order → constraints.
-- Expressions may refer only to values already available.
-- Put constraints in template data, not in `generate.py`.
+Questions must read naturally: use `2x-3`, not `2x+-3`, `1x+0`, or `+0`.
 
-Questions must read naturally: use `2x-3`, not `2x+-3`, `1x+0`, or `+0`. Use `term()`, `linfac()`, and `shift()` through `derive` when needed.
-
-Every template names a function in `solver.py`. The solver must:
+Every atomic template names a function in `solver.py`. The solver must:
 
 - match the name in the template;
 - accept the sampled values it needs;
 - return one exact value, not a float when an exact answer exists;
 - reject invalid inputs rather than changing the question.
 
-Each atom ID must map to one reusable function in `common_solvers.py`, with declared input/output types and preconditions. `solver.py` holds only thin wrappers that adapt template parameter names and add the display form.
+Each atom ID maps to one reusable function in `atoms.py`. `kernel.py` contains the shared background operations and must not be edited. `solver.py` contains only thin wrappers for atomic templates.
 
-An atom function may use a code condition only for its one declared rule; it must not choose, call, or hide another atom. If the solution applies a recurrence-step atom more than once, use one DAG node per application.
-
-Use one consistent exact representation for structured values. Before Specialist annotation begins, confirm that the graph runner and checker can pass and compare symbolic expressions, equations, sequences, points, vectors, matrices, complex numbers, intervals, and sets.
+Each function in `atoms.py` must implement only its named atom. If a solution applies the same atom more than once, use one graph node per application.
 
 ## 4. Strict composites
 
 Start from a natural multi-step problem. Use textbooks and past papers only to identify normal problem types; write the question in original wording. Solve it, then identify the atoms used. Do not join unrelated atoms merely to increase depth.
 
 The graph records one valid reference program, not the only valid solution. Annotate one program only; do not enumerate alternative methods. Rewrite a problem when an obvious shortcut bypasses almost the whole annotated chain.
-
-Do not begin composite annotation until the runner supports the format below.
 
 Store the question in `composite.jsonl` and the reference program in `graphs.jsonl`. Each node contains `node_id`, `atom_id`, and `args`; the program names its returned node. Use `{"question":"a"}` for a question field, `{"ref":"n1"}` for an earlier node, and `{"literal":3}` for an exact literal.
 
@@ -119,33 +111,38 @@ Store the question in `composite.jsonl` and the reference program in `graphs.jso
  "return":{"ref":"n2"}}
 ```
 
-Reuse registered functions; do not rewrite formulas in the graph. The reference program is a finite DAG and the composite solver. Use only lead-provided `kernel.*` operations; do not add model-visible case, loop, or recursion syntax.
+Each graph node calls an existing atom or `kernel.*` function. Do not rewrite atom formulas directly in the graph. The reference program is also the composite solver.
+
+Composites name no solver. Record one worked example in `composite.jsonl`: the values you used and the answer you computed by hand.
+
+```json
+"example": {"vars": {"a_val": 1, "b_val": -5, "c_val": 6}, "answer": "-8"}
+```
+
+`check_program.py` runs your program on those values and fails if it does not reproduce your answer. Work the example out by hand before writing the program; one copied from the program's output checks nothing.
 
 A composite is accepted only if:
 
 1. The graph is connected and acyclic, and every node lies on a path to the final answer.
 2. At least two different atoms occur on one dependency path, and the later atom consumes the earlier result.
 3. Every node is needed in the reference solution.
-4. Each node performs exactly its named atom and performs the same operation for every generated case.
-5. One node does not hide another atom or the problem's main transformation.
-6. Routine connecting work uses an approved `kernel.*` operation; copying or reformatting is not a node.
-7. Every atom has an accepted atomic template.
-8. The prompt is one natural question with one exact semantic answer.
-9. No allowed draw makes a step a no-op.
-10. The executable reference program returns the exact answer.
-
-Each node returns one semantic value. A structured mathematical object counts as one value.
+4. Each node performs only its named atom, consistently across all generated questions.
+5. Routine connecting work uses an approved `kernel.*` operation; copying or reformatting is not a node.
+6. Every atom has an accepted atomic template.
+7. The prompt is one natural question with one exact answer.
+8. No allowed draw makes a step a no-op.
+9. The executable reference program returns the exact answer.
 
 **Atom depth** is the longest dependency chain of atom applications. Ignore `kernel.*` operations.
 
 | Atom depth | Templates per unit |
 |---:|---:|
-| 2 | 9–11 |
-| 3 | 7–9 |
-| 4 | 5–7 |
-| 5 | 3–4 |
+| 2 | 11–12 |
+| 3 | 9–10 |
+| 4 | 6–7 |
+| 5 | 4 |
 | 6 | 2–3 |
-| **Total** | **28–32** |
+| **Total** | **32–36** |
 
 Every standard atomic and composite template must produce at least 128 distinct rendered questions among 200 attempts. Deduplicate rendered questions, not parameter assignments. Ask the lead before using a genuinely finite template.
 
@@ -153,44 +150,47 @@ For composites, also reject a template if one final answer occurs in more than 6
 
 ## 5. Composite coverage
 
-`validate.py` reports this; it counts atom calls in `graphs.jsonl` and ignores `kernel.*` operations:
+Counted from atom calls in `graphs.jsonl`, ignoring `kernel.*` operations. Atoms sharing a concept count as one: a forward transformation and its inverse are the same concept.
 
-- at least 70% of atoms with templates appear in a composite;
-- every atom used in composites appears in at least two composites;
-- focal atoms appear in 6–10 composite templates and at most 40% of the unit; other atoms appear in at most 25%;
+`validate.py` reports these:
+
+- at least 70% of concepts with templates appear in a composite;
+- every concept used in composites appears in at least two composites;
+- no concept appears in more than 25% of composites.
+
+The lead checks these by hand; no tool enforces them:
+
+- 8–12 central, reusable atoms as focal, each in 6–10 composite templates and at most 40% of the unit;
 - every used atom has at least two different direct partner atoms;
 - at least 12 atom pairs recur in structurally different composites.
 
 A partner is a directly dependent atom after ignoring intervening `kernel.*` operations. Do not paraphrase one graph merely to increase a count.
 
-## 6. Exclusions
-
-Do not create templates requiring subjective judgement, open-ended modelling, proof writing, diagram interpretation, technology-only solutions, inexact checking, several independent questions, or a tiny repeated case set.
-
-## 7. Validation and review
+## 6. Validation and review
 
 ```bash
 python3 annotate_graphs.py     # after every graph edit
 python3 check_program.py <id>  # one composite reference program
 python3 validate.py            # the whole bank, plus your atom-spread targets
-python3 audit.py               # answers re-derived with sympy, independently
 ```
 
-The audits re-derive answers independently of the atom functions, so they catch wrong mathematics. They still cannot tell you whether a node carries the right atom label, whether every node is needed, or whether the question is natural: two atoms with the same arithmetic pass either way. Read every composite yourself. Do not rely on the exit code alone; resolve every reported problem.
+Run all three commands and resolve every reported error. Mathematical correctness and natural wording are checked during cross-review.
 
-Cross-review one other annotator's batch: 15 atom statements, 10 atomic templates with three cases each, and approximately 30 composites with reference programs and three cases each. Mark each item `correct`, `incorrect`, or `uncertain`, with a short note for the last two.
+At the end you will cross-review another annotator's batch. Instructions for that come separately.
 
-## 8. Time and deliverables
+## 7. Time and deliverables
+
+Time for both assigned units:
 
 | Stage | Time |
 |---|---:|
 | Source coverage and atom selection | 6 hours |
-| Atomic templates and solvers, including routine runs | 10 hours |
-| Composite templates and reference programs, including routine runs | 49 hours |
+| Atomic templates and solvers | 9 hours |
+| Composite templates and reference programs | 48 hours |
 | Cross-review | 7 hours |
-| **Total** | **approximately 72 hours** |
+| **Total** | **approximately 70 hours** |
 
-The lead performs final acceptance review separately; it is not included in these 72 hours.
+The lead performs final acceptance review separately; it is not included in these 70 hours.
 
 Submit:
 
@@ -200,8 +200,7 @@ atoms.jsonl
 templates.jsonl
 composite.jsonl
 graphs.jsonl
-common_solvers.py
+atoms.py
 solver.py
-generate.py
 reviews/<annotator_id>.jsonl
 ```
