@@ -86,8 +86,6 @@ def _get_coordinate(p, i): return p[i]
 def _get_entry(v, i): return v[i]
 
 
-
-
 def poly(pairs, v="x"):
     terms = {}
     for p, k in pairs:
@@ -129,25 +127,11 @@ def lineq(m, x1, y1):
     return f"y = {ms} {sign} {pf(abs(b.numerator), b.denominator)}"
 
 
-
-
-
-
-
-
-
-
 def pf(num, den):
     f = Fraction(num, den)
     if f.denominator == 1:
         return str(f.numerator)
     return f"{f.numerator}/{f.denominator}"
-
-
-
-
-
-
 
 
 def coeff_poly(coeffs):

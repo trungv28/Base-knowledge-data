@@ -1,0 +1,12 @@
+{"id":"kernel.add","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x + y"}
+{"id":"kernel.divide","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x / y, exact; rejects a zero divisor"}
+{"id":"kernel.equal","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x == y"}
+{"id":"kernel.get_coordinate","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["p","i"],"returns":"coordinate i of a point"}
+{"id":"kernel.get_entry","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["v","i"],"returns":"entry i of a vector"}
+{"id":"kernel.integer_power","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","n"],"returns":"x ** n"}
+{"id":"kernel.less_than","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x < y"}
+{"id":"kernel.make_point","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"the point (x, y)"}
+{"id":"kernel.make_vector","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["xs"],"returns":"a vector of the given entries"}
+{"id":"kernel.multiply","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x * y"}
+{"id":"kernel.negate","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x"],"returns":"-x"}
+{"id":"kernel.subtract","unit":"*","kind":"kernel","statement":"Background graph glue; carries no curriculum knowledge.","source":"kernel","args":["x","y"],"returns":"x - y"}
