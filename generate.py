@@ -46,12 +46,6 @@ SAFE = {
     "cubic": kernel.cubic,
     "lineq": kernel.lineq,
     "pf": kernel.pf,
-    "ordinal": kernel.ordinal,
-    "pi_coeff": kernel._pi_coeff_str,
-    "sin_base_angle": kernel.sin_base_angle,
-    "poly_degree": kernel.poly_degree,
-    "poly_leading_coefficient": kernel.poly_leading_coefficient,
-    "poly_coefficient": kernel.poly_coefficient,
     "term": term, "linfac": linfac, "shift": shift,
 }
 

@@ -86,11 +86,6 @@ def _get_coordinate(p, i): return p[i]
 def _get_entry(v, i): return v[i]
 
 
-def ordinal(n):
-    n = int(n)
-    if 10 <= n % 100 <= 20:
-        return f"{n}th"
-    return f"{n}{ {1:'st', 2:'nd', 3:'rd'}.get(n % 10, 'th') }"
 
 
 def poly(pairs, v="x"):
@@ -134,25 +129,12 @@ def lineq(m, x1, y1):
     return f"y = {ms} {sign} {pf(abs(b.numerator), b.denominator)}"
 
 
-def _collect(a, n, b, m, c, d):
-    terms = {}
-    for power, coeff in ((n, a), (m, b), (1, c), (0, d)):
-        terms[power] = terms.get(power, 0) + coeff
-    return {p: k for p, k in terms.items() if k != 0}
 
 
-def poly_degree(a, n, b, m, c, d):
-    terms = _collect(a, n, b, m, c, d)
-    return max(terms) if terms else 0
 
 
-def poly_leading_coefficient(a, n, b, m, c, d):
-    terms = _collect(a, n, b, m, c, d)
-    return terms[max(terms)] if terms else 0
 
 
-def poly_coefficient(a, n, b, m, c, d, k):
-    return _collect(a, n, b, m, c, d).get(k, 0)
 
 
 def pf(num, den):
@@ -162,35 +144,10 @@ def pf(num, den):
     return f"{f.numerator}/{f.denominator}"
 
 
-def _pi_coeff_str(f):
-    f = Fraction(f)
-    if f == 0:
-        return "0"
-    if f == 1:
-        return "π"
-    if f == -1:
-        return "-π"
-    if f.denominator == 1:
-        return f"{f.numerator}π"
-    if f.numerator == 1:
-        return f"π/{f.denominator}"
-    if f.numerator == -1:
-        return f"-π/{f.denominator}"
-    return f"{f.numerator}π/{f.denominator}"
 
 
-_SIN_BASE_BY_VALUE = {
-    "0": (Fraction(0), Fraction(1)),
-    "1/2": (Fraction(1, 6), Fraction(5, 6)),
-    "1": (Fraction(1, 2), Fraction(1, 2)),
-    "\u221a3/2": (Fraction(1, 3), Fraction(2, 3)),
-    "-1/2": (Fraction(7, 6), Fraction(11, 6)),
-    "-\u221a3/2": (Fraction(4, 3), Fraction(5, 3)),
-}
 
 
-def sin_base_angle(a_value, which):
-    return _SIN_BASE_BY_VALUE[str(a_value)][which]
 
 
 def coeff_poly(coeffs):
