@@ -11,7 +11,7 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 
 | Item | Per unit | Both units |
 |---|---:|---:|
-| Selected atoms | 13–18 | 26–36 |
+| Selected atoms, counted by concept | 13–18 | 26–36 |
 | Atomic templates | 18–23 | 36–46 |
 | Composite templates | 32–36 | 64–72 |
 
@@ -56,16 +56,24 @@ Granularity rules:
 
 For example, degree/radian conversion is one reversible atom. Calculating a discriminant and classifying roots from it are two atoms.
 
-Record the 13–18 atoms selected from each unit in `atoms.jsonl`. Every new atom needs an atomic template. Use the shared ID style (`func.*`, `trig.*`, `prob.*`). Atom IDs and functions are shared across all units: reuse an existing atom for the same rule and do not create another atomic template for it. Ask the lead before adding a missing cross-unit atom.
+Record the atoms selected from each unit in `atoms.jsonl`. Every new atom needs an atomic template. Use the shared ID style (`func.*`, `trig.*`, `prob.*`). Atom IDs and functions are shared across all units: reuse an existing atom for the same rule and do not create another atomic template for it. Ask the lead before adding a missing cross-unit atom.
 
 ```json
-{"id":"trig.period.tan_linear",
+{"id":"trig.period.tan_linear","unit":"MM3",
  "statement":"The fundamental period of tan(b*x+c) is pi/abs(b), for b != 0.",
- "source":"ACMMM038",
- "concept":"tan_period"}
+ "source":"ACMMM038","concept":"tan_period"}
 ```
 
-`statement` is the mathematical rule the function implements; write it from the function, not from a picture of the graph. `concept` groups atoms that are the same idea, and coverage is counted per concept: give two atoms the same `concept` when they are one rule you had to split. Omit it and the atom is its own concept.
+`statement` is the mathematical rule the function implements; write it from the function, not from a picture of the graph.
+
+`concept` is what the 13–18 target counts, not the number of IDs. Sometimes one idea has to become two functions because the code differs, and then both take the same `concept` so coverage counts the idea once:
+
+```json
+{"id":"func.transform.horizontal_translation", ... ,"concept":"horizontal_translation"}
+{"id":"func.transform.inverse_horizontal_translation", ... ,"concept":"horizontal_translation"}
+```
+
+Translating a point and recovering where it came from are the same idea, but `x + h` and `x - h` are separate functions; keeping them apart avoids sign errors. Omit `concept` and the atom is its own concept, which is right for most atoms.
 
 ## 3. Atomic templates
 

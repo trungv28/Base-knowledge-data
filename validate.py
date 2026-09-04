@@ -349,7 +349,8 @@ def main():
         for a in set(c["atoms"]) - covered:
             bad("coverage", c["id"], f"atom {a} has no working atomic template")
 
-    print(f"atoms {len(atoms)}   atomic {len(tem)}   composite {len(comp)}")
+    ncon = len({a.get("concept", a["id"]) for a in atoms})
+    print(f"atoms {len(atoms)} ({ncon} concepts)   atomic {len(tem)}   composite {len(comp)}")
     if fail:
         print(f"\nFAILED ({len(fail)}):")
         for f in fail:
