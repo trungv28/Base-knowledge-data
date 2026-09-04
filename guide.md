@@ -50,7 +50,7 @@ Granularity rules:
 - Merge two directions of a simple reversible relation when they use the same procedure.
 - Split when the output, theorem, or procedure changes.
 - If one rule produces an input needed by another, use two atoms.
-- Use only the background operations already provided in `kernel.py` and `kernel.jsonl`; do not add new ones.
+- Use only the background operations already provided in `kernel.py`; do not add new ones.
 - A mathematical rule containing selected curriculum knowledge must be an atom, not a background operation.
 - A point, vector, matrix, complex number, interval, or finite set is one output, not several coordinate atoms.
 
@@ -65,7 +65,7 @@ Record the 13–18 atoms selected from each unit in `atoms.jsonl`. Every new ato
  "concept":"tan_period"}
 ```
 
-The `statement` must describe what the function returns, not a general fact about the graph. `concept` groups atoms that are the same idea, and coverage is counted per concept; give two atoms the same `concept` when they are one rule you had to split. Omit it and the atom is its own concept.
+`statement` is the mathematical rule the function implements; write it from the function, not from a picture of the graph. `concept` groups atoms that are the same idea, and coverage is counted per concept: give two atoms the same `concept` when they are one rule you had to split. Omit it and the atom is its own concept.
 
 ## 3. Atomic templates
 
@@ -87,7 +87,7 @@ An atomic template is a one-node program: `args` binds the atom's parameters the
 
 Add `"display"` only when the answer needs a form other than the plain value: `"polynomial"` for a coefficient tuple, `"capitalize"`, or a pattern such as `"x = {}"`.
 
-Each atom ID maps to one reusable function in `atoms.py`, which returns an exact value and never display text. The background operations live in `kernel.py` and `kernel.jsonl` and must not be edited.
+Each atom ID maps to one reusable function in `atoms.py`, which returns an exact value and never display text. The background operations live in `kernel.py` and must not be edited.
 
 Each function in `atoms.py` must implement only its named atom. If a solution applies the same atom more than once, use one graph node per application.
 

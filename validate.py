@@ -163,21 +163,20 @@ def main():
     random.seed(args.seed)
 
     atoms = generate.load(HERE / "atoms.jsonl")
-    kern = generate.load(HERE / "kernel.jsonl")
     tem = generate.load(HERE / "templates.jsonl")
     comp = generate.load(HERE / "composite.jsonl")
-    atom_ids = {a["id"] for a in atoms} | {k["id"] for k in kern}
+    import kernel as _k
+    atom_ids = {a["id"] for a in atoms} | set(_k.REGISTRY)
     fail = []
 
     def bad(kind, tid, msg):
         fail.append(f"[{kind}] {tid}: {msg}")
 
-    import kernel as _k
+    declared = {a["id"] for a in atoms}
     for aid, kind in _k.KIND.items():
-        declared = {a["id"] for a in (kern if kind == "kernel" else atoms)}
-        if aid not in declared:
-            bad("library", aid, f"registered in code but absent from the {kind} list")
-    for row in atoms + kern:
+        if kind == "knowledge" and aid not in declared:
+            bad("library", aid, "registered in code but absent from atoms.jsonl")
+    for row in atoms:
         if row["id"] not in _k.REGISTRY:
             bad("library", row["id"], "declared but not registered in code")
 
@@ -211,7 +210,6 @@ def main():
             bad("order", t["id"], str(e))
 
 
-    atoms = [a for a in atoms if a.get("kind") != "kernel"]
     for kind, rows in (("atoms", atoms), ("atomic", tem), ("composite", comp)):
         seen = set()
         for r in rows:
