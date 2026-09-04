@@ -11,7 +11,7 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 
 | Item | Per unit | Both units |
 |---|---:|---:|
-| Selected atoms, counted by concept | 13–18 | 26–36 |
+| Selected atoms | 13–18 | 26–36 |
 | Atomic templates | 18–23 | 36–46 |
 | Composite templates | 32–36 | 64–72 |
 
@@ -61,19 +61,10 @@ Record the atoms selected from each unit in `atoms.jsonl`. Every new atom needs 
 ```json
 {"id":"trig.period.tan_linear","unit":"MM3",
  "statement":"The fundamental period of tan(b*x+c) is pi/abs(b), for b != 0.",
- "source":"ACMMM038","concept":"tan_period"}
+ "source":"ACMMM038"}
 ```
 
 `statement` is the mathematical rule the function implements; write it from the function, not from a picture of the graph.
-
-`concept` is what the 13–18 target counts, not the number of IDs. Sometimes one idea has to become two functions because the code differs, and then both take the same `concept` so coverage counts the idea once:
-
-```json
-{"id":"func.transform.horizontal_translation", ... ,"concept":"horizontal_translation"}
-{"id":"func.transform.inverse_horizontal_translation", ... ,"concept":"horizontal_translation"}
-```
-
-Translating a point and recovering where it came from are the same idea, but `x + h` and `x - h` are separate functions; keeping them apart avoids sign errors. Omit `concept` and the atom is its own concept, which is right for most atoms.
 
 ## 3. Atomic templates
 
@@ -155,13 +146,13 @@ For composites, also reject a template if one final answer occurs in more than 6
 
 ## 5. Composite coverage
 
-Counted from atom calls in `graphs.jsonl`, ignoring `kernel.*` operations. Atoms sharing a concept count as one: a forward transformation and its inverse are the same concept.
+Counted from atom calls in `graphs.jsonl`, ignoring `kernel.*` operations.
 
 `validate.py` reports these:
 
-- at least 70% of concepts with templates appear in a composite;
-- every concept used in composites appears in at least two composites;
-- no concept appears in more than 25% of composites.
+- at least 70% of atoms with templates appear in a composite;
+- every atom used in composites appears in at least two composites;
+- no atom appears in more than 25% of composites.
 
 The lead checks these by hand; no tool enforces them:
 

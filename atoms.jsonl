@@ -1,28 +1,23 @@
-{"id":"func.direct_proportion.constant_ratio","unit":"MM1","statement":"If x and y are in direct proportion then y = kx, so the constant is k = y/x for nonzero x.","source":"ACMMM002","concept":"direct_proportion"}
-{"id":"func.linear_solve.one_step","unit":"MM1","statement":"A linear equation of the form ax = b has solution x = b/a, defined when a \u2260 0.","source":"ACMMM005","concept":"linear_solve"}
-{"id":"func.quad_general.y_intercept","unit":"MM1","statement":"The y-intercept of y = ax\u00b2 + bx + c is c.","source":"ACMMM011","concept":"quadratic_y_intercept"}
-{"id":"func.quad_general.axis","unit":"MM1","statement":"The axis of symmetry of y = ax\u00b2 + bx + c is x = \u2212b/2a.","source":"ACMMM011","concept":"quadratic_axis"}
-{"id":"func.inv_proportion.definition","unit":"MM1","statement":"If y is inversely proportional to x then y = k/x, so the constant is k = xy.","source":"ACMMM012","concept":"inverse_proportion"}
-{"id":"func.hyperbola.vertical_asymptote","unit":"MM1","statement":"The vertical asymptote of y = a/(x\u2212b) is x = b.","source":"ACMMM013","concept":"hyperbola_asymptote"}
-{"id":"func.hyperbola.horizontal_asymptote","unit":"MM1","statement":"The horizontal asymptote of y = a/(x\u2212b) + d is y = d.","source":"ACMMM013","concept":"hyperbola_asymptote"}
-{"id":"func.poly.quadratic_two_linear","unit":"MM1","statement":"(x\u2212a)(x\u2212b) = x\u00b2 \u2212 (a+b)x + ab.","source":"ACMMM016","concept":"quadratic_expansion"}
-{"id":"func.poly.quadratic_repeated","unit":"MM1","statement":"(x\u2212a)\u00b2 = x\u00b2 \u2212 2ax + a\u00b2.","source":"ACMMM016","concept":"quadratic_expansion"}
-{"id":"func.poly.factor_theorem","unit":"MM1","statement":"(x\u2212a) is a factor of polynomial p(x) if and only if p(a) = 0.","source":"ACMMM018","concept":"factor_theorem"}
-{"id":"func.poly.cubic_factor_quotient","unit":"MM1","statement":"If (x\u2212a) is a factor of a cubic p(x), then p(x) = (x\u2212a)q(x) where q(x) is a quadratic polynomial.","source":"ACMMM018","concept":"cubic_factor_quotient"}
-{"id":"func.notation.evaluate","unit":"MM1","statement":"f(a) is the value of f(x) obtained by substituting x = a into the rule for f.","source":"ACMMM023","concept":"function_evaluation"}
-{"id":"func.transform.vertical_translation","unit":"MM1","statement":"Under a vertical translation of a units, a point with y-coordinate y maps to y + a.","source":"ACMMM025","concept":"vertical_translation"}
-{"id":"func.transform.horizontal_translation","unit":"MM1","statement":"Under a horizontal translation of h units, a point with x-coordinate x maps to x + h.","source":"ACMMM025","concept":"horizontal_translation"}
-{"id":"func.transform.vertical_dilation","unit":"MM1","statement":"Under a vertical dilation by factor c, a point with y-coordinate y maps to cy.","source":"ACMMM026","concept":"vertical_dilation"}
-{"id":"func.transform.horizontal_dilation","unit":"MM1","statement":"Under the horizontal dilation taking y = f(x) to y = f(kx), a point with x-coordinate x maps to x/k.","source":"ACMMM026","concept":"horizontal_dilation"}
-{"id":"func.sqrt.principal","unit":"MM1","statement":"For t >= 0, sqrt(t) denotes the non-negative square root of t; it is the unique s >= 0 with s^2 = t.","source":"ACMMM008","concept":"principal_root"}
-{"id":"func.direct_proportion.evaluate","unit":"MM1","statement":"If y = kx and k is known, the value at x is kx.","source":"ACMMM002","concept":"direct_proportion"}
-{"id":"func.transform.inverse_horizontal_translation","unit":"MM1","statement":"For y = f(x + h), the point with x-coordinate x on y = f(x) corresponds to x - h.","source":"ACMMM025","concept":"horizontal_translation"}
-{"id":"func.transform.inverse_horizontal_dilation","unit":"MM1","statement":"For y = f(kx), the point with x-coordinate x on y = f(kx) corresponds to kx on y = f(x).","source":"ACMMM026","concept":"horizontal_dilation"}
-{"id":"func.transform.inverse_vertical_translation","unit":"MM1","statement":"Reversing a vertical translation of a units: the point that maps to y came from y - a.","source":"ACMMM025","concept":"vertical_translation"}
-{"id":"func.transform.inverse_vertical_dilation","unit":"MM1","statement":"Reversing a vertical dilation by factor c: the point that maps to y came from y/c.","source":"ACMMM026","concept":"vertical_dilation"}
-{"id":"func.poly.cubic_three_linear","unit":"MM1","statement":"(x-a)(x-b)(x-c) expands to x^3 - (a+b+c)x^2 + (ab+bc+ca)x - abc.","source":"ACMMM016","concept":"cubic_expansion"}
-{"id":"func.transform.poly_vertical_translation","unit":"MM1","statement":"Translating y = p(x) by a adds a to the constant term.","source":"ACMMM025","concept":"vertical_translation"}
-{"id":"func.transform.poly_vertical_dilation","unit":"MM1","statement":"Dilating y = p(x) vertically by c multiplies every coefficient by c.","source":"ACMMM026","concept":"vertical_dilation"}
-{"id":"func.hyperbola.evaluate","unit":"MM1","statement":"The value of y = a/(x-b) + d at a given x, defined when x != b.","source":"ACMMM013","concept":"function_evaluation"}
-{"id":"func.quad_general.axis_coefficient","unit":"MM1","statement":"For y = ax^2 + bx + c with axis x = p, b = -2ap.","source":"ACMMM011","concept":"quadratic_axis"}
-{"id":"func.inv_proportion.evaluate","unit":"MM1","statement":"If y = k/x and k is known, the value at x is k/x.","source":"ACMMM012","concept":"inverse_proportion"}
+{"id":"func.direct_proportion.constant_ratio","unit":"MM1","statement":"If x and y are in direct proportion then y = kx, so the constant is k = y/x for nonzero x.","source":"ACMMM002"}
+{"id":"func.linear_solve.one_step","unit":"MM1","statement":"A linear equation of the form ax = b has solution x = b/a, defined when a ≠ 0.","source":"ACMMM005"}
+{"id":"func.quad_general.y_intercept","unit":"MM1","statement":"The y-intercept of y = ax² + bx + c is c.","source":"ACMMM011"}
+{"id":"func.quad_general.axis","unit":"MM1","statement":"The axis of symmetry of y = ax² + bx + c is x = −b/2a.","source":"ACMMM011"}
+{"id":"func.inv_proportion.definition","unit":"MM1","statement":"If y is inversely proportional to x then y = k/x, so the constant is k = xy.","source":"ACMMM012"}
+{"id":"func.hyperbola.vertical_asymptote","unit":"MM1","statement":"The vertical asymptote of y = a/(x−b) is x = b.","source":"ACMMM013"}
+{"id":"func.hyperbola.horizontal_asymptote","unit":"MM1","statement":"The horizontal asymptote of y = a/(x−b) + d is y = d.","source":"ACMMM013"}
+{"id":"func.poly.quadratic_two_linear","unit":"MM1","statement":"(x−a)(x−b) = x² − (a+b)x + ab.","source":"ACMMM016"}
+{"id":"func.poly.factor_theorem","unit":"MM1","statement":"(x−a) is a factor of polynomial p(x) if and only if p(a) = 0.","source":"ACMMM018"}
+{"id":"func.poly.cubic_factor_quotient","unit":"MM1","statement":"If (x−a) is a factor of a cubic p(x), then p(x) = (x−a)q(x) where q(x) is a quadratic polynomial.","source":"ACMMM018"}
+{"id":"func.notation.evaluate","unit":"MM1","statement":"f(a) is the value of f(x) obtained by substituting x = a into the rule for f.","source":"ACMMM023"}
+{"id":"func.transform.vertical_translation","unit":"MM1","statement":"Under a vertical translation of a units, a point with y-coordinate y maps to y + a.","source":"ACMMM025"}
+{"id":"func.transform.horizontal_translation","unit":"MM1","statement":"Under a horizontal translation of h units, a point with x-coordinate x maps to x + h.","source":"ACMMM025"}
+{"id":"func.transform.vertical_dilation","unit":"MM1","statement":"Under a vertical dilation by factor c, a point with y-coordinate y maps to cy.","source":"ACMMM026"}
+{"id":"func.transform.horizontal_dilation","unit":"MM1","statement":"Under the horizontal dilation taking y = f(x) to y = f(kx), a point with x-coordinate x maps to x/k.","source":"ACMMM026"}
+{"id":"func.sqrt.principal","unit":"MM1","statement":"For t >= 0, sqrt(t) denotes the non-negative square root of t; it is the unique s >= 0 with s^2 = t.","source":"ACMMM008"}
+{"id":"func.direct_proportion.evaluate","unit":"MM1","statement":"If y = kx and k is known, the value at x is kx.","source":"ACMMM002"}
+{"id":"func.poly.cubic_three_linear","unit":"MM1","statement":"(x-a)(x-b)(x-c) expands to x^3 - (a+b+c)x^2 + (ab+bc+ca)x - abc.","source":"ACMMM016"}
+{"id":"func.transform.poly_vertical_translation","unit":"MM1","statement":"Translating y = p(x) by a adds a to the constant term.","source":"ACMMM025"}
+{"id":"func.transform.poly_vertical_dilation","unit":"MM1","statement":"Dilating y = p(x) vertically by c multiplies every coefficient by c.","source":"ACMMM026"}
+{"id":"func.hyperbola.evaluate","unit":"MM1","statement":"The value of y = a/(x-b) + d at a given x, defined when x != b.","source":"ACMMM013"}
+{"id":"func.quad_general.axis_coefficient","unit":"MM1","statement":"For y = ax^2 + bx + c with axis x = p, b = -2ap.","source":"ACMMM011"}
+{"id":"func.inv_proportion.evaluate","unit":"MM1","statement":"If y = k/x and k is known, the value at x is k/x.","source":"ACMMM012"}

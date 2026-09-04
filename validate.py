@@ -67,19 +67,16 @@ def support(t):
     return len(seen), False
 
 
-CONCEPT = {a["id"]: a.get("concept", a["id"])
-           for a in generate.load(HERE / "atoms.jsonl")}
-
 FLOOR_COVERED = 0.70
 FLOOR_REUSE = 2
 CEILING_SHARE = 0.25
 
 
-def spread_report(tem, comp, concept):
-    templated = {concept(t["atom"]) for t in tem}
+def spread_report(tem, comp):
+    templated = {t["atom"] for t in tem}
     use = collections.Counter()
     for c in comp:
-        use.update({concept(a) for a in c["atoms"]})
+        use.update(set(c["atoms"]))
     used = set(use)
 
     covered = len(used & templated) / len(templated)
@@ -87,7 +84,7 @@ def spread_report(tem, comp, concept):
     hot = [(a, k) for a, k in use.most_common() if k / len(comp) > CEILING_SHARE]
     missing = sorted(templated - used)
 
-    print(f"composites {len(comp)}   concepts with a template {len(templated)}   "
+    print(f"composites {len(comp)}   atoms with a template {len(templated)}   "
           f"used by a composite {len(used & templated)}")
     print()
     ok = True
@@ -97,12 +94,12 @@ def spread_report(tem, comp, concept):
         print(f"  {'pass' if good else 'FAIL'}  {name}{('   ' + detail) if detail else ''}")
 
     check(f"coverage >= {FLOOR_COVERED:.0%}", covered >= FLOOR_COVERED, f"{covered:.0%}")
-    check(f"every used concept in >= {FLOOR_REUSE} composites", not thin,
+    check(f"every used atom in >= {FLOOR_REUSE} composites", not thin,
           f"{len(thin)} below: {', '.join(thin[:4])}{' ...' if len(thin) > 4 else ''}")
-    check(f"no concept in > {CEILING_SHARE:.0%} of composites", not hot,
+    check(f"no atom in > {CEILING_SHARE:.0%} of composites", not hot,
           "; ".join(f"{a} {k}/{len(comp)}" for a, k in hot[:3]))
 
-    print(f"\n  concepts with a template but no composite: {len(missing)}")
+    print(f"\n  atoms with a template but no composite: {len(missing)}")
     for a in missing[:12]:
         print(f"     {a}")
     if len(missing) > 12:
@@ -349,8 +346,7 @@ def main():
         for a in set(c["atoms"]) - covered:
             bad("coverage", c["id"], f"atom {a} has no working atomic template")
 
-    ncon = len({a.get("concept", a["id"]) for a in atoms})
-    print(f"atoms {len(atoms)} ({ncon} concepts)   atomic {len(tem)}   composite {len(comp)}")
+    print(f"atoms {len(atoms)}   atomic {len(tem)}   composite {len(comp)}")
     if fail:
         print(f"\nFAILED ({len(fail)}):")
         for f in fail:
@@ -368,7 +364,7 @@ def main():
             stale.append((t["id"], n))
     declared = sum(1 for t in tem + comp if t.get("finite_support"))
     print("\natom spread across composites (section 1 targets, not a correctness gate):")
-    spread_report(tem, comp, lambda a: CONCEPT.get(a, a))
+    spread_report(tem, comp)
 
     print(f"\nfinite_support declared: {declared}   "
           f"(excluded from the 8.4 target; lead must approve each)")

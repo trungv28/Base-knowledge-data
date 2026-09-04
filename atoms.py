@@ -40,9 +40,6 @@ def poly_quadratic_two_linear(a, b):
     return (1, -(a + b), a * b)
 
 
-@atom("func.poly.quadratic_repeated")
-def poly_quadratic_repeated(a):
-    return (1, -2 * a, a * a)
 
 
 @atom("func.poly.factor_theorem")
@@ -108,9 +105,6 @@ def transform_vertical_translation(y, a):
     return y + a
 
 
-@atom("func.transform.inverse_vertical_translation")
-def inverse_vertical_translation(y, a):
-    return y - a
 
 
 @atom("func.transform.horizontal_translation")
@@ -118,9 +112,6 @@ def transform_horizontal_translation(x, h):
     return x + h
 
 
-@atom("func.transform.inverse_horizontal_translation")
-def inverse_horizontal_translation(x, h):
-    return x - h
 
 
 @atom("func.transform.vertical_dilation")
@@ -128,9 +119,6 @@ def transform_vertical_dilation(y, c):
     return c * y
 
 
-@atom("func.transform.inverse_vertical_dilation")
-def inverse_vertical_dilation(y, c):
-    return Fraction(y, c) if isinstance(y, int) and isinstance(c, int) else y / c
 
 
 @atom("func.direct_proportion.evaluate")
@@ -143,9 +131,6 @@ def transform_horizontal_dilation(x, k):
     return Fraction(x, k)
 
 
-@atom("func.transform.inverse_horizontal_dilation")
-def inverse_horizontal_dilation(x, k):
-    return x * k
 
 
 @atom("func.sqrt.principal")
