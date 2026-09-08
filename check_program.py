@@ -1,10 +1,14 @@
-import argparse, collections, inspect, json, random, sys
+import argparse, collections, inspect, json, random, re, sys
 from pathlib import Path
 
 import kernel, atoms, generate, program
 
 HERE = Path(__file__).parent
 DRAWS = 200
+
+
+ASK_FORM = re.compile(r"in the form\s+[^.?]*", re.I)
+TUPLEY = re.compile(r"\(\s*-?[\d/]+\s*(,\s*-?[\d/]+\s*)+\)")
 
 
 def knowledge_depth(nodes, final=None):
@@ -91,6 +95,7 @@ def check(comp, spec):
 
 
     answers, novar, crash = collections.Counter(), collections.Counter(), ""
+    shown_answers = collections.Counter()
     per_node = collections.defaultdict(set)
     for _ in range(DRAWS):
         try:
@@ -100,6 +105,7 @@ def check(comp, spec):
             crash = f"{type(e).__name__}: {e}"
             break
         answers[str(ans)] += 1
+        shown_answers[str(kernel.display(ans, comp.get("display")))] += 1
         for k, x in vals.items():
             per_node[k].add(str(x))
         for n in nodes:
@@ -118,12 +124,19 @@ def check(comp, spec):
             for name in generate.derive_order(comp.get("derive") or {}):
                 v[name] = generate.evaluate(comp["derive"][name], v)
             got, _ = program.run(nodes, v, final)
-            shown = str(kernel.render(got)).strip()
+            shown = str(kernel.display(got, comp.get("display"))).strip()
             if shown != str(ex["answer"]).strip():
                 mismatch = f"program gave {shown!r}, worked example says {ex['answer']!r}"
         except Exception as e:
             mismatch = f"{type(e).__name__}: {e}"
         rule("reproduces the worked example", not mismatch, mismatch)
+
+    asked = ASK_FORM.search(comp.get("template") or "")
+    if asked and shown_answers:
+        odd = [a for a in shown_answers if TUPLEY.fullmatch(str(a).strip())]
+        rule("answer matches the form the question asks for", not odd,
+             f"question asks for {asked.group(0).strip()!r} but the answer renders as "
+             f"{odd[0]!r}; set a \"display\" such as \"polynomial\"" if odd else "")
     if answers:
         top, k = answers.most_common(1)[0]
         rule("answers vary", k / DRAWS <= 0.6, f"{top!r} on {k*100//DRAWS}%, {len(answers)} distinct")

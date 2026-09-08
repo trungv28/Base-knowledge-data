@@ -3,12 +3,53 @@ import argparse, collections, inspect, itertools, json, random, sys
 from pathlib import Path
 
 import generate
+import program
 import annotate_graphs
 
 HERE = Path(__file__).parent
 ENUM_LIMIT = 200_000
 MC_DRAWS = 4_000
 MIN_SUPPORT = 128
+
+
+def graph_signature(spec, kernel_ids):
+    nodes = spec["nodes"]
+    by_id = {n["node_id"]: n for n in nodes}
+    resolved = {}
+
+    def sources(nid):
+        if nid in resolved:
+            return resolved[nid]
+        out = []
+        for name, v in sorted((by_id[nid].get("args") or {}).items()):
+            for item in (v if isinstance(v, list) else [v]):
+                if not isinstance(item, dict) or "ref" not in item:
+                    continue
+                parent = item["ref"]
+                if by_id[parent]["atom_id"] in kernel_ids:
+                    out.extend(sources(parent))
+                else:
+                    out.append((name, parent))
+        resolved[nid] = out
+        return out
+
+    edges = []
+    for nid, node in by_id.items():
+        if node["atom_id"] in kernel_ids:
+            continue
+        for name, parent in sources(nid):
+            edges.append((by_id[parent]["atom_id"], node["atom_id"], name))
+    tail = program.returned(spec)
+    while by_id[tail]["atom_id"] in kernel_ids:
+        ups = [p for _, p in sources(tail)]
+        if not ups:
+            break
+        tail = ups[0]
+    labels = sorted(n["atom_id"] for n in nodes
+                    if n["atom_id"] not in kernel_ids)
+    return json.dumps({"atoms": labels, "edges": sorted(edges),
+                       "returns": by_id[tail]["atom_id"]},
+                      sort_keys=True, separators=(",", ":"))
 
 
 def domains(t):
@@ -228,6 +269,20 @@ def main():
     for gid in sorted(set(specs) - {c["id"] for c in comp}):
         bad("graphs", gid, "graph spec has no composite in composite.jsonl")
     program_form = {gid for gid, nodes in specs.items() if any("args" in n for n in nodes)}
+    kernel_only = {a for a, kind in _k.KIND.items() if kind == "kernel"}
+    full = {g["id"]: g for g in generate.load(HERE / "graphs.jsonl")}
+    shapes = {}
+    for gid in sorted(program_form):
+        try:
+            sig = graph_signature(full[gid], kernel_only)
+        except Exception as e:
+            bad("graphs", gid, f"cannot key the graph: {type(e).__name__}: {e}")
+            continue
+        prev = shapes.setdefault(sig, gid)
+        if prev != gid:
+            bad("graphs", gid,
+                f"same atom-labelled dependency graph as {prev}; two composites "
+                f"may not differ only in wording or sampled values")
     fresh, ungraphed = annotate_graphs.expand(comp, specs)
     for cid in ungraphed:
         bad("graphs", cid, "composite has no graph spec in graphs.jsonl")
@@ -325,9 +380,9 @@ def main():
 
             shown_vars = set(re.findall(r"\{(\w+)\}", c["template"]))
             for _ in range(len(c.get("derive") or {})):
-                for nm, ex in (c.get("derive") or {}).items():
+                for nm, dx in (c.get("derive") or {}).items():
                     if nm in shown_vars:
-                        shown_vars |= {x.id for x in ast.walk(ast.parse(ex, mode="eval"))
+                        shown_vars |= {x.id for x in ast.walk(ast.parse(dx, mode="eval"))
                                        if isinstance(x, ast.Name)}
             for node in c["graph"]["nodes"]:
                 for name, src in node["inputs"].items():

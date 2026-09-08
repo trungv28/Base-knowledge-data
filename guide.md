@@ -1,6 +1,6 @@
 # Annotation Guide: Executable Mathematical Knowledge
 
-You are assigned one Mathematical Methods unit and one Specialist Mathematics unit. Select atoms for both units first. After the lead merges all unit atom lists, complete the remaining work one unit at a time.
+This guide is for creating the symbolic evaluation benchmark. Work on one assigned unit at a time and keep each unit in a separate directory.
 
 - **Atom:** one reusable, independently executable mathematical rule.
 - **Background operation:** routine exact work used to connect atoms; it is not counted as an atom.
@@ -9,11 +9,7 @@ You are assigned one Mathematical Methods unit and one Specialist Mathematics un
 
 ## 1. Targets and sources
 
-| Item | Per unit | Both units |
-|---|---:|---:|
-| Selected atoms | 13–18 | 26–36 |
-| Atomic templates | 18–23 | 36–46 |
-| Composite templates | 32–36 | 64–72 |
+**Per unit: target 20–22 selected atoms, two atomic templates per atom, and 34 composite templates.** Do not change atom granularity merely to reach the target.
 
 Official sources:
 
@@ -56,63 +52,69 @@ Granularity rules:
 
 For example, degree/radian conversion is one reversible atom. Calculating a discriminant and classifying roots from it are two atoms.
 
-Record the atoms selected from each unit in `atoms.jsonl`. Every new atom needs an atomic template. Use the shared ID style (`func.*`, `trig.*`, `prob.*`). Atom IDs and functions are shared across all units: reuse an existing atom for the same rule and do not create another atomic template for it. Ask the lead before adding a missing cross-unit atom.
+Record the atoms selected from the unit in `atoms.jsonl`. Every selected atom needs two atomic templates. Use the shared ID style (`func.*`, `trig.*`, `prob.*`). Ask the lead before adding an atom outside the assigned unit.
 
 ```json
-{"id":"trig.period.tan_linear","unit":"MM3",
- "statement":"The fundamental period of tan(b*x+c) is pi/abs(b), for b != 0.",
- "source":"ACMMM038"}
+{"id":"func.quad_general.axis","unit":"MM1",
+ "statement":"The axis of symmetry of y = ax² + bx + c is x = −b/(2a), for a != 0.",
+ "source":"ACMMM011"}
 ```
 
 `statement` is the mathematical rule the function implements; write it from the function, not from a picture of the graph.
 
 ## 3. Atomic templates
 
-An atomic template must execute its named atom exactly once. Give every other non-background prerequisite and ask for exactly the atom's output. Add a second template only for a different direction or representation.
+An atomic template must execute its named atom exactly once. Give every other non-background prerequisite and ask for exactly the atom's output. Create two genuinely different templates per atom: use a different direction, representation, or question form rather than changing only wording or numbers.
 
 ```json
-{"id":"angle_deg_rad",
- "atom":"trig.degree_radian_conversion",
- "template":"Convert {deg} degrees to radians.",
- "vars":{"deg":{"type":"int","min":1,"max":360}},
- "args":{"deg":{"question":"deg"}}}
+{"id":"quad_general_axis","unit":"MM1",
+ "atom":"func.quad_general.axis",
+ "template":"Find the x-coordinate of the axis of symmetry of y = {qd}.",
+ "vars":{"a":{"type":"int","min":-6,"max":6,"exclude":[0]},
+         "b":{"type":"int","min":-9,"max":9},
+         "c":{"type":"int","min":-9,"max":9}},
+ "derive":{"qd":"quad(a,b,c)"},
+ "args":{"coeffs":[{"question":"a"},{"question":"b"},{"question":"c"}]}}
 ```
 
-Required fields are `id`, `atom`, `template`, `args`, and either `vars`, `cases`, or both. Use `vars` for independent draws, `cases` for combinations that must stay together, and `derive` for fields computed from earlier values. A field cannot appear in both `vars` and `cases`. Process them in this order: `cases` → `vars` → `derive` → constraints. Keep constraints in the template data.
+Required fields are `id`, `unit`, `atom`, `template`, `args`, and either `vars`, `cases`, or both. Use `vars` for independent draws, `cases` for combinations that must stay together, and `derive` for fields computed from earlier values. A field cannot appear in both `vars` and `cases`. Process them in this order: `cases` → `vars` → `derive` → constraints. Keep constraints in the template data.
 
 Questions must read naturally: use `2x-3`, not `2x+-3`, `1x+0`, or `+0`.
 
-An atomic template is a one-node program: `args` binds the atom's parameters the same way a composite node does. Use `{"question":"deg"}` for a sampled field and `{"literal":3}` for an exact literal. The answer is the atom's output, so you write no code for a template.
+An atomic template is a one-node program: `args` binds the atom's parameters the same way a composite node does. Use `{"question":"a"}` for a sampled field and `{"literal":3}` for an exact literal. The answer is the atom's output, so you write no code for a template.
 
 Add `"display"` only when the answer needs a form other than the plain value: `"polynomial"` for a coefficient tuple, `"capitalize"`, or a pattern such as `"x = {}"`.
 
-Each atom ID maps to one reusable function in `atoms.py`, which returns an exact value and never display text. The background operations live in `kernel.py` and must not be edited.
+Each atom ID maps to one function in `atoms.py`, which returns an exact value and never display text. The background operations live in `kernel.py` and must not be edited.
 
-Each function in `atoms.py` must implement only its named atom. If a solution applies the same atom more than once, use one graph node per application.
+Each function in `atoms.py` must implement only its named atom. If a solution applies the same atom more than once, use one graph node per application. Atomic templates must cover the input forms and ranges in which the atom is used by composites.
 
 ## 4. Strict composites
 
 Start from a natural multi-step problem. Use textbooks and past papers only to identify normal problem types; write the question in original wording. Solve it, then identify the atoms used. Do not join unrelated atoms merely to increase depth.
 
+Pure-mathematical and real-world settings are both allowed, but the question must state every fact needed for the mathematics and require no outside factual knowledge.
+
 The graph records one valid reference program, not the only valid solution. Annotate one program only; do not enumerate alternative methods. Rewrite a problem when an obvious shortcut bypasses almost the whole annotated chain.
 
-Store the question in `composite.jsonl` and the reference program in `graphs.jsonl`. Each node contains `node_id`, `atom_id`, and `args`; the program names its returned node. Use `{"question":"a"}` for a question field, `{"ref":"n1"}` for an earlier node, and `{"literal":3}` for an exact literal.
+Store the question in `composite.jsonl` and the reference program in `graphs.jsonl`. A composite row contains `id`, `unit`, `atoms`, `template`, its generation fields, and `example`. Each graph node contains `node_id`, `atom_id`, and `args`; the program names its returned node. Use `{"question":"a_val"}` for a question field, `{"ref":"n1"}` for an earlier node, and `{"literal":3}` for an exact literal.
 
 ```json
-{"id":"quadratic_root_nature","nodes":[
-  {"node_id":"n1","atom_id":"func.quad.discriminant",
-   "args":{"a":{"question":"a"},"b":{"question":"b"},"c":{"question":"c"}}},
-  {"node_id":"n2","atom_id":"func.quad.root_nature",
-   "args":{"D":{"ref":"n1"}}}],
+{"id":"quad_axis_evaluate","unit":"MM1","nodes":[
+  {"node_id":"n1","atom_id":"func.quad_general.axis",
+   "args":{"coeffs":[{"question":"a_val"},{"question":"b_val"},{"question":"c_val"}]}},
+  {"node_id":"n2","atom_id":"func.notation.evaluate",
+   "args":{"coeffs":[{"question":"a_val"},{"question":"b_val"},{"question":"c_val"}],
+           "x":{"ref":"n1"}}}],
  "return":{"ref":"n2"}}
 ```
 
-Each graph node calls an existing atom or `kernel.*` function. Do not rewrite atom formulas directly in the graph.
+Each graph node calls an existing atom or `kernel.*` function. Do not rewrite atom formulas directly in the graph. A dependency must be mathematically meaningful; matching input and output types alone is not enough.
 
 Record one worked example in `composite.jsonl`: the values you used and the answer you computed by hand.
 
 ```json
-"example": {"vars": {"a_val": 1, "b_val": -5, "c_val": 6}, "answer": "-8"}
+{"example":{"vars":{"a_val":2,"b_val":-3,"c_val":-8},"answer":"-73/8"}}
 ```
 
 `check_program.py` runs your program on those values and fails if it does not reproduce your answer. Work the example out by hand before writing the program; one copied from the program's output checks nothing.
@@ -124,25 +126,29 @@ A composite is accepted only if:
 3. Every node is needed in the reference solution.
 4. Each node performs only its named atom, consistently across all generated questions.
 5. Routine connecting work uses an approved `kernel.*` operation; copying or reformatting is not a node.
-6. Every atom has an accepted atomic template.
+6. Every atom has two accepted atomic templates.
 7. The prompt is one natural question with one exact answer.
 8. No allowed draw makes a step a no-op.
 9. The executable reference program returns the exact answer.
 
 **Atom depth** is the longest dependency chain of atom applications. Ignore `kernel.*` operations.
 
-| Atom depth | Templates per unit |
+| Atom depth | Composite templates per unit |
 |---:|---:|
-| 2 | 11–12 |
-| 3 | 9–10 |
-| 4 | 6–7 |
-| 5 | 4 |
-| 6 | 2–3 |
-| **Total** | **32–36** |
+| 2 | 10 |
+| 3 | 8 |
+| 4 | 7 |
+| 5 | 5 |
+| 6 | 4 |
+| **Total** | **34** |
 
-Every standard atomic and composite template must produce at least 128 distinct rendered questions among 200 attempts. Deduplicate rendered questions, not parameter assignments. Ask the lead before using a genuinely finite template.
+Include branched or merged graphs where they arise naturally; there is no separate topology quota.
+
+Every standard atomic and composite template must support at least 128 distinct rendered questions. Ask the lead before using a genuinely finite template.
 
 For composites, also reject a template if one final answer occurs in more than 60% of 200 samples.
+
+Do not submit two composites with the same atom-labeled dependency graph when only the wording or sampled values differ. This structural check does not apply to the two atomic templates for an atom.
 
 ## 5. Composite coverage
 
@@ -154,20 +160,14 @@ Counted from atom calls in `graphs.jsonl`, ignoring `kernel.*` operations.
 - every atom used in composites appears in at least two composites;
 - no atom appears in more than 25% of composites.
 
-The lead checks these by hand; no tool enforces them:
-
-- 8–12 central, reusable atoms as focal, each in 6–10 composite templates and at most 40% of the unit;
-- every used atom has at least two different direct partner atoms;
-- at least 12 atom pairs recur in structurally different composites.
-
-A partner is a directly dependent atom after ignoring intervening `kernel.*` operations. Do not paraphrase one graph merely to increase a count.
+Do not create an unnatural dependency merely to meet a count.
 
 ## 6. Validation and review
 
 ```bash
 python3 annotate_graphs.py     # after every graph edit
 python3 check_program.py <id>  # one composite reference program
-python3 validate.py            # the whole bank, plus your atom-spread targets
+python3 validate.py            # the whole unit, plus its atom-spread targets
 ```
 
 Run all three commands and resolve every reported error. Mathematical correctness and natural wording are checked during cross-review.
@@ -176,17 +176,17 @@ At the end you will cross-review another annotator's batch. Instructions for tha
 
 ## 7. Time and deliverables
 
-Time for both assigned units:
+Planning budget per annotator:
 
-| Stage | Time |
+| Stage | Time per annotator |
 |---|---:|
 | Source coverage and atom selection | 6 hours |
-| Atomic templates | 9 hours |
+| Atomic functions and templates | approximately 16 hours |
 | Composite templates and reference programs | 48 hours |
 | Cross-review | 7 hours |
-| **Total** | **approximately 70 hours** |
+| **Total** | **approximately 77 hours** |
 
-The lead performs final acceptance review separately; it is not included in these 70 hours.
+Across four annotators, the total annotation budget is approximately 308 hours. The lead performs final acceptance review separately.
 
 Submit:
 
